@@ -1,0 +1,19 @@
+# Haskell build files
+*.a
+*.o
+*.hi
+
+# files we just genreally ont want in the repo
+*.swp
+*.log
+
+# Python compiled bytecode
+*.pyc
+
+# potential build files:
+data/
+cabal-dev/
+*.buildinfo
+
+#cabal build directory:
+dist/
