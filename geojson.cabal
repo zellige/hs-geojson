@@ -20,8 +20,8 @@ homepage:           https://github.com/domdere/hs-geojson/issues
 bug-reports:        https://github.com/domdere/hs-geojson/issues
 cabal-version:      >= 1.10
 build-type:         Custom
-tested-with:        ghc-7.4.1
-                ,   ghc-7.6.3
+tested-with:        GHC == 7.4.1
+                ,   GHC == 7.6.3
 --extra-source-files: etc/CONTRIBUTORS,
 --                    etc/CREDITS
 

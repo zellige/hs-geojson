@@ -50,7 +50,6 @@ isCabalDevPresent :: IO Bool
 --isCabalDevPresent = (not . null) <$> matchFileGlob "cabal-dev/"
 isCabalDevPresent = do
     contents <- getDirectoryContents currentDir
-    print contents
     return $ "cabal-dev" `elem` contents
 
 getGhcVersion :: Verbosity -> IO (Maybe Version)
