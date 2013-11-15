@@ -47,7 +47,6 @@ generateBuildModule verbosity pkg lbi = do
             PackageName n -> n ++ "-" ++ showVersion (packageVersion p)
 
 isCabalDevPresent :: IO Bool
---isCabalDevPresent = (not . null) <$> matchFileGlob "cabal-dev/"
 isCabalDevPresent = do
     contents <- getDirectoryContents currentDir
     return $ "cabal-dev" `elem` contents
