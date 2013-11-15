@@ -1,4 +1,4 @@
-# geojson
+# geojson [![Build Status](https://travis-ci.org/domdere/hs-geojson.png?branch=master)](https://travis-ci.org/domdere/hs-geojson)
 
 A thin GeoJSON Layer above the json library
 
