@@ -7,6 +7,11 @@ import Text.JSON
 
 import Data.Geospatial
 
+-- | This module only exports the JSON Instances for the types from Data.Geospatial.
+-- .
+-- Hence you will have to refer to the `Data.Geospatial` documentation to find the documentation
+-- related to the Instances contained in this module.
+
 -- $setup
 -- Test Bounding Box Data
 -- >>> let lshapedPolyVertices = [[120.0, -15.0], [127.0, -15.0], [127.0, -25.0], [124.0, -25.0], [124.0, -18.0], [120.0, -18.0]] :: [GeoPositionWithoutCRS]
