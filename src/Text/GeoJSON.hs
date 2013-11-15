@@ -207,12 +207,64 @@ instance JSON GeoMultiLine where
 
     showJSON (GeoMultiLine lines') = makeGeometryGeoJSON "MultiLine" lines'
 
+-- |
+-- encodes and decodes Geometry Objects to and from GeoJSON
+-- (refer to source to see the values for the test values)
+--
+-- >>> encode NoGeometry
+-- "null"
+--
+-- >>> decode "null" :: Result GeospatialGeometry
+-- Ok NoGeometry
+--
+-- >>> encode lShapedPoly == lShapedPolyJSON
+-- True
+--
+-- >>> decode lShapedPolyJSON == Ok lShapedPoly
+-- True
+--
+-- >>> encode emptyPoly == emptyPolyJSON
+-- True
+--
+-- >>> decode emptyPolyJSON == Ok emptyPoly
+-- True
+--
+-- >>> encode emptyMultiPoly == emptyMultiPolyJSON
+-- True
+--
+-- >>> decode emptyMultiPolyJSON == Ok emptyMultiPoly
+-- True
+--
+-- >>> encode singleLineMultiLine == singleLineMultiLineJSON
+-- True
+--
+-- >>> decode singleLineMultiLineJSON == Ok singleLineMultiLine
+-- True
+--
+-- >>> encode multiLine == multiLineJSON
+-- True
+--
+-- >>> decode multiLineJSON == Ok multiLine
+-- True
+--
+-- >>> encode emptyCollection == emptyCollectionJSON
+-- True
+--
+-- >>> decode emptyCollectionJSON == Ok emptyCollection
+-- True
+--
+-- >>> encode bigassCollection == bigassCollectionJSON
+-- True
+--
+-- >>> decode bigassCollectionJSON == Ok bigassCollection
+-- True
+--
 instance JSON GeospatialGeometry where
     readJSON JSNull = Ok NoGeometry
     readJSON json   = do
         geometryObj <- readJSON json
         geometryType <- valFromObj "type" geometryObj
-        geometryFromJSON geometryType (JSObject geometryObj) 
+        geometryFromJSON geometryType (JSObject geometryObj)
 
     showJSON (NoGeometry)               = JSNull
     showJSON (Point point)              = showJSON point
@@ -223,6 +275,33 @@ instance JSON GeospatialGeometry where
     showJSON (MultiLine vertices)       = showJSON vertices
     showJSON (Collection geometries)    = makeObj [("type", showJSON "GeometryCollection"), ("geometries", showJSON geometries)]
 
+-- |
+-- encode and decodes CRS Objects to and from GeoJSON
+--
+-- >>> encode testLinkCRS == testLinkCRSJSON
+-- True
+--
+-- >>> decode testLinkCRSJSON == Ok testLinkCRS
+-- True
+--
+-- >>> encode testNamedCRS == testNamedCRSJSON
+-- True
+--
+-- >>> decode testNamedCRSJSON == Ok testNamedCRS
+-- True
+--
+-- >>> encode testEPSG == testEPSGJSON
+-- True
+--
+-- >>> decode testEPSGJSON == Ok testEPSG
+-- True
+--
+-- >>> encode NoCRS
+-- "null"
+--
+-- >>> decode "null" == Ok NoCRS
+-- True
+--
 instance JSON CRSObject where
     readJSON JSNull = Ok NoCRS
     readJSON json   = do
@@ -235,6 +314,38 @@ instance JSON CRSObject where
     showJSON (LinkedCRS href format )           = makeObj [("type", showJSON "link"), ("properties", showJSON (makeObj [("href", showJSON href), ("type", showJSON format)]))]
     showJSON NoCRS                              = JSNull
 
+-- | encodes and decodes Feature objects to and from GeoJSON
+--
+-- >>> encode bigFeature == bigFeatureJSON
+-- True
+--
+-- >>> decode bigFeatureJSON == Ok bigFeature
+-- True
+--
+-- >>> encode featureWithNoProperties == featureWithNoPropertiesJSON
+-- True
+--
+-- >>> decode featureWithNoPropertiesJSON == Ok featureWithNoProperties
+-- True
+--
+-- >>> encode featureWithNoId == featureWithNoIdJSON
+-- True
+--
+-- >>> decode featureWithNoIdJSON == Ok featureWithNoId
+-- True
+--
+-- >>> encode featureWithNoBBox == featureWithNoBBoxJSON
+-- True
+--
+-- >>> decode featureWithNoBBoxJSON == Ok featureWithNoBBox
+-- True
+--
+-- >>> encode featureWithNoGeometry == featureWithNoGeometryJSON
+-- True
+--
+-- >>> decode featureWithNoGeometryJSON == Ok featureWithNoGeometry
+-- True
+--
 instance JSON GeoFeature where
     readJSON json = do
         obj <- readJSON json
@@ -250,8 +361,34 @@ instance JSON GeoFeature where
 
     showJSON (GeoFeature bbox' geom props featureId') = makeObj $ baseAttributes ++ optAttributes "bbox" bbox' ++ optAttributes "id" featureId'
         where
-            baseAttributes              = [("type", showJSON "Feature"), ("properties", showJSON props), ("geometry", showJSON geom)]
+            baseAttributes = [("type", showJSON "Feature"), ("properties", showJSON props), ("geometry", showJSON geom)]
 
+-- | Encodes and Decodes FeatureCollection objects to and from GeoJSON
+--
+-- >>> encode bigAssFeatureCollection == bigAssFeatureCollectionJSON
+-- True
+--
+-- >>> decode bigAssFeatureCollectionJSON == Ok bigAssFeatureCollection
+-- True
+--
+-- >>> encode bigAssFeatureCollectionWithNoBBox == bigAssFeatureCollectionWithNoBBoxJSON
+-- True
+--
+-- >>> decode bigAssFeatureCollectionWithNoBBoxJSON == Ok bigAssFeatureCollectionWithNoBBox
+-- True
+--
+-- >>> encode emptyFeatureCollectionWithBBox == emptyFeatureCollectionWithBBoxJSON
+-- True
+--
+-- >>> decode emptyFeatureCollectionWithBBoxJSON == Ok emptyFeatureCollectionWithBBox
+-- True
+--
+-- >>> encode emptyFeatureCollection == emptyFeatureCollectionJSON
+-- True
+--
+-- >>> decode emptyFeatureCollectionJSON == Ok emptyFeatureCollection
+-- True
+--
 instance JSON GeoFeatureCollection where
     readJSON json = do
         obj <- readJSON json
