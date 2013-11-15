@@ -8,12 +8,13 @@ import Control.Applicative
 import Distribution.Package ( PackageName(PackageName), PackageId, InstalledPackageId, packageVersion, packageName )
 import Distribution.PackageDescription ( PackageDescription(), TestSuite(..) )
 import Distribution.Simple ( defaultMainWithHooks, UserHooks(..), simpleUserHooks )
-import Distribution.Simple.Utils ( rewriteFile, createDirectoryIfMissingVerbose, matchFileGlob, findProgramVersion )
+import Distribution.Simple.Utils ( rewriteFile, createDirectoryIfMissingVerbose, findProgramVersion, currentDir )
 import Distribution.Simple.BuildPaths ( autogenModulesDir )
 import Distribution.Simple.Setup ( BuildFlags(buildVerbosity), fromFlag )
 import Distribution.Simple.LocalBuildInfo ( withLibLBI, withTestLBI, LocalBuildInfo(), ComponentLocalBuildInfo(componentPackageDeps) )
 import Distribution.Verbosity ( Verbosity )
 import Distribution.Version ( Version )
+import System.Directory ( getDirectoryContents )
 import System.FilePath ( (</>) )
 
 main :: IO ()
@@ -46,7 +47,11 @@ generateBuildModule verbosity pkg lbi = do
             PackageName n -> n ++ "-" ++ showVersion (packageVersion p)
 
 isCabalDevPresent :: IO Bool
-isCabalDevPresent = (not . null) <$> matchFileGlob "cabal-dev/"
+--isCabalDevPresent = (not . null) <$> matchFileGlob "cabal-dev/"
+isCabalDevPresent = do
+    contents <- getDirectoryContents currentDir
+    print contents
+    return $ "cabal-dev" `elem` contents
 
 getGhcVersion :: Verbosity -> IO (Maybe Version)
 getGhcVersion verb = findProgramVersion

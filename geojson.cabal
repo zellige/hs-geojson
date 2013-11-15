@@ -7,17 +7,32 @@ maintainer:         Dom De Re
 copyright:          Copyright (C) 2010-2013
 synopsis:           A thin GeoJSON Layer above the json library
 category:           Text
-description:        A thin GeoJSON Layer above the json library
+description:        A thin GeoJSON Layer above the json library.
+                    .
+                    It currently conforms to version 1.0 of the GeoJSON spec which can be found here:
+                    .
+                    <http://geojson.org/geojson-spec.html>
+                    .
+                    Its built on top of the `json` library and doesn't currently take
+                    advantage of laziness as much as it could, so those are areas for improvement
+
 homepage:           https://github.com/domdere/hs-geojson/issues
 bug-reports:        https://github.com/domdere/hs-geojson/issues
 cabal-version:      >= 1.10
 build-type:         Custom
+tested-with:        ghc-7.4.1
+                ,   ghc-7.6.3
 --extra-source-files: etc/CONTRIBUTORS,
 --                    etc/CREDITS
 
 source-repository       head
     type:               git
     location:           https://github.com/domdere/hs-geojson.git
+
+source-repository       this
+    type:               git
+    location:           https://github.com/domdere/hs-geojson.git
+    tag:                0.0.1
 
 flag                    small_base
     description:        Choose the new, split-up base package.
