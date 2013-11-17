@@ -1,7 +1,7 @@
 name:               geojson
 version:            0.0.2
 license:            MIT
-license-file:       etc/LICENCE
+license-file:       etc/LICENCE.md
 author:             Dom De Re
 maintainer:         Dom De Re
 copyright:          Copyright (C) 2010-2013
