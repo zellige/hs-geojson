@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeFamilies #-}
 -- Refer to the GeoJSON Spec http://www.geojson.org/geojson-spec.html
 
 module Data.Geospatial  (
@@ -144,4 +145,12 @@ data GeoFeature = GeoFeature {
 -- | See Section 2.3 "Feature Collection Objects" of the GeoJSON spec
 data GeoFeatureCollection = GeoFeatureCollection (Maybe BoundingBoxWithoutCRS) [GeoFeature] deriving (Show, Eq)
 
+-- instances
+
+-- |
+-- This class is for GeoJSON types that have a type label in the GeoJSON format
+--
+class GeoJSONTyped a where
+    type ImplType a
+    geomType :: (String, ImplType a -> a) -- ^ Returns a pair
 

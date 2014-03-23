@@ -126,7 +126,7 @@ import Data.Geospatial
 -- GeoPoint, GeoMultiPoint, GeoLine, GeoMultiLine, GeoPolygon and GeoMultiPolygon
 -- Takes in a String for the GeoJSON geometry type, the type constructor
 -- for the datatype and the JSON object containing both the 'type' val and the 'coordinates' val
-readGeometryGeoJSON :: (JSON a, JSON b) => String -> (a -> b) -> JSValue -> Result b 
+readGeometryGeoJSON :: (JSON a, JSON b) => String -> (a -> b) -> JSValue -> Result b
 readGeometryGeoJSON geomTypeString geomType json = do
     geopointObj <- readJSON json
     geometryType <- valFromObj "type" geopointObj
@@ -178,9 +178,9 @@ optAttributes _ Nothing     = []
 optAttributes name (Just x) = [(name, showJSON x)]
 -- end helper functions
 
+-- newtypes to avoid orphan instances.
+
 -- Conversion of Geospatial data types into GeoJSON,
--- We do this by inducting all the types from Data.Geospatial.Types into
--- the JSON typeclass
 
 instance JSON GeoPoint where
     readJSON = readGeometryGeoJSON "Point" GeoPoint
