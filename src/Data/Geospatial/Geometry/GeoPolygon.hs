@@ -1,44 +1,45 @@
 {-# LANGUAGE TemplateHaskell #-}
 -------------------------------------------------------------------
 -- |
--- Module       : Data.Geospatial.Geometry.GeoPoint
+-- Module       : Data.Geospatial.Geometry.GeoPolygon
 -- Copyright    : (C) 2014 Dom De Re
 -- License      : BSD-style (see the file etc/LICENSE.md)
 -- Maintainer   : Dom De Re
 --
 -------------------------------------------------------------------
-module Data.Geospatial.Geometry.GeoPoint (
+module Data.Geospatial.Geometry.GeoPolygon (
     -- * Type
-        GeoPoint(..)
+        GeoPolygon(..)
     -- * Lenses
-    ,   unGeoPoint
+    ,   unGeoPolygon
     ) where
 
 import Data.Geospatial.BasicTypes
 import Data.Geospatial.Geometry.Aeson
 import Data.Geospatial.Geometry.JSON
+import Data.Geospatial.GeoPosition
 
 import Control.Lens ( makeLenses )
 import Control.Monad ( mzero )
 import Data.Aeson ( FromJSON(..), ToJSON(..), Value(..), Object )
 import Text.JSON ( JSON(..) )
 
-newtype GeoPoint = GeoPoint { _unGeoPoint :: GeoPositionWithoutCRS } deriving (Show, Eq)
+newtype GeoPolygon = GeoPolygon { _unGeoPolygon :: [GeoPositionWithoutCRS] } deriving (Show, Eq)
 
-makeLenses ''GeoPoint
+makeLenses ''GeoPolygon
 
 -- instances
 
-instance JSON GeoPoint where
-    readJSON = readGeometryGeoJSON "Point" GeoPoint
+instance JSON GeoPolygon where
+    readJSON = readGeometryGeoJSON "Polygon" GeoPolygon
 
-    showJSON (GeoPoint point) = makeGeometryGeoJSON "Point" point
+    showJSON (GeoPolygon vertices) = makeGeometryGeoJSON "Polygon" vertices
 
-instance ToJSON GeoPoint where
+instance ToJSON GeoPolygon where
 --  toJSON :: a -> Value
-    toJSON = makeGeometryGeoAeson "Point" . _unGeoPoint
+    toJSON = makeGeometryGeoAeson "Polygon" . _unGeoPolygon
 
-instance FromJSON GeoPoint where
+instance FromJSON GeoPolygon where
 --  parseJSON :: Value -> Parser a
-    parseJSON (Object o)    = readGeometryGeoAeson "Point" GeoPoint o
+    parseJSON (Object o)    = readGeometryGeoAeson "Polygon" GeoPolygon o
     parseJSON _             = mzero

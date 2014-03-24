@@ -1,6 +1,13 @@
-{-# LANGUAGE TypeFamilies, TemplateHaskell #-}
+-------------------------------------------------------------------
+-- |
+-- Module       : Data.Geospatial
+-- Copyright    : (C) 2014 Dom De Re
+-- License      : BSD-style (see the file etc/LICENSE.md)
+-- Maintainer   : Dom De Re
+--
 -- Refer to the GeoJSON Spec http://www.geojson.org/geojson-spec.html
-
+--
+-------------------------------------------------------------------
 module Data.Geospatial (
     -- * Types
         Latitude
@@ -16,7 +23,6 @@ module Data.Geospatial (
     ,   GeoMultiPolygon(..)
     ,   GeoLine(..)
     ,   GeoMultiLine(..)
-    ,   GeoPolyLine(..)
     ,   GeospatialGeometry(..)
     ,   Name
     ,   Code
@@ -42,38 +48,11 @@ module Data.Geospatial (
     ) where
 
 import Data.Geospatial.BasicTypes
-import Data.Geospatial.Geometry.GeoPoint
+import Data.Geospatial.Geometry
 import Data.Geospatial.GeoPosition
 
 import Control.Lens ( makeLenses )
 import Text.JSON
-
--- These are all using newtype so that I can override their JSON instances..
-
-newtype GeoMultiPoint   = GeoMultiPoint { _unGeoMultiPoint :: [GeoPoint] } deriving (Show, Eq)
-newtype GeoPolygon      = GeoPolygon { _unGeoPolygon :: [GeoPositionWithoutCRS] } deriving (Show, Eq)
-newtype GeoMultiPolygon = GeoMultiPolygon { _unGeoMultiPolygon :: [GeoPolygon] } deriving (Show, Eq)
-newtype GeoLine         = GeoLine { _unGeoLine :: [GeoPositionWithoutCRS] } deriving (Show, Eq)
-newtype GeoMultiLine    = GeoMultiLine { _unGeoMultiLine :: [GeoLine] } deriving (Show, Eq)
-
-makeLenses ''GeoMultiPoint
-makeLenses ''GeoPolygon
-makeLenses ''GeoMultiPolygon
-makeLenses ''GeoLine
-makeLenses ''GeoMultiLine
-
-data GeoPolyLine = Poly GeoPolygon | LineString GeoLine
-
--- | See section 2.1 "Geometry Objects" in the GeoJSON Spec.
-data GeospatialGeometry =
-        NoGeometry
-    |   Point GeoPoint
-    |   MultiPoint GeoMultiPoint
-    |   Polygon GeoPolygon
-    |   MultiPolygon GeoMultiPolygon
-    |   Line GeoLine
-    |   MultiLine GeoMultiLine
-    |   Collection [GeospatialGeometry] deriving (Show, Eq)
 
 -- | See Section 3 "Coordinate Reference System Objects" in the GeoJSON Spec
 -- "NoCRS" is required because no 'crs' attribute in a GeoJSON feature is NOT the same thing as

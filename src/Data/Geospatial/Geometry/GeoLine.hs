@@ -1,17 +1,17 @@
 {-# LANGUAGE TemplateHaskell #-}
 -------------------------------------------------------------------
 -- |
--- Module       : Data.Geospatial.Geometry.GeoPoint
+-- Module       : Data.Geospatial.Geometry.GeoLine
 -- Copyright    : (C) 2014 Dom De Re
 -- License      : BSD-style (see the file etc/LICENSE.md)
 -- Maintainer   : Dom De Re
 --
 -------------------------------------------------------------------
-module Data.Geospatial.Geometry.GeoPoint (
+module Data.Geospatial.Geometry.GeoLine (
     -- * Type
-        GeoPoint(..)
+        GeoLine(..)
     -- * Lenses
-    ,   unGeoPoint
+    ,   unGeoLine
     ) where
 
 import Data.Geospatial.BasicTypes
@@ -23,22 +23,22 @@ import Control.Monad ( mzero )
 import Data.Aeson ( FromJSON(..), ToJSON(..), Value(..), Object )
 import Text.JSON ( JSON(..) )
 
-newtype GeoPoint = GeoPoint { _unGeoPoint :: GeoPositionWithoutCRS } deriving (Show, Eq)
+newtype GeoLine = GeoLine { _unGeoLine :: [GeoPositionWithoutCRS] } deriving (Show, Eq)
 
-makeLenses ''GeoPoint
+makeLenses ''GeoLine
 
 -- instances
 
-instance JSON GeoPoint where
-    readJSON = readGeometryGeoJSON "Point" GeoPoint
+instance JSON GeoLine where
+    readJSON = readGeometryGeoJSON "Line" GeoLine
 
-    showJSON (GeoPoint point) = makeGeometryGeoJSON "Point" point
+    showJSON (GeoLine line) = makeGeometryGeoJSON "Line" line
 
-instance ToJSON GeoPoint where
+instance ToJSON GeoLine where
 --  toJSON :: a -> Value
-    toJSON = makeGeometryGeoAeson "Point" . _unGeoPoint
+    toJSON = makeGeometryGeoAeson "Line" . _unGeoLine
 
-instance FromJSON GeoPoint where
+instance FromJSON GeoLine where
 --  parseJSON :: Value -> Parser a
-    parseJSON (Object o)    = readGeometryGeoAeson "Point" GeoPoint o
+    parseJSON (Object o)    = readGeometryGeoAeson "Line" GeoLine o
     parseJSON _             = mzero

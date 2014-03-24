@@ -58,7 +58,13 @@ library
                     ,   Data.Geospatial
 
     other-modules:      Data.Geospatial.BasicTypes
+                    ,   Data.Geospatial.Geometry
+                    ,   Data.Geospatial.Geometry.GeoMultiLine
+                    ,   Data.Geospatial.Geometry.GeoMultiPoint
+                    ,   Data.Geospatial.Geometry.GeoMultiPolygon
+                    ,   Data.Geospatial.Geometry.GeoLine
                     ,   Data.Geospatial.Geometry.GeoPoint
+                    ,   Data.Geospatial.Geometry.GeoPolygon
                     ,   Data.Geospatial.Geometry.Aeson
                     ,   Data.Geospatial.Geometry.JSON
                     ,   Data.Geospatial.GeoPosition
@@ -73,12 +79,12 @@ test-suite              doctests
     default-language:
                         Haskell2010
 
-    build-depends:
-                        base < 5 && >= 3,
-                        doctest >= 0.9.7,
-                        filepath >= 1.3,
-                        directory >= 1.1,
-                        QuickCheck >= 2.0
+    build-depends:      base < 5 && >= 3
+                    ,   aeson-pretty        == 0.7.*
+                    ,   doctest             >= 0.9.7
+                    ,   filepath            >= 1.3
+                    ,   directory           >= 1.1
+                    ,   QuickCheck          >= 2.0
 
     ghc-options:
                         -Wall

@@ -1,20 +1,21 @@
 {-# LANGUAGE TemplateHaskell #-}
 -------------------------------------------------------------------
 -- |
--- Module       : Data.Geospatial.Geometry.GeoPoint
+-- Module       : Data.Geospatial.Geometry.GeoMultiPoint
 -- Copyright    : (C) 2014 Dom De Re
 -- License      : BSD-style (see the file etc/LICENSE.md)
 -- Maintainer   : Dom De Re
 --
 -------------------------------------------------------------------
-module Data.Geospatial.Geometry.GeoPoint (
+module Data.Geospatial.Geometry.GeoMultiPoint (
     -- * Type
-        GeoPoint(..)
+        GeoMultiPoint(..)
     -- * Lenses
-    ,   unGeoPoint
+    ,   unGeoMultiPoint
     ) where
 
 import Data.Geospatial.BasicTypes
+import Data.Geospatial.Geometry.GeoPoint
 import Data.Geospatial.Geometry.Aeson
 import Data.Geospatial.Geometry.JSON
 
@@ -23,22 +24,22 @@ import Control.Monad ( mzero )
 import Data.Aeson ( FromJSON(..), ToJSON(..), Value(..), Object )
 import Text.JSON ( JSON(..) )
 
-newtype GeoPoint = GeoPoint { _unGeoPoint :: GeoPositionWithoutCRS } deriving (Show, Eq)
+newtype GeoMultiPoint = GeoMultiPoint { _unGeoMultiPoint :: [GeoPoint] } deriving (Show, Eq)
 
-makeLenses ''GeoPoint
+makeLenses ''GeoMultiPoint
 
 -- instances
 
-instance JSON GeoPoint where
-    readJSON = readGeometryGeoJSON "Point" GeoPoint
+instance JSON GeoMultiPoint where
+    readJSON = readGeometryGeoJSON "MultiPoint" GeoMultiPoint
 
-    showJSON (GeoPoint point) = makeGeometryGeoJSON "Point" point
+    showJSON (GeoMultiPoint points) = makeGeometryGeoJSON "MultiPoint" points
 
-instance ToJSON GeoPoint where
+instance ToJSON GeoMultiPoint where
 --  toJSON :: a -> Value
-    toJSON = makeGeometryGeoAeson "Point" . _unGeoPoint
+    toJSON = makeGeometryGeoAeson "MultiPoint" . _unGeoMultiPoint
 
-instance FromJSON GeoPoint where
+instance FromJSON GeoMultiPoint where
 --  parseJSON :: Value -> Parser a
-    parseJSON (Object o)    = readGeometryGeoAeson "Point" GeoPoint o
+    parseJSON (Object o)    = readGeometryGeoAeson "MultiPoint" GeoMultiPoint o
     parseJSON _             = mzero
