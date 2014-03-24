@@ -1,11 +1,13 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
--- Only export the JSON instances
 module Text.GeoJSON () where
 
+import Data.Functor ( Functor(..) )
 import Control.Applicative
+import Control.Lens ( makeLenses )
 import Text.JSON
 
 import Data.Geospatial
+import Data.Geospatial.Geometry.JSON
 
 -- | This module only exports the JSON Instances for the types from Data.Geospatial.
 -- .
@@ -122,26 +124,6 @@ import Data.Geospatial
 
 -- helper functions:
 
--- | A generic function that can be used to read in the GeoJSON for:
--- GeoPoint, GeoMultiPoint, GeoLine, GeoMultiLine, GeoPolygon and GeoMultiPolygon
--- Takes in a String for the GeoJSON geometry type, the type constructor
--- for the datatype and the JSON object containing both the 'type' val and the 'coordinates' val
-readGeometryGeoJSON :: (JSON a, JSON b) => String -> (a -> b) -> JSValue -> Result b
-readGeometryGeoJSON geomTypeString geomType json = do
-    geopointObj <- readJSON json
-    geometryType <- valFromObj "type" geopointObj
-    if geometryType == geomTypeString
-        then
-            geomType <$> valFromObj "coordinates" geopointObj
-        else
-            fail $ "Invalid Geometry Type: " ++ geometryType
-
--- | The inverse to the above, you just give it the type string and the value for the coordinates
--- and it will create the JSON object
-makeGeometryGeoJSON :: (JSON a) => String -> a -> JSValue
-makeGeometryGeoJSON typeString coordinates = 
-    makeObj [("type", showJSON typeString), ("coordinates", showJSON coordinates)]
-
 geometryFromJSON :: String -> JSValue -> Result GeospatialGeometry
 geometryFromJSON "Point" obj                                = Point <$> readJSON obj
 geometryFromJSON "MultiPoint" obj                           = MultiPoint <$> readJSON obj
@@ -164,28 +146,11 @@ crsObjectFromJSON "epsg" obj    = EPSG <$> crsPropertyFromObj "code" obj
 crsObjectFromJSON "link" obj    = LinkedCRS <$> crsPropertyFromObj "href" obj <*> crsPropertyFromObj "type" obj
 crsObjectFromJSON typeString _  = Error $ "Invalid or unimplemented CRS Object Type: " ++ typeString
 
--- | get an optional value out of a JSON object:
-optValFromObj :: (JSON a) => String -> JSObject JSValue -> Result (Maybe a)
-optValFromObj attribute object = resultToMaybe $ valFromObj attribute object
-    where
-        resultToMaybe (Ok x)    = Ok $ Just x
-        resultToMaybe (Error _) = Ok Nothing
-
--- | The other way around, given an optional value, will return the attributes that
--- should be added to the makeObj input
-optAttributes :: (JSON a) => String -> Maybe a -> [(String, JSValue)]
-optAttributes _ Nothing     = []
-optAttributes name (Just x) = [(name, showJSON x)]
 -- end helper functions
 
--- newtypes to avoid orphan instances.
+-- newtype to avoid orphan instances.
 
 -- Conversion of Geospatial data types into GeoJSON,
-
-instance JSON GeoPoint where
-    readJSON = readGeometryGeoJSON "Point" GeoPoint
-
-    showJSON (GeoPoint point) = makeGeometryGeoJSON "Point" point
 
 instance JSON GeoMultiPoint where
     readJSON = readGeometryGeoJSON "MultiPoint" GeoMultiPoint

@@ -1,80 +1,66 @@
-{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE TypeFamilies, TemplateHaskell #-}
 -- Refer to the GeoJSON Spec http://www.geojson.org/geojson-spec.html
 
-module Data.Geospatial  (
-                        --  Types
-                            Latitude
-                        ,   Longitude
-                        ,   Easting
-                        ,   Northing
-                        ,   Altitude
-                        ,   GeoPositionWithoutCRS
-                        ,   GeoPosition(..)
-                        ,   GeoPoint(..)
-                        ,   GeoMultiPoint(..)
-                        ,   GeoPolygon(..)
-                        ,   GeoMultiPolygon(..)
-                        ,   GeoLine(..)
-                        ,   GeoMultiLine(..)
-                        ,   GeoPolyLine(..)
-                        ,   GeospatialGeometry(..)
-                        ,   Name
-                        ,   Code
-                        ,   Href
-                        ,   FormatString
-                        ,   ProjectionType
-                        ,   CRSObject(..)
-                        ,   FeatureID
-                        ,   GeoProperty(..)
-                        ,   GeoPropertyObject
-                        ,   BoundingBoxWithoutCRS
-                        ,   GeoFeature(..)
-                        ,   GeoFeatureCollection(..)
-                        --  Functions
-                        ,   stripCRSFromPosition
-                        ,   defaultCRS
-                        ) where
+module Data.Geospatial (
+    -- * Types
+        Latitude
+    ,   Longitude
+    ,   Easting
+    ,   Northing
+    ,   Altitude
+    ,   GeoPositionWithoutCRS
+    ,   GeoPosition(..)
+    ,   GeoPoint(..)
+    ,   GeoMultiPoint(..)
+    ,   GeoPolygon(..)
+    ,   GeoMultiPolygon(..)
+    ,   GeoLine(..)
+    ,   GeoMultiLine(..)
+    ,   GeoPolyLine(..)
+    ,   GeospatialGeometry(..)
+    ,   Name
+    ,   Code
+    ,   Href
+    ,   FormatString
+    ,   ProjectionType
+    ,   CRSObject(..)
+    ,   FeatureID
+    ,   GeoProperty(..)
+    ,   GeoPropertyObject
+    ,   BoundingBoxWithoutCRS
+    ,   GeoFeature(..)
+    ,   GeoFeatureCollection(..)
+    -- * Functions
+    ,   stripCRSFromPosition
+    ,   defaultCRS
+    -- * Lenses
+    ,   unGeoPoint
+    ,   unGeoMultiPoint
+    ,   unGeoPolygon
+    ,   unGeoLine
+    ,   unGeoMultiLine
+    ) where
 
+import Data.Geospatial.BasicTypes
+import Data.Geospatial.Geometry.GeoPoint
+import Data.Geospatial.GeoPosition
+
+import Control.Lens ( makeLenses )
 import Text.JSON
-
-type Latitude = Float
-type Longitude = Float
-type Easting = Float
-type Northing = Float
-type Altitude = Float
-
--- | ("WithoutCRS" is a catch all for indeterminate CRSs and for expression of positions
--- before a CRS has been determined
-
-type GeoPositionWithoutCRS = [Float]
-
--- | see Section 2.1.1 "Position" in the GeoJSON Spec,
--- I make the assumption here that the only position types we will use will
--- involve easting/northing (+/- Altitude) or lon/lat (+/- Altitude)
-data GeoPosition =
-        LonLat Longitude Latitude
-    |   LonLatAlt Longitude Latitude Altitude
-    |   EastingNorthing Easting Northing
-    |   EastingNorthingAlt Easting Northing Altitude
-
--- | the GeoPosition is a bit special in that when you convert it to GeoJSON,
--- it will lose the CRS info attached to it and cannot be read back in
--- from the GeoJSON.  Hence it is ineligible for the JSON type class,
--- so this function will strip it down to a GeoPositionWithoutCRS, which is eligible
-stripCRSFromPosition :: GeoPosition -> GeoPositionWithoutCRS
-stripCRSFromPosition (LonLat lon lat)                           = [lon, lat]
-stripCRSFromPosition (LonLatAlt lon lat alt)                    = [lon, lat, alt]
-stripCRSFromPosition (EastingNorthing easting northing)         = [easting, northing]
-stripCRSFromPosition (EastingNorthingAlt easting northing alt)  = [easting, northing, alt]
 
 -- These are all using newtype so that I can override their JSON instances..
 
-newtype GeoPoint        = GeoPoint GeoPositionWithoutCRS deriving (Show, Eq)
-newtype GeoMultiPoint   = GeoMultiPoint [GeoPoint] deriving (Show, Eq)
-newtype GeoPolygon      = GeoPolygon [GeoPositionWithoutCRS] deriving (Show, Eq)
-newtype GeoMultiPolygon = GeoMultiPolygon [GeoPolygon] deriving (Show, Eq)
-newtype GeoLine         = GeoLine [GeoPositionWithoutCRS] deriving (Show, Eq)
-newtype GeoMultiLine    = GeoMultiLine [GeoLine] deriving (Show, Eq)
+newtype GeoMultiPoint   = GeoMultiPoint { _unGeoMultiPoint :: [GeoPoint] } deriving (Show, Eq)
+newtype GeoPolygon      = GeoPolygon { _unGeoPolygon :: [GeoPositionWithoutCRS] } deriving (Show, Eq)
+newtype GeoMultiPolygon = GeoMultiPolygon { _unGeoMultiPolygon :: [GeoPolygon] } deriving (Show, Eq)
+newtype GeoLine         = GeoLine { _unGeoLine :: [GeoPositionWithoutCRS] } deriving (Show, Eq)
+newtype GeoMultiLine    = GeoMultiLine { _unGeoMultiLine :: [GeoLine] } deriving (Show, Eq)
+
+makeLenses ''GeoMultiPoint
+makeLenses ''GeoPolygon
+makeLenses ''GeoMultiPolygon
+makeLenses ''GeoLine
+makeLenses ''GeoMultiLine
 
 data GeoPolyLine = Poly GeoPolygon | LineString GeoLine
 
@@ -88,12 +74,6 @@ data GeospatialGeometry =
     |   Line GeoLine
     |   MultiLine GeoMultiLine
     |   Collection [GeospatialGeometry] deriving (Show, Eq)
-
-type Name = String
-type Code = Int
-type Href = String
-type FormatString = String
-type ProjectionType = String
 
 -- | See Section 3 "Coordinate Reference System Objects" in the GeoJSON Spec
 -- "NoCRS" is required because no 'crs' attribute in a GeoJSON feature is NOT the same thing as
@@ -144,13 +124,3 @@ data GeoFeature = GeoFeature {
 
 -- | See Section 2.3 "Feature Collection Objects" of the GeoJSON spec
 data GeoFeatureCollection = GeoFeatureCollection (Maybe BoundingBoxWithoutCRS) [GeoFeature] deriving (Show, Eq)
-
--- instances
-
--- |
--- This class is for GeoJSON types that have a type label in the GeoJSON format
---
-class GeoJSONTyped a where
-    type ImplType a
-    geomType :: (String, ImplType a -> a) -- ^ Returns a pair
-
