@@ -21,6 +21,9 @@ module Data.Geospatial.BasicTypes (
     ,   Href
     ,   FormatString
     ,   ProjectionType
+    -- * Feature Types
+    ,   BoundingBoxWithoutCRS
+    ,   FeatureID
     ) where
 
 type Latitude = Float
@@ -39,3 +42,17 @@ type Code = Int
 type Href = String
 type FormatString = String
 type ProjectionType = String
+
+-- Feature Types
+
+type FeatureID = String
+
+-- | See Section 4 /Bounding Boxes/ of the GeoJSON spec,
+-- The length of the list/array must be 2*n where n is the dimensionality of the position type for the CRS
+-- with min values first followed by the max values, wich both the min/max sets following the same axis order as the CRS,
+-- e.g for WGS84: minLongitude, minLatitude, maxLongitude, maxLatitude
+-- The spec mentions that it can be part of a geometry object too but doesnt give an example,
+-- This implementation will ignore bboxes on Geometry objects, they can be added if required.
+type BoundingBoxWithoutCRS = [Float]
+
+

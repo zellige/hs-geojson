@@ -63,6 +63,7 @@ import Text.JSON ( JSON(..), JSValue(..), Result(..), makeObj, valFromObj, readJ
 -- >>> import Data.Geospatial.BasicTypes
 --
 -- >>> import qualified Data.Aeson as A
+-- >>> import qualified Data.ByteString.Lazy.Char8 as BS
 -- >>> import qualified Text.JSON as J
 --
 -- >>> let lshapedPolyVertices = [[120.0, -15.0], [127.0, -15.0], [127.0, -25.0], [124.0, -25.0], [124.0, -18.0], [120.0, -18.0]] :: [GeoPositionWithoutCRS]
@@ -235,25 +236,25 @@ instance JSON GeospatialGeometry where
 -- >>> A.encode NoGeometry
 -- "null"
 --
--- >>> A.encode lShapedPoly == lShapedPolyJSON
+-- >>> A.encode lShapedPoly == BS.pack lShapedPolyJSON
 -- True
 --
--- >>> A.encode emptyPoly == emptyPolyJSON
+-- >>> A.encode emptyPoly == BS.pack emptyPolyJSON
 -- True
 --
--- >>> A.encode emptyMultiPoly == emptyMultiPolyJSON
+-- >>> A.encode emptyMultiPoly == BS.pack emptyMultiPolyJSON
 -- True
 --
--- >>> A.encode singleLineMultiLine == singleLineMultiLineJSON
+-- >>> A.encode singleLineMultiLine == BS.pack singleLineMultiLineJSON
 -- True
 --
--- >>> A.encode multiLine == multiLineJSON
+-- >>> A.encode multiLine == BS.pack multiLineJSON
 -- True
 --
--- >>> A.encode emptyCollection == emptyCollectionJSON
+-- >>> A.encode emptyCollection == BS.pack emptyCollectionJSON
 -- True
 --
--- >>> A.encode bigassCollection == bigassCollectionJSON
+-- >>> A.encode bigassCollection == BS.pack bigassCollectionJSON
 -- True
 --
 instance ToJSON GeospatialGeometry where

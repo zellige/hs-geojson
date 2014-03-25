@@ -1,20 +1,41 @@
-{-# OPTIONS_GHC -fno-warn-orphans #-}
-module Text.GeoJSON () where
+{-# LANGUAGE TemplateHaskell #-}
+-------------------------------------------------------------------
+-- |
+-- Module       : Data.Geospatial.GeoFeature
+-- Copyright    : (C) 2014 Dom De Re
+-- License      : BSD-style (see the file etc/LICENSE.md)
+-- Maintainer   : Dom De Re
+--
+-- See Section 2.2 /Feature Objects/ of the GeoJSON spec.
+-- Parameterised on the property type
+--
+-------------------------------------------------------------------
+module Data.Geospatial.GeoFeature (
+    -- * Types
+        GeoFeature(..)
+    -- * Lenses
+    ,   bbox
+    ,   geometry
+    ,   properties
+    ,   featureId
+    ) where
 
-import Data.Functor ( Functor(..) )
-import Control.Applicative
-import Control.Lens ( makeLenses )
-import Text.JSON
-
-import Data.Geospatial
+import Data.Geospatial.BasicTypes
+import Data.Geospatial.Geometry
 import Data.Geospatial.Geometry.JSON
+import Data.Geospatial.GeoPosition
 
--- | This module only exports the JSON Instances for the types from Data.Geospatial.
--- .
--- Hence you will have to refer to the `Data.Geospatial` documentation to find the documentation
--- related to the Instances contained in this module.
+import Control.Applicative ( (<$>), (<*>) )
+import Control.Lens ( makeLenses )
+import Data.Aeson ( FromJSON(..), ToJSON(..), Value(..), Object )
+import Text.JSON ( JSON(..), makeObj, valFromObj )
 
 -- $setup
+--
+-- >>> import qualified Data.Aeson as A
+-- >>> import qualified Data.ByteString.Lazy.Char8 as BS
+-- >>> import qualified Text.JSON as J
+--
 -- Test Bounding Box Data
 -- >>> let lshapedPolyVertices = [[120.0, -15.0], [127.0, -15.0], [127.0, -25.0], [124.0, -25.0], [124.0, -18.0], [120.0, -18.0]] :: [GeoPositionWithoutCRS]
 -- >>> let emptyVertices = [] :: [GeoPositionWithoutCRS]
@@ -88,14 +109,6 @@ import Data.Geospatial.Geometry.JSON
 --
 -- End Test Geometry Data
 --
--- Test CRS Data
--- >>> let testLinkCRSJSON = "{\"type\":\"link\",\"properties\":{\"href\":\"www.google.com.au\",\"type\":\"proj4\"}}"
--- >>> let testLinkCRS = LinkedCRS "www.google.com.au" "proj4"
--- >>> let testEPSGJSON = "{\"type\":\"epsg\",\"properties\":{\"code\":4326}}"
--- >>> let testEPSG = EPSG 4326
--- >>> let testNamedCRSJSON = "{\"type\":\"name\",\"properties\":{\"name\":\"urn:ogc:def:crs:OGC:1.3:CRS84\"}}"
--- >>> let testNamedCRS = NamedCRS "urn:ogc:def:crs:OGC:1.3:CRS84"
---
 -- Test Properties
 -- >>> let testProperties = makeObj [("depth", showJSON (5 :: Int)), ("comment", showJSON "Bore run over by dump truck")]
 --
@@ -120,60 +133,67 @@ import Data.Geospatial.Geometry.JSON
 -- >>> let emptyFeatureCollectionWithBBox = GeoFeatureCollection (Just testLatLonBBox) []
 --
 
+-- | See Section 2.2 /Feature Objects/ of the GeoJSON spec.
+-- Parameterised on the property type
+data GeoFeature a = GeoFeature {
+    _bbox :: Maybe BoundingBoxWithoutCRS,
+    _geometry :: GeospatialGeometry,
+    _properties :: a,
+    _featureId :: Maybe FeatureID } deriving (Show, Eq)
 
 
--- helper functions:
 
-geometryFromJSON :: String -> JSValue -> Result GeospatialGeometry
-geometryFromJSON "Point" obj                                = Point <$> readJSON obj
-geometryFromJSON "MultiPoint" obj                           = MultiPoint <$> readJSON obj
-geometryFromJSON "Polygon" obj                              = Polygon <$> readJSON obj
-geometryFromJSON "MultiPolygon" obj                         = MultiPolygon <$> readJSON obj
-geometryFromJSON "Line" obj                                 = Line <$> readJSON obj
-geometryFromJSON "MultiLine" obj                            = MultiLine <$> readJSON obj
-geometryFromJSON "GeometryCollection" (JSObject jsonObj)    = Collection <$> (valFromObj "geometries" jsonObj >>= readJSON)
-geometryFromJSON "GeometryCollection" _                     = Error "Invalid value type for 'geometries' attribute.."
-geometryFromJSON typeString _                               = Error $ "Invalid Geometry Type: " ++ typeString
+makeLenses ''GeoFeature
 
--- end helper functions
+-- instances
 
--- | Encodes and Decodes FeatureCollection objects to and from GeoJSON
+-- | encodes and decodes Feature objects to and from GeoJSON
 --
--- >>> encode bigAssFeatureCollection == bigAssFeatureCollectionJSON
+-- >>> encode bigFeature == bigFeatureJSON
 -- True
 --
--- >>> decode bigAssFeatureCollectionJSON == Ok bigAssFeatureCollection
+-- >>> decode bigFeatureJSON == Ok bigFeature
 -- True
 --
--- >>> encode bigAssFeatureCollectionWithNoBBox == bigAssFeatureCollectionWithNoBBoxJSON
+-- >>> encode featureWithNoProperties == featureWithNoPropertiesJSON
 -- True
 --
--- >>> decode bigAssFeatureCollectionWithNoBBoxJSON == Ok bigAssFeatureCollectionWithNoBBox
+-- >>> decode featureWithNoPropertiesJSON == Ok featureWithNoProperties
 -- True
 --
--- >>> encode emptyFeatureCollectionWithBBox == emptyFeatureCollectionWithBBoxJSON
+-- >>> encode featureWithNoId == featureWithNoIdJSON
 -- True
 --
--- >>> decode emptyFeatureCollectionWithBBoxJSON == Ok emptyFeatureCollectionWithBBox
+-- >>> decode featureWithNoIdJSON == Ok featureWithNoId
 -- True
 --
--- >>> encode emptyFeatureCollection == emptyFeatureCollectionJSON
+-- >>> encode featureWithNoBBox == featureWithNoBBoxJSON
 -- True
 --
--- >>> decode emptyFeatureCollectionJSON == Ok emptyFeatureCollection
+-- >>> decode featureWithNoBBoxJSON == Ok featureWithNoBBox
 -- True
 --
-instance (JSON a) => JSON (GeoFeatureCollection a) where
+-- >>> encode featureWithNoGeometry == featureWithNoGeometryJSON
+-- True
+--
+-- >>> decode featureWithNoGeometryJSON == Ok featureWithNoGeometry
+-- True
+--
+instance (JSON a) => JSON (GeoFeature a) where
     readJSON json = do
         obj <- readJSON json
         objType <- valFromObj "type" obj
-        if objType /= "FeatureCollection"
+        if objType /= "Feature"
             then
-                fail $ "Invalid GeoJSON type for a Feature Collection: " ++ objType
+                fail $ "Invalid GeoJSON type for a Feature: " ++ objType
             else
-                GeoFeatureCollection <$> optValFromObj "bbox" obj <*> valFromObj "features" obj
+                GeoFeature <$> optValFromObj "bbox" obj
+                    <*> valFromObj "geometry" obj
+                    <*> valFromObj "properties" obj
+                    <*> optValFromObj "id" obj
 
-    showJSON (GeoFeatureCollection bbox' features) = makeObj $ baseAttributes ++ optAttributes "bbox" bbox'
+    showJSON (GeoFeature bbox' geom props featureId') = makeObj $ baseAttributes ++ optAttributes "bbox" bbox' ++ optAttributes "id" featureId'
         where
-            baseAttributes              = [("type", showJSON "FeatureCollection"), ("features", showJSON features)]
+            baseAttributes = [("type", showJSON "Feature"), ("properties", showJSON props), ("geometry", showJSON geom)]
+
 
