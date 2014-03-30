@@ -1,20 +1,50 @@
-{-# OPTIONS_GHC -fno-warn-orphans #-}
-module Text.GeoJSON () where
+{-# LANGUAGE NoImplicitPrelude, OverloadedStrings, TemplateHaskell #-}
+-------------------------------------------------------------------
+-- |
+-- Module       : Data.Geospatial.GeoFeature
+-- Copyright    : (C) 2014 Dom De Re
+-- License      : BSD-style (see the file etc/LICENSE.md)
+-- Maintainer   : Dom De Re
+--
+-- See Section 2.3 /Feature Collection Objects/ of the GeoJSON spec
+--
+-------------------------------------------------------------------
+module Data.Geospatial.GeoFeatureCollection (
+    -- * Types
+        GeoFeatureCollection(..)
+    -- * Lenses
+    ,   boundingbox
+    ,   geofeatures
+    ) where
 
-import Data.Functor ( Functor(..) )
-import Control.Applicative
+import Data.Geospatial.BasicTypes
+import Data.Geospatial.GeoFeature
+import Data.Geospatial.Geometry
+import Data.Geospatial.Geometry.Aeson
+import Data.Geospatial.GeoPosition
+
+import Prelude ( Show, Eq(..), ($) )
+import Control.Applicative ( (<$>), (<*>) )
 import Control.Lens ( makeLenses )
-import Text.JSON
-
-import Data.Geospatial
-import Data.Geospatial.Geometry.JSON
-
--- | This module only exports the JSON Instances for the types from Data.Geospatial.
--- .
--- Hence you will have to refer to the `Data.Geospatial` documentation to find the documentation
--- related to the Instances contained in this module.
+import Control.Monad ( mzero )
+import Data.Aeson ( FromJSON(..), ToJSON(..), Value(..), Object, (.:), (.=), object )
+import Data.List ( (++) )
+import Data.Maybe ( Maybe )
+import Data.Text ( Text )
 
 -- $setup
+--
+-- >>> import qualified Data.Aeson as A
+-- >>> import qualified Data.ByteString.Lazy.Char8 as BS
+-- >>> import Data.Function ( (.) )
+-- >>> import Data.Int ( Int )
+-- >>> import Data.Maybe ( Maybe(..) )
+-- >>> import Data.String
+-- >>> import qualified Data.Text as T
+-- >>> import qualified Text.JSON as J
+--
+-- >>> let decode' = A.decode . BS.pack; decode' :: (FromJSON a) => String -> Maybe a
+--
 -- Test Bounding Box Data
 -- >>> let lshapedPolyVertices = [[120.0, -15.0], [127.0, -15.0], [127.0, -25.0], [124.0, -25.0], [124.0, -18.0], [120.0, -18.0]] :: [GeoPositionWithoutCRS]
 -- >>> let emptyVertices = [] :: [GeoPositionWithoutCRS]
@@ -88,22 +118,14 @@ import Data.Geospatial.Geometry.JSON
 --
 -- End Test Geometry Data
 --
--- Test CRS Data
--- >>> let testLinkCRSJSON = "{\"type\":\"link\",\"properties\":{\"href\":\"www.google.com.au\",\"type\":\"proj4\"}}"
--- >>> let testLinkCRS = LinkedCRS "www.google.com.au" "proj4"
--- >>> let testEPSGJSON = "{\"type\":\"epsg\",\"properties\":{\"code\":4326}}"
--- >>> let testEPSG = EPSG 4326
--- >>> let testNamedCRSJSON = "{\"type\":\"name\",\"properties\":{\"name\":\"urn:ogc:def:crs:OGC:1.3:CRS84\"}}"
--- >>> let testNamedCRS = NamedCRS "urn:ogc:def:crs:OGC:1.3:CRS84"
---
 -- Test Properties
--- >>> let testProperties = makeObj [("depth", showJSON (5 :: Int)), ("comment", showJSON "Bore run over by dump truck")]
+-- >>> let testProperties = object [(T.pack "depth") .= (5 :: Int), (T.pack "comment") .= (T.pack "Bore run over by dump truck")]
 --
 -- Test Features
 -- >>> let bigFeatureJSON = "{\"type\":\"Feature\",\"properties\":{\"depth\":5,\"comment\":\"Bore run over by dump truck\"},\"geometry\":{\"type\":\"GeometryCollection\",\"geometries\":[{\"type\":\"MultiLine\",\"coordinates\":[{\"type\":\"Line\",\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]}]},{\"type\":\"MultiLine\",\"coordinates\":[]},{\"type\":\"Line\",\"coordinates\":[]},{\"type\":\"MultiLine\",\"coordinates\":[{\"type\":\"Line\",\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]},{\"type\":\"Line\",\"coordinates\":[]}]},{\"type\":\"Line\",\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]},{\"type\":\"MultiPolygon\",\"coordinates\":[{\"type\":\"Polygon\",\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]},{\"type\":\"Polygon\",\"coordinates\":[]}]},{\"type\":\"MultiPolygon\",\"coordinates\":[{\"type\":\"Polygon\",\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]}]},{\"type\":\"Polygon\",\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]},{\"type\":\"MultiPolygon\",\"coordinates\":[]},{\"type\":\"Polygon\",\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]}]},\"bbox\":[-32,147.5,-29.5,151],\"id\":\"GW001\"}"
 -- >>> let bigFeature = GeoFeature (Just testLatLonBBox) bigassCollection testProperties (Just "GW001")
 -- >>> let featureWithNoPropertiesJSON = "{\"type\":\"Feature\",\"properties\":null,\"geometry\":{\"type\":\"GeometryCollection\",\"geometries\":[{\"type\":\"MultiLine\",\"coordinates\":[{\"type\":\"Line\",\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]}]},{\"type\":\"MultiLine\",\"coordinates\":[]},{\"type\":\"Line\",\"coordinates\":[]},{\"type\":\"MultiLine\",\"coordinates\":[{\"type\":\"Line\",\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]},{\"type\":\"Line\",\"coordinates\":[]}]},{\"type\":\"Line\",\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]},{\"type\":\"MultiPolygon\",\"coordinates\":[{\"type\":\"Polygon\",\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]},{\"type\":\"Polygon\",\"coordinates\":[]}]},{\"type\":\"MultiPolygon\",\"coordinates\":[{\"type\":\"Polygon\",\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]}]},{\"type\":\"Polygon\",\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]},{\"type\":\"MultiPolygon\",\"coordinates\":[]},{\"type\":\"Polygon\",\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]}]},\"bbox\":[-32,147.5,-29.5,151],\"id\":\"GW001\"}"
--- >>> let featureWithNoProperties = let GeoFeature bbox geometry _ featureId = bigFeature in GeoFeature bbox geometry JSNull featureId
+-- >>> let featureWithNoProperties = let GeoFeature bbox geometry _ featureId = bigFeature in GeoFeature bbox geometry Null featureId
 -- >>> let featureWithNoGeometryJSON = "{\"type\":\"Feature\",\"properties\":{\"depth\":5,\"comment\":\"Bore run over by dump truck\"},\"geometry\":null,\"bbox\":[-32,147.5,-29.5,151],\"id\":\"GW001\"}"
 -- >>> let featureWithNoGeometry = let GeoFeature bbox _ props featureId = bigFeature in GeoFeature bbox NoGeometry props featureId
 -- >>> let featureWithNoIdJSON = "{\"type\":\"Feature\",\"properties\":{\"depth\":5,\"comment\":\"Bore run over by dump truck\"},\"geometry\":{\"type\":\"GeometryCollection\",\"geometries\":[{\"type\":\"MultiLine\",\"coordinates\":[{\"type\":\"Line\",\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]}]},{\"type\":\"MultiLine\",\"coordinates\":[]},{\"type\":\"Line\",\"coordinates\":[]},{\"type\":\"MultiLine\",\"coordinates\":[{\"type\":\"Line\",\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]},{\"type\":\"Line\",\"coordinates\":[]}]},{\"type\":\"Line\",\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]},{\"type\":\"MultiPolygon\",\"coordinates\":[{\"type\":\"Polygon\",\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]},{\"type\":\"Polygon\",\"coordinates\":[]}]},{\"type\":\"MultiPolygon\",\"coordinates\":[{\"type\":\"Polygon\",\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]}]},{\"type\":\"Polygon\",\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]},{\"type\":\"MultiPolygon\",\"coordinates\":[]},{\"type\":\"Polygon\",\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]}]},\"bbox\":[-32,147.5,-29.5,151]}"
@@ -120,4 +142,60 @@ import Data.Geospatial.Geometry.JSON
 -- >>> let emptyFeatureCollectionWithBBox = GeoFeatureCollection (Just testLatLonBBox) []
 --
 
+-- | See Section 2.3 /Feature Collection Objects/ of the GeoJSON spec
+--
+data GeoFeatureCollection a = GeoFeatureCollection
+    {   _boundingbox :: Maybe BoundingBoxWithoutCRS
+    ,   _geofeatures :: [GeoFeature a]
+    } deriving (Show, Eq)
 
+makeLenses ''GeoFeatureCollection
+
+-- instances
+
+-- | Decodes FeatureCollection objects to and from GeoJSON
+--
+-- >>> decode' bigAssFeatureCollectionJSON == Just bigAssFeatureCollection
+-- True
+--
+-- >>> decode' bigAssFeatureCollectionWithNoBBoxJSON == Just bigAssFeatureCollectionWithNoBBox
+-- True
+--
+-- >>> decode' emptyFeatureCollectionWithBBoxJSON == Just emptyFeatureCollectionWithBBox
+-- True
+--
+-- >>> decode' emptyFeatureCollectionJSON == Just emptyFeatureCollection
+-- True
+--
+instance (FromJSON a) => FromJSON (GeoFeatureCollection a) where
+--  parseJSON :: Value -> Parse a
+    parseJSON (Object obj) = do
+        objType <- obj .: ("type" :: Text)
+        if objType /= ("FeatureCollection" :: Text)
+            then
+                mzero
+            else
+                GeoFeatureCollection
+                    <$> optValFromObj "bbox" obj
+                    <*> obj .: ("features" :: Text)
+    parseJSON _ = mzero
+
+-- | Encodes FeatureCollection objects to and from GeoJSON
+--
+-- >>> A.encode bigAssFeatureCollection == BS.pack bigAssFeatureCollectionJSON
+-- True
+--
+-- >>> A.encode bigAssFeatureCollectionWithNoBBox == BS.pack bigAssFeatureCollectionWithNoBBoxJSON
+-- True
+--
+-- >>> A.encode emptyFeatureCollectionWithBBox == BS.pack emptyFeatureCollectionWithBBoxJSON
+-- True
+--
+-- >>> A.encode emptyFeatureCollection == BS.pack emptyFeatureCollectionJSON
+-- True
+--
+instance (ToJSON a) => ToJSON (GeoFeatureCollection a) where
+--  toJSON :: a -> Value
+    toJSON (GeoFeatureCollection bbox' features) = object $ baseAttributes ++ optAttributes "bbox" bbox'
+        where
+            baseAttributes = ["type" .= ("FeatureCollection" :: Text), "features" .= features]

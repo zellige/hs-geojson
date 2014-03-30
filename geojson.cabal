@@ -60,6 +60,7 @@ library
     other-modules:      Data.Geospatial.BasicTypes
                     ,   Data.Geospatial.CRS
                     ,   Data.Geospatial.GeoFeature
+                    ,   Data.Geospatial.GeoFeatureCollection
                     ,   Data.Geospatial.Geometry
                     ,   Data.Geospatial.Geometry.GeoMultiLine
                     ,   Data.Geospatial.Geometry.GeoMultiPoint

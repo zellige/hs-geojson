@@ -53,6 +53,3 @@ import Data.Geospatial.GeoPosition
 
 import Control.Lens ( makeLenses )
 import Text.JSON
-
--- | See Section 2.3 "Feature Collection Objects" of the GeoJSON spec
-data GeoFeatureCollection a = GeoFeatureCollection (Maybe BoundingBoxWithoutCRS) [GeoFeature a] deriving (Show, Eq)
