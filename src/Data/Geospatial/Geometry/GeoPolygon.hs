@@ -16,24 +16,17 @@ module Data.Geospatial.Geometry.GeoPolygon (
 
 import Data.Geospatial.BasicTypes
 import Data.Geospatial.Geometry.Aeson
-import Data.Geospatial.Geometry.JSON
 import Data.Geospatial.GeoPosition
 
 import Control.Lens ( makeLenses )
 import Control.Monad ( mzero )
 import Data.Aeson ( FromJSON(..), ToJSON(..), Value(..), Object )
-import Text.JSON ( JSON(..) )
 
 newtype GeoPolygon = GeoPolygon { _unGeoPolygon :: [GeoPositionWithoutCRS] } deriving (Show, Eq)
 
 makeLenses ''GeoPolygon
 
 -- instances
-
-instance JSON GeoPolygon where
-    readJSON = readGeometryGeoJSON "Polygon" GeoPolygon
-
-    showJSON (GeoPolygon vertices) = makeGeometryGeoJSON "Polygon" vertices
 
 instance ToJSON GeoPolygon where
 --  toJSON :: a -> Value

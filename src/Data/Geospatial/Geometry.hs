@@ -43,7 +43,6 @@ import Data.Geospatial.Geometry.GeoMultiPoint
 import Data.Geospatial.Geometry.GeoMultiPolygon
 import Data.Geospatial.Geometry.GeoPoint
 import Data.Geospatial.Geometry.GeoPolygon
-import Data.Geospatial.Geometry.JSON
 
 import Control.Applicative ( (<$>) )
 import Control.Lens ( makePrisms )
@@ -59,14 +58,12 @@ import Data.Aeson
     )
 import Data.Aeson.Types ( Parser )
 import Data.Text ( Text )
-import Text.JSON ( JSON(..), JSValue(..), Result(..), makeObj, valFromObj, readJSON )
 
 -- $setup
 -- >>> import Data.Geospatial.BasicTypes
 --
 -- >>> import qualified Data.Aeson as A
 -- >>> import qualified Data.ByteString.Lazy.Char8 as BS
--- >>> import qualified Text.JSON as J
 --
 -- >>> let lshapedPolyVertices = [[120.0, -15.0], [127.0, -15.0], [127.0, -25.0], [124.0, -25.0], [124.0, -18.0], [120.0, -18.0]] :: [GeoPositionWithoutCRS]
 -- >>> let emptyVertices = [] :: [GeoPositionWithoutCRS]
@@ -152,17 +149,6 @@ data GeospatialGeometry =
 
 makePrisms ''GeospatialGeometry
 
-geometryFromJSON :: String -> JSValue -> Result GeospatialGeometry
-geometryFromJSON "Point" obj                                = Point <$> readJSON obj
-geometryFromJSON "MultiPoint" obj                           = MultiPoint <$> readJSON obj
-geometryFromJSON "Polygon" obj                              = Polygon <$> readJSON obj
-geometryFromJSON "MultiPolygon" obj                         = MultiPolygon <$> readJSON obj
-geometryFromJSON "Line" obj                                 = Line <$> readJSON obj
-geometryFromJSON "MultiLine" obj                            = MultiLine <$> readJSON obj
-geometryFromJSON "GeometryCollection" (JSObject jsonObj)    = Collection <$> (valFromObj "geometries" jsonObj >>= readJSON)
-geometryFromJSON "GeometryCollection" _                     = Error "Invalid value type for 'geometries' attribute.."
-geometryFromJSON typeString _                               = Error $ "Invalid Geometry Type: " ++ typeString
-
 geometryFromAeson :: String -> Value -> Parser GeospatialGeometry
 geometryFromAeson "Point" obj                           = Point <$> parseJSON obj
 geometryFromAeson "MultiPoint" obj                      = MultiPoint <$> parseJSON obj
@@ -175,76 +161,6 @@ geometryFromAeson "GeometryCollection" _                = mzero
 geometryFromAeson _ _                          = mzero
 
 
--- |
--- encodes and decodes Geometry Objects to and from GeoJSON
--- (refer to source to see the values for the test values)
---
--- >>> J.encode NoGeometry
--- "null"
---
--- >>> J.decode "null" :: Result GeospatialGeometry
--- Ok NoGeometry
---
--- >>> J.encode lShapedPoly == lShapedPolyJSON
--- True
---
--- >>> J.decode lShapedPolyJSON == Ok lShapedPoly
--- True
---
--- >>> J.encode emptyPoly == emptyPolyJSON
--- True
---
--- >>> J.decode emptyPolyJSON == Ok emptyPoly
--- True
---
--- >>> J.encode emptyMultiPoly == emptyMultiPolyJSON
--- True
---
--- >>> J.decode emptyMultiPolyJSON == Ok emptyMultiPoly
--- True
---
--- >>> J.encode singleLineMultiLine == singleLineMultiLineJSON
--- True
---
--- >>> J.decode singleLineMultiLineJSON == Ok singleLineMultiLine
--- True
---
--- >>> J.encode multiLine == multiLineJSON
--- True
---
--- >>> J.decode multiLineJSON == Ok multiLine
--- True
---
--- >>> J.encode emptyCollection == emptyCollectionJSON
--- True
---
--- >>> J.decode emptyCollectionJSON == Ok emptyCollection
--- True
---
--- >>> J.encode bigassCollection == bigassCollectionJSON
--- True
---
--- >>> J.decode bigassCollectionJSON == Ok bigassCollection
--- True
---
-instance JSON GeospatialGeometry where
-    readJSON JSNull = Ok NoGeometry
-    readJSON json   = do
-        geometryObj <- readJSON json
-        geometryType <- valFromObj "type" geometryObj
-        geometryFromJSON geometryType (JSObject geometryObj)
-
-    showJSON (NoGeometry)               = JSNull
-    showJSON (Point point)              = showJSON point
-    showJSON (MultiPoint points)        = showJSON points
-    showJSON (Polygon vertices)         = showJSON vertices
-    showJSON (MultiPolygon vertices)    = showJSON vertices
-    showJSON (Line vertices)            = showJSON vertices
-    showJSON (MultiLine vertices)       = showJSON vertices
-    showJSON (Collection geometries)    = makeObj
-        [   ("type", showJSON ("GeometryCollection" :: Text))
-        ,   ("geometries", showJSON geometries)
-        ]
 -- |
 -- encodes and Geometry Objects to GeoJSON
 -- (refer to source to see the values for the test values)

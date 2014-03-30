@@ -40,20 +40,11 @@ import Data.Aeson
     )
 import Data.Aeson.Types ( Parser )
 import Data.Text ( Text )
-import Text.JSON
-    (   JSON(..)
-    ,   Result(..)
-    ,   JSObject(..)
-    ,   JSValue(..)
-    ,   makeObj
-    ,   valFromObj
-    )
 
 -- $setup
 --
 -- >>> import qualified Data.Aeson as A
 -- >>> import qualified Data.ByteString.Lazy.Char8 as BS
--- >>> import qualified Text.JSON as J
 --
 -- Test CRS Data
 -- >>> let testLinkCRSJSON = "{\"type\":\"link\",\"properties\":{\"href\":\"www.google.com.au\",\"type\":\"proj4\"}}"
@@ -84,45 +75,6 @@ defaultCRS :: CRSObject
 defaultCRS = EPSG 4326
 
 -- instances
-
--- |
--- encode and decodes CRS Objects to and from GeoJSON
---
--- >>> J.encode testLinkCRS == testLinkCRSJSON
--- True
---
--- >>> J.decode testLinkCRSJSON == Ok testLinkCRS
--- True
---
--- >>> J.encode testNamedCRS == testNamedCRSJSON
--- True
---
--- >>> J.decode testNamedCRSJSON == Ok testNamedCRS
--- True
---
--- >>> J.encode testEPSG == testEPSGJSON
--- True
---
--- >>> J.decode testEPSGJSON == Ok testEPSG
--- True
---
--- >>> J.encode NoCRS
--- "null"
---
--- >>> J.decode "null" == Ok NoCRS
--- True
---
-instance JSON CRSObject where
-    readJSON JSNull = Ok NoCRS
-    readJSON json   = do
-        crsObject <- readJSON json
-        crsType <- valFromObj "type" crsObject
-        crsObjectFromJSON crsType crsObject
-
-    showJSON (NamedCRS name)                    = makeObj [("type", showJSON ("name" :: Text)), ("properties", showJSON (makeObj [("name", showJSON name)]))]
-    showJSON (EPSG code)                        = makeObj [("type", showJSON ("epsg" :: Text)), ("properties", showJSON (makeObj [("code", showJSON code)]))]
-    showJSON (LinkedCRS href format )           = makeObj [("type", showJSON ("link" :: Text)), ("properties", showJSON (makeObj [("href", showJSON href), ("type", showJSON format)]))]
-    showJSON NoCRS                              = JSNull
 
 -- |
 -- encode and decodes CRS Objects to and from GeoJSON
@@ -169,22 +121,10 @@ instance ToJSON CRSObject where
 
 -- helpers
 
-crsPropertyFromObj :: (JSON a) => String -> JSObject JSValue -> Result a
-crsPropertyFromObj name obj = do
-    props <- valFromObj "properties" obj
-    valFromObj name props
-
 crsPropertyFromAesonObj :: (FromJSON a) => Text -> Object -> Parser a
 crsPropertyFromAesonObj name obj = do
     props <- obj .: "properties"
     props .: name
-
-
-crsObjectFromJSON :: String -> JSObject JSValue -> Result CRSObject
-crsObjectFromJSON "name" obj    = NamedCRS <$> crsPropertyFromObj "name" obj
-crsObjectFromJSON "epsg" obj    = EPSG <$> crsPropertyFromObj "code" obj
-crsObjectFromJSON "link" obj    = LinkedCRS <$> crsPropertyFromObj "href" obj <*> crsPropertyFromObj "type" obj
-crsObjectFromJSON typeString _  = Error $ "Invalid or unimplemented CRS Object Type: " ++ typeString
 
 crsObjectFromAeson :: Text -> Object -> Parser CRSObject
 crsObjectFromAeson "name" obj   = NamedCRS <$> crsPropertyFromAesonObj "name" obj

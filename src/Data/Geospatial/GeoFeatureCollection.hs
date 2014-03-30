@@ -41,7 +41,6 @@ import Data.Text ( Text )
 -- >>> import Data.Maybe ( Maybe(..) )
 -- >>> import Data.String
 -- >>> import qualified Data.Text as T
--- >>> import qualified Text.JSON as J
 --
 -- >>> let decode' = A.decode . BS.pack; decode' :: (FromJSON a) => String -> Maybe a
 --

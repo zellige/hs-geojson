@@ -48,8 +48,6 @@ module Data.Geospatial (
 import Data.Geospatial.BasicTypes
 import Data.Geospatial.CRS
 import Data.Geospatial.GeoFeature
+import Data.Geospatial.GeoFeatureCollection
 import Data.Geospatial.Geometry
 import Data.Geospatial.GeoPosition
-
-import Control.Lens ( makeLenses )
-import Text.JSON

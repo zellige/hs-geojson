@@ -17,23 +17,16 @@ module Data.Geospatial.Geometry.GeoMultiPoint (
 import Data.Geospatial.BasicTypes
 import Data.Geospatial.Geometry.GeoPoint
 import Data.Geospatial.Geometry.Aeson
-import Data.Geospatial.Geometry.JSON
 
 import Control.Lens ( makeLenses )
 import Control.Monad ( mzero )
 import Data.Aeson ( FromJSON(..), ToJSON(..), Value(..), Object )
-import Text.JSON ( JSON(..) )
 
 newtype GeoMultiPoint = GeoMultiPoint { _unGeoMultiPoint :: [GeoPoint] } deriving (Show, Eq)
 
 makeLenses ''GeoMultiPoint
 
 -- instances
-
-instance JSON GeoMultiPoint where
-    readJSON = readGeometryGeoJSON "MultiPoint" GeoMultiPoint
-
-    showJSON (GeoMultiPoint points) = makeGeometryGeoJSON "MultiPoint" points
 
 instance ToJSON GeoMultiPoint where
 --  toJSON :: a -> Value

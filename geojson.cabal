@@ -42,7 +42,6 @@ library
 
     build-depends:      base < 5 && >= 4
                     ,   aeson       == 0.7.*
-                    ,   json
                     ,   lens        == 4.1.*
                     ,   text        == 1.1.*
 
@@ -54,8 +53,7 @@ library
 
     hs-source-dirs:     src
 
-    exposed-modules:    Text.GeoJSON
-                    ,   Data.Geospatial
+    exposed-modules:    Data.Geospatial
 
     other-modules:      Data.Geospatial.BasicTypes
                     ,   Data.Geospatial.CRS
@@ -69,7 +67,6 @@ library
                     ,   Data.Geospatial.Geometry.GeoPoint
                     ,   Data.Geospatial.Geometry.GeoPolygon
                     ,   Data.Geospatial.Geometry.Aeson
-                    ,   Data.Geospatial.Geometry.JSON
                     ,   Data.Geospatial.GeoPosition
 
 test-suite              doctests
