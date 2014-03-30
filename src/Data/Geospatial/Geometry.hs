@@ -53,9 +53,11 @@ import Data.Aeson
     ,   ToJSON(..)
     ,   Value(..)
     ,   Object
+    ,   (.:)
     ,   (.=)
     ,   object
     )
+import Data.Aeson.Types ( Parser )
 import Data.Text ( Text )
 import Text.JSON ( JSON(..), JSValue(..), Result(..), makeObj, valFromObj, readJSON )
 
@@ -68,6 +70,8 @@ import Text.JSON ( JSON(..), JSValue(..), Result(..), makeObj, valFromObj, readJ
 --
 -- >>> let lshapedPolyVertices = [[120.0, -15.0], [127.0, -15.0], [127.0, -25.0], [124.0, -25.0], [124.0, -18.0], [120.0, -18.0]] :: [GeoPositionWithoutCRS]
 -- >>> let emptyVertices = [] :: [GeoPositionWithoutCRS]
+--
+-- >>> let decode' = A.decode . BS.pack; decode' :: (FromJSON a) => String -> Maybe a
 --
 -- Test Geometry Data
 -- Polys
@@ -158,6 +162,18 @@ geometryFromJSON "MultiLine" obj                            = MultiLine <$> read
 geometryFromJSON "GeometryCollection" (JSObject jsonObj)    = Collection <$> (valFromObj "geometries" jsonObj >>= readJSON)
 geometryFromJSON "GeometryCollection" _                     = Error "Invalid value type for 'geometries' attribute.."
 geometryFromJSON typeString _                               = Error $ "Invalid Geometry Type: " ++ typeString
+
+geometryFromAeson :: String -> Value -> Parser GeospatialGeometry
+geometryFromAeson "Point" obj                           = Point <$> parseJSON obj
+geometryFromAeson "MultiPoint" obj                      = MultiPoint <$> parseJSON obj
+geometryFromAeson "Polygon" obj                         = Polygon <$> parseJSON obj
+geometryFromAeson "MultiPolygon" obj                    = MultiPolygon <$> parseJSON obj
+geometryFromAeson "Line" obj                            = Line <$> parseJSON obj
+geometryFromAeson "MultiLine" obj                       = MultiLine <$> parseJSON obj
+geometryFromAeson "GeometryCollection" (Object jsonObj) = Collection <$> (jsonObj .: ("geometries" :: Text))
+geometryFromAeson "GeometryCollection" _                = mzero
+geometryFromAeson _ _                          = mzero
+
 
 -- |
 -- encodes and decodes Geometry Objects to and from GeoJSON
@@ -270,3 +286,39 @@ instance ToJSON GeospatialGeometry where
         [   "type" .= ("GeometryCollection" :: Text)
         ,   "geometries" .= geometries
         ]
+
+-- |
+-- encodes and decodes Geometry Objects to and from GeoJSON
+-- (refer to source to see the values for the test values)
+--
+-- >>> decode' lShapedPolyJSON == Just lShapedPoly
+-- True
+--
+-- >>> decode' emptyPolyJSON == Just emptyPoly
+-- True
+--
+-- >>> decode' emptyMultiPolyJSON == Just emptyMultiPoly
+-- True
+--
+-- >>> decode' singleLineMultiLineJSON == Just singleLineMultiLine
+-- True
+--
+-- >>> decode' multiLineJSON == Just multiLine
+-- True
+--
+-- >>> decode' emptyCollectionJSON == Just emptyCollection
+-- True
+--
+-- >>> decode' bigassCollectionJSON == Just bigassCollection
+-- True
+--
+-- >>> decode' "null" :: Maybe GeospatialGeometry
+-- Just NoGeometry
+--
+instance FromJSON GeospatialGeometry where
+--  parseJSON :: Value -> Parser a
+    parseJSON Null = return NoGeometry
+    parseJSON (Object obj) = do
+        geometryType <- obj .: ("type" :: Text)
+        geometryFromAeson geometryType (Object obj)
+    parseJSON _ = mzero

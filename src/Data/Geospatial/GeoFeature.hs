@@ -1,4 +1,4 @@
-{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE OverloadedStrings, TemplateHaskell #-}
 -------------------------------------------------------------------
 -- |
 -- Module       : Data.Geospatial.GeoFeature
@@ -27,7 +27,9 @@ import Data.Geospatial.GeoPosition
 
 import Control.Applicative ( (<$>), (<*>) )
 import Control.Lens ( makeLenses )
-import Data.Aeson ( FromJSON(..), ToJSON(..), Value(..), Object )
+import Control.Monad ( mzero )
+import Data.Aeson ( FromJSON(..), ToJSON(..), Value(..), Object, (.:) )
+import Data.Text ( Text )
 import Text.JSON ( JSON(..), makeObj, valFromObj )
 
 -- $setup
@@ -194,6 +196,19 @@ instance (JSON a) => JSON (GeoFeature a) where
 
     showJSON (GeoFeature bbox' geom props featureId') = makeObj $ baseAttributes ++ optAttributes "bbox" bbox' ++ optAttributes "id" featureId'
         where
-            baseAttributes = [("type", showJSON "Feature"), ("properties", showJSON props), ("geometry", showJSON geom)]
+            baseAttributes = [("type", showJSON ("Feature" :: Text)), ("properties", showJSON props), ("geometry", showJSON geom)]
 
 
+instance (FromJSON a) => FromJSON (GeoFeature a) where
+--  parseJSON :: Value -> Parse a
+    parseJSON (Object obj) = do
+        objType <- obj .: ("type" :: Text)
+        if objType /= ("Feature" :: Text)
+            then
+                mzero
+            else
+                GeoFeature
+                    <$> obj .: ("bbox" :: Text)
+                    <*> obj .: ("geometry" :: Text)
+                    <*> obj .: ("properties" :: Text)
+                    <*> obj .: ("id" :: Text)
