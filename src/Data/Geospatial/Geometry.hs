@@ -72,7 +72,7 @@ import Data.Text ( Text )
 --
 -- Test Geometry Data
 -- Polys
--- >>> let lShapedPolyJSON = "{\"type\":\"Polygon\",\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]}"
+-- >>> let lShapedPolyJSON = "{\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]],\"type\":\"Polygon\"}"
 --
 -- Upside down L Shaped Poly
 --
@@ -94,12 +94,12 @@ import Data.Text ( Text )
 --
 -- >>> let lShapedGeoPoly = GeoPolygon lshapedPolyVertices
 -- >>> let lShapedPoly = Polygon lShapedGeoPoly
--- >>> let emptyPolyJSON = "{\"type\":\"Polygon\",\"coordinates\":[]}"
+-- >>> let emptyPolyJSON = "{\"coordinates\":[],\"type\":\"Polygon\"}"
 -- >>> let emptyGeoPoly = GeoPolygon emptyVertices
 -- >>> let emptyPoly = Polygon emptyGeoPoly
 --
 -- Multi Polys
--- >>> let emptyMultiPolyJSON = "{\"type\":\"MultiPolygon\",\"coordinates\":[]}"
+-- >>> let emptyMultiPolyJSON = "{\"coordinates\":[],\"type\":\"MultiPolygon\"}"
 -- >>> let emptyMultiGeoPoly = GeoMultiPolygon []
 -- >>> let emptyMultiPoly = MultiPolygon emptyMultiGeoPoly
 -- >>> let singlePolyMultiPolyJSON = "{\"type\":\"MultiPolygon\",\"coordinates\":[{\"type\":\"Polygon\",\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]}]}"
@@ -121,7 +121,7 @@ import Data.Text ( Text )
 -- >>> let emptyMultiLineJSON = "{\"type\":\"MultiLine\",\"coordinates\":[]}"
 -- >>> let emptyMultiGeoLine = GeoMultiLine []
 -- >>> let emptyMultiLine = MultiLine emptyMultiGeoLine
--- >>> let singleLineMultiLineJSON = "{\"type\":\"MultiLine\",\"coordinates\":[{\"type\":\"Line\",\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]}]}"
+-- >>> let singleLineMultiLineJSON = "{\"coordinates\":[{\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]],\"type\":\"Line\"}],\"type\":\"MultiLine\"}"
 -- >>> let singleLineGeoMultiLine = GeoMultiLine [lShapedGeoLine]
 -- >>> let singleLineMultiLine = MultiLine singleLineGeoMultiLine
 -- >>> let multiLineJSON = "{\"type\":\"MultiLine\",\"coordinates\":[{\"type\":\"Line\",\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]},{\"type\":\"Line\",\"coordinates\":[]}]}"
