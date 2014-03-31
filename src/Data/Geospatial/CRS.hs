@@ -62,9 +62,9 @@ import Data.Text ( Text )
 -- be mapped to a `Nothing` `Maybe` value
 data CRSObject =
         NoCRS
-    |   NamedCRS Name
+    |   NamedCRS !Name
     |   EPSG Code
-    |   LinkedCRS Href FormatString  deriving (Show, Eq)
+    |   LinkedCRS !Href !FormatString  deriving (Show, Eq)
 
 makePrisms ''CRSObject
 
@@ -88,7 +88,9 @@ defaultCRS = EPSG 4326
 -- >>> (A.decode . BS.pack) testEPSGJSON == Just testEPSG
 -- True
 --
--- >>> (A.decode . BS.pack) "null" == Just NoCRS
+-- Aeson doesnt decode "null" to `Null` unfortunately
+--
+-- (A.decode . BS.pack) "null" == Just NoCRS
 -- True
 --
 instance FromJSON CRSObject where
@@ -101,13 +103,13 @@ instance FromJSON CRSObject where
 -- |
 -- encode CRS Objects to GeoJSON
 --
--- >>> A.encode testLinkCRS == BS.pack testLinkCRSJSON
+-- >>> (A.decode . A.encode) testLinkCRS == Just testLinkCRS
 -- True
 --
--- >>> A.encode testNamedCRS == BS.pack testNamedCRSJSON
+-- >>> (A.decode . A.encode) testNamedCRS == Just testNamedCRS
 -- True
 --
--- >>> A.encode testEPSG == BS.pack testEPSGJSON
+-- >>> (A.decode . A.encode) testEPSG == Just testEPSG
 -- True
 --
 -- >>> A.encode NoCRS

@@ -29,7 +29,7 @@ import Prelude ( Show, Eq(..), ($) )
 import Control.Applicative ( (<$>), (<*>) )
 import Control.Lens ( makeLenses )
 import Control.Monad ( mzero )
-import Data.Aeson ( FromJSON(..), ToJSON(..), Value(..), Object, (.:), (.=), object )
+import Data.Aeson ( FromJSON(..), ToJSON(..), Value(..), Object, (.:), (.:?), (.=), object )
 import Data.List ( (++) )
 import Data.Maybe ( Maybe )
 import Data.Text ( Text )
@@ -173,27 +173,27 @@ instance (FromJSON a) => FromJSON (GeoFeature a) where
                 mzero
             else
                 GeoFeature
-                    <$> obj .: ("bbox" :: Text)
+                    <$> obj .:? ("bbox" :: Text)
                     <*> obj .: ("geometry" :: Text)
                     <*> obj .: ("properties" :: Text)
-                    <*> obj .: ("id" :: Text)
+                    <*> obj .:? ("id" :: Text)
     parseJSON _ = mzero
 
 -- | encodes Feature objects to and from GeoJSON
 --
--- >>> A.encode bigFeature == BS.pack bigFeatureJSON
+-- >>> (A.decode . A.encode) bigFeature == Just bigFeature
 -- True
 --
--- >>> A.encode featureWithNoProperties == BS.pack featureWithNoPropertiesJSON
+-- >>> (A.decode . A.encode) featureWithNoProperties == Just featureWithNoProperties
 -- True
 --
--- >>> A.encode featureWithNoId == BS.pack featureWithNoIdJSON
+-- >>> (A.decode . A.encode) featureWithNoId == Just featureWithNoId
 -- True
 --
--- >>> A.encode featureWithNoBBox == BS.pack featureWithNoBBoxJSON
+-- >>> (A.decode . A.encode) featureWithNoBBox == Just featureWithNoBBox
 -- True
 --
--- >>> A.encode featureWithNoGeometry == BS.pack featureWithNoGeometryJSON
+-- >>> (A.decode . A.encode) featureWithNoGeometry == Just featureWithNoGeometry
 -- True
 --
 instance (ToJSON a) => ToJSON (GeoFeature a) where

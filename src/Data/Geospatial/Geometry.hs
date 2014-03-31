@@ -168,25 +168,25 @@ geometryFromAeson _ _                          = mzero
 -- >>> A.encode NoGeometry
 -- "null"
 --
--- >>> A.encode lShapedPoly == BS.pack lShapedPolyJSON
+-- >>> (A.decode . A.encode) lShapedPoly == Just lShapedPoly
 -- True
 --
--- >>> A.encode emptyPoly == BS.pack emptyPolyJSON
+-- >>> (A.decode . A.encode) emptyPoly == Just emptyPoly
 -- True
 --
--- >>> A.encode emptyMultiPoly == BS.pack emptyMultiPolyJSON
+-- >>> (A.decode . A.encode) emptyMultiPoly == Just emptyMultiPoly
 -- True
 --
--- >>> A.encode singleLineMultiLine == BS.pack singleLineMultiLineJSON
+-- >>> (A.decode . A.encode) singleLineMultiLine == Just singleLineMultiLine
 -- True
 --
--- >>> A.encode multiLine == BS.pack multiLineJSON
+-- >>> (A.decode . A.encode) multiLine == Just multiLine
 -- True
 --
--- >>> A.encode emptyCollection == BS.pack emptyCollectionJSON
+-- >>> (A.decode . A.encode) emptyCollection == Just emptyCollection
 -- True
 --
--- >>> A.encode bigassCollection == BS.pack bigassCollectionJSON
+-- >>> (A.decode . A.encode) bigassCollection == Just bigassCollection
 -- True
 --
 instance ToJSON GeospatialGeometry where
@@ -228,7 +228,9 @@ instance ToJSON GeospatialGeometry where
 -- >>> decode' bigassCollectionJSON == Just bigassCollection
 -- True
 --
--- >>> decode' "null" :: Maybe GeospatialGeometry
+-- Aeson doesnt decode "null" into `Null` unfortunately
+--
+-- decode' "null" :: Maybe GeospatialGeometry
 -- Just NoGeometry
 --
 instance FromJSON GeospatialGeometry where

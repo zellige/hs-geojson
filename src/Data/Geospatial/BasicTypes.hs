@@ -26,6 +26,8 @@ module Data.Geospatial.BasicTypes (
     ,   FeatureID
     ) where
 
+import Data.Text ( Text )
+
 type Latitude = Float
 type Longitude = Float
 type Easting = Float
@@ -37,15 +39,15 @@ type Altitude = Float
 --
 type GeoPositionWithoutCRS = [Float]
 
-type Name = String
+type Name = Text
 type Code = Int
-type Href = String
-type FormatString = String
-type ProjectionType = String
+type Href = Text
+type FormatString = Text
+type ProjectionType = Text
 
 -- Feature Types
 
-type FeatureID = String
+type FeatureID = Text
 
 -- | See Section 4 /Bounding Boxes/ of the GeoJSON spec,
 -- The length of the list/array must be 2*n where n is the dimensionality of the position type for the CRS

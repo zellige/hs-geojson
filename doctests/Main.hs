@@ -8,6 +8,11 @@ import System.Directory
 import System.FilePath
 import Test.DocTest
 
+extensions :: [String]
+extensions =
+    [   "OverloadedStrings"
+    ]
+
 docopts :: [FilePath]
 docopts =
     [   "-isrc"
@@ -15,7 +20,7 @@ docopts =
     ,   "-optP-include"
     ,   "-optPdist/build/autogen/cabal_macros.h"
     ,   "-hide-all-packages"
-    ] ++ map ("-package=" ++) deps ++ opts
+    ] ++ map ("-package=" ++) deps ++ opts ++ map ("-X" ++) extensions
 
 -- the list of all file paths to search for source files
 sourceDirs :: [FilePath]
