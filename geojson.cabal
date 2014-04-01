@@ -1,20 +1,17 @@
 name:               geojson
-version:            1.0.0
+version:            1.0.1
 license:            BSD3
 license-file:       etc/LICENCE.md
 author:             Dom De Re
 maintainer:         Dom De Re
 copyright:          Copyright (C) 2013-2014
-synopsis:           A thin GeoJSON Layer above the json library
+synopsis:           A thin GeoJSON Layer above the aeson library
 category:           Data
-description:        A thin GeoJSON Layer above the json library.
+description:        A thin GeoJSON Layer above the aeson library.
                     .
                     It currently conforms to version 1.0 of the GeoJSON spec which can be found here:
                     .
                     <http://geojson.org/geojson-spec.html>
-                    .
-                    Its built on top of the `json` library and doesn't currently take
-                    advantage of laziness as much as it could, so those are areas for improvement
 
 homepage:           https://github.com/domdere/hs-geojson/issues
 bug-reports:        https://github.com/domdere/hs-geojson/issues
@@ -22,7 +19,7 @@ cabal-version:      >= 1.10
 build-type:         Custom
 tested-with:        GHC == 7.6.3
 extra-source-files: README.md,
-                    etc/CHANGELOG.md
+                    CHANGELOG.md
 
 source-repository       head
     type:               git
