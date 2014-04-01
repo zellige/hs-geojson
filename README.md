@@ -1,8 +1,14 @@
 # geojson [![Build Status](https://travis-ci.org/domdere/hs-geojson.png?branch=master)](https://travis-ci.org/domdere/hs-geojson) [![Hackage](https://budueba.com/hackage/geojson)](https://hackage.haskell.org/package/geojson)
 
-A thin GeoJSON Layer above the json library
+A thin GeoJSON Layer above the `aeson` library
 
 ## Building the project
+
+Install the dependencies with:
+
+    cabal install --dependencies-only
+
+Optionally add `--enable-tests` if you intend to run the unit tests
 
 The project must be "configured" at least once everytime `geojson.cabal` changes, this can be done with:
 
@@ -39,6 +45,9 @@ Cabal's great, but when you are developing a few different projects with their o
 Consider trying [`cabal-dev`] [cabal-dev]. In terms of using it, all thats required is replacing `cabal` with `cabal-dev` in all the above command lines.
 
 It will download and install all the dependencies for your project and install them in a `cabal-dev/` directory in your project directory, and they will only be used for this project.
+
+Those with newer versions of `cabal` (`>= 1.18` I think) can skip `cabal-dev` and instead run `cabal sandbox init`, and just start runnign the above instructions
+as is from `cabal install --only-dependencies`
 
 [doctest-github]: https://github.com/sol/doctest-haskell "sol/doctest-haskell on GitHub.com"
 [doctest-userguide]: https://github.com/sol/doctest-haskell/blob/master/README.markdown#usage "doctest Usage Guide"
