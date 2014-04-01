@@ -28,7 +28,7 @@ source-repository       head
 source-repository       this
     type:               git
     location:           https://github.com/domdere/hs-geojson.git
-    tag:                0.0.2
+    tag:                1.0.1
 
 flag                    small_base
     description:        Choose the new, split-up base package.

@@ -1,6 +1,6 @@
 # 1.0.x
 
-## 0.0.2 -> 2.0.0
+## 0.0.2 -> 1.0.0
 
 -   Migrated from `json` to `aeson`, all `JSON` instances were removed and replaced with `ToJSON` and `FromJSON` instances
 -   `GeoFeature` and `GeoFeatureCollection` are now of kind `* -> *`, parameterised on the Property type, `GeoFeature a` and `GeoFeatureCollection a` are in `ToJSON` and/or `FromJSON` if `a` is in `ToJSON` and/or `FromJSON` respectively.
