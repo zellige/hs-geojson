@@ -6,7 +6,7 @@ A thin GeoJSON Layer above the `aeson` library
 
 Install the dependencies with:
 
-    cabal install --dependencies-only
+    cabal install --only-dependencies
 
 Optionally add `--enable-tests` if you intend to run the unit tests
 
