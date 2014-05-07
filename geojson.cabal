@@ -39,7 +39,10 @@ library
     build-depends:      base < 5 && >= 4
                     ,   aeson       == 0.7.*
                     ,   lens        == 4.1.*
+                    ,   semigroups  == 0.13.*
                     ,   text        == 1.1.*
+                    ,   validation  == 0.3.*
+                    ,   vector      == 0.10.*
 
     ghc-options:        -Wall
                         -fno-warn-unused-imports
@@ -60,10 +63,12 @@ library
                     ,   Data.Geospatial.Geometry.GeoMultiPoint
                     ,   Data.Geospatial.Geometry.GeoMultiPolygon
                     ,   Data.Geospatial.Geometry.GeoLine
+--                    ,   Data.Geospatial.Geometry.GeoLinearRing
                     ,   Data.Geospatial.Geometry.GeoPoint
                     ,   Data.Geospatial.Geometry.GeoPolygon
                     ,   Data.Geospatial.Geometry.Aeson
                     ,   Data.Geospatial.GeoPosition
+                    ,   Data.LinearRing
 
 test-suite              doctests
     type:
