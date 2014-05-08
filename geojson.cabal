@@ -53,6 +53,7 @@ library
     hs-source-dirs:     src
 
     exposed-modules:    Data.Geospatial
+                    ,   Data.LinearRing
 
     other-modules:      Data.Geospatial.BasicTypes
                     ,   Data.Geospatial.CRS
@@ -63,12 +64,10 @@ library
                     ,   Data.Geospatial.Geometry.GeoMultiPoint
                     ,   Data.Geospatial.Geometry.GeoMultiPolygon
                     ,   Data.Geospatial.Geometry.GeoLine
---                    ,   Data.Geospatial.Geometry.GeoLinearRing
                     ,   Data.Geospatial.Geometry.GeoPoint
                     ,   Data.Geospatial.Geometry.GeoPolygon
                     ,   Data.Geospatial.Geometry.Aeson
                     ,   Data.Geospatial.GeoPosition
-                    ,   Data.LinearRing
 
 test-suite              doctests
     type:

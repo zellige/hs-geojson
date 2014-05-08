@@ -19,6 +19,7 @@ module Data.LinearRing (
     ,   fromLinearRing
     ,   fromList
     ,   fromListWithEqCheck
+    ,   makeLinearRing
     ,   ringHead
     ) where
 
@@ -131,6 +132,18 @@ fromListWithEqCheck
     -> v (NonEmpty (ListToLinearRingError a)) (LinearRing a)
 fromListWithEqCheck xs = checkHeadAndLastEq xs *> fromList xs
 
+-- |
+-- Creates a LinearRing
+-- @makeLinearRing xs x y z@ creates a `LinearRing` homomorphic to the list @xs ++ [x, y, z]@
+--
+makeLinearRing
+    :: [a]          -- ^ The elements beyond the requisite 3 (which will go on the end)
+    -> a            -- ^ Third Last Element
+    -> a            -- ^ Second Last Element
+    -> a            -- ^ Last Element
+    -> LinearRing a
+makeLinearRing ws x y z = foldr (:|) (ThreePoints x y z) ws
+
 
 -- instances
 
@@ -196,9 +209,6 @@ foldr'' op e (x :| xs) = op x (foldr'' op e xs)
 traverse' :: (Applicative f) => (a -> f b) -> LinearRing a -> f (LinearRing b)
 traverse' f (ThreePoints x y z) = ThreePoints <$> f x <*> f y <*> f z
 traverse' f (x :| xs) = (:|) <$> f x <*> traverse' f xs
-
-makeLinearRing :: [a] -> a -> a -> a -> LinearRing a
-makeLinearRing ws x y z = foldr (:|) (ThreePoints x y z) ws
 
 showErrors :: (Show a) => NonEmpty (ListToLinearRingError a) -> String
 showErrors = foldr (++) "" . intersperse ", " . fmap show
