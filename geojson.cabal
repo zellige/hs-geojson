@@ -81,7 +81,7 @@ test-suite              doctests
 
     build-depends:      base < 5 && >= 3
                     ,   bytestring          == 0.10.*
-                    ,   doctest             >= 0.9.7
+                    ,   doctest             == 0.9.10.*
                     ,   filepath            >= 1.3
                     ,   directory           >= 1.1
                     ,   QuickCheck          >= 2.0
