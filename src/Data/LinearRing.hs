@@ -1,3 +1,4 @@
+{-# LANGUAGE NoImplicitPrelude #-}
 -------------------------------------------------------------------
 -- |
 -- Module       : Data.LinearRing
@@ -17,18 +18,24 @@ module Data.LinearRing (
     -- * Functions
     ,   fromLinearRing
     ,   fromList
+    ,   fromListWithEqCheck
     ,   ringHead
     ) where
 
+import Prelude hiding ( foldr )
+
+import Control.Applicative ( Applicative(..) )
 import Control.Lens ( ( # ), (^?) )
-import Control.Monad ( Monad(..), mzero, sequence )
-import Data.Aeson ( ToJSON(..), FromJSON(..), Value(..) )
-import Data.Aeson.Types ( typeMismatch )
+import Control.Monad ( Monad(..), join, mzero, sequence )
+import Data.Aeson ( ToJSON(..), FromJSON(..), Value )
+import Data.Aeson.Types ( Parser, typeMismatch )
+import Data.Foldable ( Foldable(..) )
 import Data.Function ( on )
 import Data.Functor ( (<$>) )
-import Data.List.NonEmpty ( NonEmpty )
+import Data.List.NonEmpty ( NonEmpty, intersperse )
 import Data.Maybe ( maybe )
 import Data.Text ( Text, pack )
+import Data.Traversable ( Traversable(..) )
 import Data.Validation ( Validate(..), AccValidation )
 import qualified Data.Vector as V
 
@@ -42,7 +49,6 @@ import qualified Data.Vector as V
 --
 -- >>> instance (Arbitrary a) => Arbitrary (LinearRing a) where arbitrary = makeLinearRing <$> arbitrary <*> arbitrary <*> arbitrary <*> arbitrary
 --
--- >>> let safeLast = foldr (\a mb -> case mb of; Nothing -> Just a; Just _ -> mb) Nothing
 --
 
 -- |
@@ -96,7 +102,13 @@ fromLinearRing xs = foldr'' (:) [ringHead xs] xs
 -- This version doesnt check equality of the head and tail in case
 -- you wish to use it for elements with no Eq instance defined.
 --
--- Be aware that the last element of the list will be dropped.
+-- Also its a list, finding the last element could be expensive with large
+-- lists.  So just follow the spec and make sure the ring is closed.
+--
+-- Ideally the Spec would be modified to remove the redundant last element from the Polygons/LineRings.
+-- Its just going to waste bandwidth...
+--
+-- And be aware that the last element of the list will be dropped.
 --
 fromList
     :: (Validate v, Functor (v (NonEmpty (ListToLinearRingError a))))
@@ -108,6 +120,17 @@ fromList (_:_:[])       = _Failure # return (ListTooShort 2)
 fromList (_:_:_:[])     = _Failure # return (ListTooShort 3)
 fromList (x:y:z:_:[])   = _Success # ThreePoints x y z
 fromList (x:xs)         =  (:|) x <$> fromList xs
+
+-- |
+-- The expensive version of fromList that checks whether the head and last elements
+-- are equal.
+--
+fromListWithEqCheck
+    :: (Eq a, Validate v, Applicative (v (NonEmpty (ListToLinearRingError a))))
+    => [a]
+    -> v (NonEmpty (ListToLinearRingError a)) (LinearRing a)
+fromListWithEqCheck xs = checkHeadAndLastEq xs *> fromList xs
+
 
 -- instances
 
@@ -122,6 +145,21 @@ instance Functor LinearRing where
     fmap f (ThreePoints x y z)  = ThreePoints (f x) (f y) (f z)
     fmap f (x :| xs)            = f x :| fmap f xs
 
+-- | This instance of Foldable will run through the entire ring, closing the
+-- loop by also passing the initial element in again at the end.
+--
+instance Foldable LinearRing where
+--  foldr :: (a -> b -> b) -> b -> LinearRing a -> b
+    foldr f x = foldr f x . fromLinearRing
+
+-- |
+-- When traversing this Structure, the Applicative context
+-- of the last element will be appended to the end to close the loop
+--
+instance Traversable LinearRing where
+--  traverse :: (Applicative f) => (a -> f b) -> t a -> f (t b)
+    traverse f xs = traverse' f xs <* f (ringHead xs)
+
 instance (Eq a) => Eq (LinearRing a) where
     (==) = (==) `on` fromLinearRing
 
@@ -129,12 +167,12 @@ instance (ToJSON a) => ToJSON (LinearRing a) where
 --  toJSON :: a -> Value
     toJSON = toJSON . fromLinearRing
 
-instance (FromJSON a) => FromJSON (LinearRing a) where
+instance (FromJSON a, Show a) => FromJSON (LinearRing a) where
 --  parseJSON :: Value -> Parser a
     parseJSON v = do
         xs <- parseJSON v
         let vxs = fromListAcc xs
-        maybe mzero return (vxs ^? _Success)
+        maybe (parseError v (vxs ^? _Failure)) return (vxs ^? _Success)
 
 -- helpers
 
@@ -151,6 +189,37 @@ foldr'' :: (a -> b -> b) -> b -> LinearRing a -> b
 foldr'' op e (ThreePoints x y z) = op x $ op y $ op z e
 foldr'' op e (x :| xs) = op x (foldr'' op e xs)
 
+-- |
+--
+-- This traverse function is a helper for the real traverse function, it doesnt close off the loop.
+--
+traverse' :: (Applicative f) => (a -> f b) -> LinearRing a -> f (LinearRing b)
+traverse' f (ThreePoints x y z) = ThreePoints <$> f x <*> f y <*> f z
+traverse' f (x :| xs) = (:|) <$> f x <*> traverse' f xs
+
 makeLinearRing :: [a] -> a -> a -> a -> LinearRing a
 makeLinearRing ws x y z = foldr (:|) (ThreePoints x y z) ws
 
+showErrors :: (Show a) => NonEmpty (ListToLinearRingError a) -> String
+showErrors = foldr (++) "" . intersperse ", " . fmap show
+
+parseError :: (Show a) => Value -> Maybe (NonEmpty (ListToLinearRingError a)) -> Parser b
+parseError v = maybe mzero (\e -> typeMismatch (showErrors e) v)
+
+checkHeadAndLastEq
+    :: (Eq a, Validate v, Functor (v (NonEmpty (ListToLinearRingError a))))
+    => [a]
+    -> v (NonEmpty (ListToLinearRingError a)) ()
+checkHeadAndLastEq = maybe (_Failure # return (ListTooShort 0)) (\(h, l) -> if h == l then _Success # () else _Failure # return (HeadNotEqualToLast h l)) . mhl
+    where
+        mhl ::[a] -> Maybe (a, a)
+        mhl xs = (,) <$> safeHead xs <*> safeLast xs
+
+safeHead :: [a] -> Maybe a
+safeHead []     = Nothing
+safeHead (x:_)  = Just x
+
+safeLast :: [a] -> Maybe a
+safeLast []     = Nothing
+safeLast (x:[]) = Just x
+safeLast (_:xs) = safeLast xs
