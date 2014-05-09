@@ -76,10 +76,13 @@ ringHead :: LinearRing a -> a
 ringHead (ThreePoints x _ _)    = x
 ringHead (x :| _)               = x
 
+-- NOTE (Dom De Re): Props have been commented out until <https://github.com/sol/doctest-haskell/issues/83>
+-- has been resolved.
+
 -- |
 -- returns the number of elements in the list, including the replicated element at the end of the list.
 --
--- prop> (\xs -> ringLength xs == (length (fromLinearRing xs))) (xs :: LinearRing Int)
+-- (\xs -> ringLength xs == (length (fromLinearRing xs))) (xs :: LinearRing Int)
 --
 ringLength :: LinearRing a -> Int
 ringLength (ThreePoints {}) = 4
@@ -88,9 +91,9 @@ ringLength (_ :| xs) = 1 + ringLength xs
 -- |
 -- This function converts it into a list and appends the given element to the end.
 --
--- prop> (\xs -> safeLast (fromLinearRing xs) == Just (ringHead xs)) (xs :: LinearRing Int)
+-- (\xs -> safeLast (fromLinearRing xs) == Just (ringHead xs)) (xs :: LinearRing Int)
 --
--- prop> (\xs -> length (fromLinearRing xs) >= 4) (xs :: LinearRing Int)
+-- (\xs -> length (fromLinearRing xs) >= 4) (xs :: LinearRing Int)
 --
 
 fromLinearRing :: LinearRing a -> [a]
@@ -196,7 +199,7 @@ fromListAcc = fromList
 -- This is a fold helper function and not a Foldable instance since it does not close the loop,
 -- the first element is not replicated at the end.
 --
--- prop> (\xs -> (ringHead xs) == (foldr'' (\a -> const a) 0 xs)) (xs :: LinearRing Int)
+-- > (\xs -> (ringHead xs) == (foldr'' (\a -> const a) 0 xs)) (xs :: LinearRing Int)
 --
 foldr'' :: (a -> b -> b) -> b -> LinearRing a -> b
 foldr'' op e (ThreePoints x y z) = op x $ op y $ op z e

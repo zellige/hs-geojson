@@ -62,7 +62,7 @@ import Data.Text ( Text )
 -- End Test Bounding Box Data
 -- Test Geometry Data
 -- Polys
--- >>> let lShapedPolyJSON = "{\"type\":\"Polygon\",\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]}"
+-- >>> let lShapedPolyJSON = "{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]],\"type\":\"Polygon\"}"
 --
 -- Upside down L Shaped Poly
 --
