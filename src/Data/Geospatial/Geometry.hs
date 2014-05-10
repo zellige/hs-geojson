@@ -68,7 +68,7 @@ import Data.Text ( Text )
 -- >>> import qualified Data.Aeson as A
 -- >>> import qualified Data.ByteString.Lazy.Char8 as BS
 --
--- >>> let lshapedPolyVertices = return (makeLinearRing [[120.0, -15.0], [127.0, -15.0], [127.0, -25.0]] [124.0, -25.0] [124.0, -18.0] [120.0, -18.0]) :: [LinearRing GeoPositionWithoutCRS]
+-- >>> let lshapedPolyVertices = return (makeLinearRing [120.0, -15.0] [127.0, -15.0] [127.0, -25.0] [[124.0, -25.0], [124.0, -18.0], [120.0, -18.0]]) :: [LinearRing GeoPositionWithoutCRS]
 -- >>> let lshapedPolyLineVertices = [[120.0, -15.0], [127.0, -15.0], [127.0, -25.0], [124.0, -25.0], [124.0, -18.0], [120.0, -18.0]] :: [GeoPositionWithoutCRS]
 -- >>> let emptyVertices = [] :: [LinearRing GeoPositionWithoutCRS]
 -- >>> let emptyLineVertices = [] :: [GeoPositionWithoutCRS]

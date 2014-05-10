@@ -55,11 +55,7 @@ import qualified Data.Vector as V
 -- |
 -- a LinearRing has at least 3 (distinct) elements
 --
-data LinearRing a =
-        ThreePoints a a a
-    |   a :| (LinearRing a)
-
-infixr 5 :|
+data LinearRing a = LinearRing a a a [a] deriving (Eq)
 
 -- | when converting a List to a LinearRing there are some things that can go wrong
 --
@@ -73,8 +69,7 @@ data ListToLinearRingError a =
 -- returns the element at the head of the ring
 --
 ringHead :: LinearRing a -> a
-ringHead (ThreePoints x _ _)    = x
-ringHead (x :| _)               = x
+ringHead (LinearRing x _ _ _)   = x
 
 -- NOTE (Dom De Re): Props have been commented out until <https://github.com/sol/doctest-haskell/issues/83>
 -- has been resolved.
@@ -85,8 +80,7 @@ ringHead (x :| _)               = x
 -- (\xs -> ringLength xs == (length (fromLinearRing xs))) (xs :: LinearRing Int)
 --
 ringLength :: LinearRing a -> Int
-ringLength (ThreePoints {}) = 4
-ringLength (_ :| xs) = 1 + ringLength xs
+ringLength (LinearRing _ _ _ xs) = 4 + length xs
 
 -- |
 -- This function converts it into a list and appends the given element to the end.
@@ -97,7 +91,7 @@ ringLength (_ :| xs) = 1 + ringLength xs
 --
 
 fromLinearRing :: LinearRing a -> [a]
-fromLinearRing xs = foldr'' (:) [ringHead xs] xs
+fromLinearRing (LinearRing x y z ws) = x : y : z : foldr (:) [x] ws
 
 -- |
 -- creates a LinearRing out of a list of elements,
@@ -114,16 +108,38 @@ fromLinearRing xs = foldr'' (:) [ringHead xs] xs
 --
 -- And be aware that the last element of the list will be dropped.
 --
+-- >>> fromList [] :: AccValidation (NonEmpty (ListToLinearRingError Int)) (LinearRing Int)
+-- AccFailure (List too short: (length = 0) :| [])
+--
+-- >>> fromList [0] :: AccValidation (NonEmpty (ListToLinearRingError Int)) (LinearRing Int)
+-- AccFailure (List too short: (length = 1) :| [])
+--
+-- >>> fromList [0, 1] :: AccValidation (NonEmpty (ListToLinearRingError Int)) (LinearRing Int)
+-- AccFailure (List too short: (length = 2) :| [])
+--
+-- >>> fromList [0, 1, 2] :: AccValidation (NonEmpty (ListToLinearRingError Int)) (LinearRing Int)
+-- AccFailure (List too short: (length = 3) :| [])
+--
+-- >>> fromList [0, 1, 2, 3] :: AccValidation (NonEmpty (ListToLinearRingError Int)) (LinearRing Int)
+-- AccSuccess [0,1,2,0]
+--
+-- >>> fromList [0, 1, 2, 4, 0] :: AccValidation (NonEmpty (ListToLinearRingError Int)) (LinearRing Int)
+-- AccSuccess [0,1,2,4,0]
+--
+-- >>> fromList [0, 1, 2, 4, 5, 0] :: AccValidation (NonEmpty (ListToLinearRingError Int)) (LinearRing Int)
+-- AccSuccess [0,1,2,4,5,0]
+--
+-- Unfortunately it doesn't check that the last element is the same as the first at the moment...
+--
+-- >>> fromList [0, 1, 2, 4, 5, 6] :: AccValidation (NonEmpty (ListToLinearRingError Int)) (LinearRing Int)
+-- AccSuccess [0,1,2,4,5,0]
+--
 fromList
     :: (Validate v, Functor (v (NonEmpty (ListToLinearRingError a))))
     => [a]
     -> v (NonEmpty (ListToLinearRingError a)) (LinearRing a)
-fromList []             = _Failure # return (ListTooShort 0)
-fromList (_:[])         = _Failure # return (ListTooShort 1)
-fromList (_:_:[])       = _Failure # return (ListTooShort 2)
-fromList (_:_:_:[])     = _Failure # return (ListTooShort 3)
-fromList (x:y:z:_:[])   = _Success # ThreePoints x y z
-fromList (x:xs)         =  (:|) x <$> fromList xs
+fromList (x:y:z:ws@(_:_))   = _Success # LinearRing x y z (foldrDropLast (:) [] ws)
+fromList xs                 = _Failure # return (ListTooShort (length xs))
 
 -- |
 -- The expensive version of fromList that checks whether the head and last elements
@@ -140,12 +156,12 @@ fromListWithEqCheck xs = checkHeadAndLastEq xs *> fromList xs
 -- @makeLinearRing xs x y z@ creates a `LinearRing` homomorphic to the list @xs ++ [x, y, z]@
 --
 makeLinearRing
-    :: [a]          -- ^ The elements beyond the requisite 3 (which will go on the end)
-    -> a            -- ^ Third Last Element
-    -> a            -- ^ Second Last Element
-    -> a            -- ^ Last Element
+    :: a            -- ^ The first element
+    -> a            -- ^ The second element
+    -> a            -- ^ The third element
+    -> [a]          -- ^ The rest of the optional elements
     -> LinearRing a
-makeLinearRing ws x y z = foldr (:|) (ThreePoints x y z) ws
+makeLinearRing = LinearRing
 
 
 -- instances
@@ -158,26 +174,26 @@ instance (Show a) => Show (LinearRing a) where
     show  = show . fromLinearRing
 
 instance Functor LinearRing where
-    fmap f (ThreePoints x y z)  = ThreePoints (f x) (f y) (f z)
-    fmap f (x :| xs)            = f x :| fmap f xs
+    fmap f (LinearRing x y z ws) = LinearRing (f x) (f y) (f z) (fmap f ws)
 
 -- | This instance of Foldable will run through the entire ring, closing the
 -- loop by also passing the initial element in again at the end.
 --
+-- > (\xs -> (foldr (:) [] xs) == (fromLinearRing xs)) (xs :: LinearRing Int)
+--
+-- > (\xs -> (ringHead xs) == (foldr'' (\a -> const a) 0 xs)) (xs :: LinearRing Int)
+--
 instance Foldable LinearRing where
 --  foldr :: (a -> b -> b) -> b -> LinearRing a -> b
-    foldr f x = foldr f x . fromLinearRing
+    foldr f u (LinearRing x y z ws) = f x (f y (f z (foldr f (f x u) ws)))
 
 -- |
 -- When traversing this Structure, the Applicative context
 -- of the last element will be appended to the end to close the loop
 --
 instance Traversable LinearRing where
---  traverse :: (Applicative f) => (a -> f b) -> t a -> f (t b)
-    traverse f xs = traverse' f xs <* f (ringHead xs)
-
-instance (Eq a) => Eq (LinearRing a) where
-    (==) = (==) `on` fromLinearRing
+--  sequenceA :: (Traversable t, Applicative f) => t (f a) -> f (t a)
+    sequenceA (LinearRing fx fy fz fws) = (LinearRing <$> fx <*> fy <*> fz <*> sequenceA fws) <* fx
 
 instance (ToJSON a) => ToJSON (LinearRing a) where
 --  toJSON :: a -> Value
@@ -194,24 +210,6 @@ instance (FromJSON a, Show a) => FromJSON (LinearRing a) where
 
 fromListAcc :: [a] -> AccValidation (NonEmpty (ListToLinearRingError a)) (LinearRing a)
 fromListAcc = fromList
-
--- |
--- This is a fold helper function and not a Foldable instance since it does not close the loop,
--- the first element is not replicated at the end.
---
--- > (\xs -> (ringHead xs) == (foldr'' (\a -> const a) 0 xs)) (xs :: LinearRing Int)
---
-foldr'' :: (a -> b -> b) -> b -> LinearRing a -> b
-foldr'' op e (ThreePoints x y z) = op x $ op y $ op z e
-foldr'' op e (x :| xs) = op x (foldr'' op e xs)
-
--- |
---
--- This traverse function is a helper for the real traverse function, it doesnt close off the loop.
---
-traverse' :: (Applicative f) => (a -> f b) -> LinearRing a -> f (LinearRing b)
-traverse' f (ThreePoints x y z) = ThreePoints <$> f x <*> f y <*> f z
-traverse' f (x :| xs) = (:|) <$> f x <*> traverse' f xs
 
 showErrors :: (Show a) => NonEmpty (ListToLinearRingError a) -> String
 showErrors = foldr (++) "" . intersperse ", " . fmap show
@@ -236,3 +234,13 @@ safeLast :: [a] -> Maybe a
 safeLast []     = Nothing
 safeLast (x:[]) = Just x
 safeLast (_:xs) = safeLast xs
+
+-- |
+-- Does a fold but ignores the last element of the list
+--
+-- > (\x xs -> length (foldrDropLast (:) [] (x : xs)) == length xs) (x :: Int) (xs :: [Int])
+--
+foldrDropLast :: (a -> b -> b) -> b -> [a] -> b
+foldrDropLast _ x []        = x
+foldrDropLast _ x (_:[])    = x
+foldrDropLast f x (y:ys)    = f y (foldrDropLast f x ys)

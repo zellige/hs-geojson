@@ -7,7 +7,7 @@
         -   Valid JSON for a LinearRing contains at least 4 points (this is checked, parsing fails if the list is too short) and the last element should match the first, but this isnt checked due to performance issues with the current implementation (though its a resolvable issue)).
         -   A `LinearRing` can be converted to a List with `fromLinearRing` or you can just fold/traverse over it.
         -   Creating a `LinearRing` can be done with one of these:
-            -   `makeLinearRing :: [a] -> a -> a -> a -> LinearRing a`
+            -   `makeLinearRing :: a -> a -> a -> [a] -> LinearRing a`
             -   `fromList` and `fromListWithEqCheck`, which will return a `Validate` result (see the type sigs) and [**Data.Validation**] (https://hackage.haskell.org/package/validation "Data.Validation")
 
 # 1.0.x
