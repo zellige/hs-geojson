@@ -17,12 +17,13 @@ module Data.Geospatial.Geometry.GeoPolygon (
 import Data.Geospatial.BasicTypes
 import Data.Geospatial.Geometry.Aeson
 import Data.Geospatial.GeoPosition
+import Data.LinearRing
 
 import Control.Lens ( makeLenses )
 import Control.Monad ( mzero )
 import Data.Aeson ( FromJSON(..), ToJSON(..), Value(..), Object )
 
-newtype GeoPolygon = GeoPolygon { _unGeoPolygon :: [GeoPositionWithoutCRS] } deriving (Show, Eq)
+newtype GeoPolygon = GeoPolygon { _unGeoPolygon :: [LinearRing GeoPositionWithoutCRS] } deriving (Show, Eq)
 
 makeLenses ''GeoPolygon
 

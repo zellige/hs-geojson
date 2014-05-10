@@ -28,16 +28,16 @@ module Data.Geospatial.BasicTypes (
 
 import Data.Text ( Text )
 
-type Latitude = Float
-type Longitude = Float
-type Easting = Float
-type Northing = Float
-type Altitude = Float
+type Latitude = Double
+type Longitude = Double
+type Easting = Double
+type Northing = Double
+type Altitude = Double
 
 -- | (`GeoPositionWithoutCRS` is a catch all for indeterminate CRSs and for expression of positions
 -- before a CRS has been determined
 --
-type GeoPositionWithoutCRS = [Float]
+type GeoPositionWithoutCRS = [Double]
 
 type Name = Text
 type Code = Int
@@ -55,6 +55,6 @@ type FeatureID = Text
 -- e.g for WGS84: minLongitude, minLatitude, maxLongitude, maxLatitude
 -- The spec mentions that it can be part of a geometry object too but doesnt give an example,
 -- This implementation will ignore bboxes on Geometry objects, they can be added if required.
-type BoundingBoxWithoutCRS = [Float]
+type BoundingBoxWithoutCRS = [Double]
 
 
