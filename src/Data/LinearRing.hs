@@ -153,13 +153,17 @@ fromListWithEqCheck xs = checkHeadAndLastEq xs *> fromList xs
 
 -- |
 -- Creates a LinearRing
--- @makeLinearRing xs x y z@ creates a `LinearRing` homomorphic to the list @xs ++ [x, y, z]@
+-- @makeLinearRing x y z xs@ creates a `LinearRing` homomorphic to the list @[x, y, z] ++ xs@
+-- the list @xs@ should NOT contain the first element repeated, i.e the loop does not need to
+-- be closed, makeLinearRing will close it off.
+--
+-- Repeating the first element is just redundant.
 --
 makeLinearRing
     :: a            -- ^ The first element
     -> a            -- ^ The second element
     -> a            -- ^ The third element
-    -> [a]          -- ^ The rest of the optional elements
+    -> [a]          -- ^ The rest of the optional elements (WITHOUT the first element repeated at the end)
     -> LinearRing a
 makeLinearRing = LinearRing
 
