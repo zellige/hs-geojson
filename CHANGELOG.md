@@ -1,6 +1,6 @@
 # 1.1.x
 
-## 1.0.1 -> 1.0.2
+## 1.0.1 -> 1.1.0
 
 -   Corrected an issue with the `Polygon` ([here] (https://github.com/domdere/hs-geojson/issues/2 "Polygon Issue"))
     -   Introduced the `LinearRing` datatype to handle the LinearRings described in the spec.
