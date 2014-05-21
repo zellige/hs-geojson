@@ -1,5 +1,9 @@
 # 1.1.x
 
+## 1.1.0 -> 1.1.1
+
+-   Just some version bumps, the `lens` version bounds for the `transformer` library (`<0.4`) were causing some conflicts.
+
 ## 1.0.1 -> 1.1.0
 
 -   Corrected an issue with the `Polygon` ([here] (https://github.com/domdere/hs-geojson/issues/2 "Polygon Issue"))
