@@ -21,24 +21,21 @@ module Data.LinearRing (
     ,   fromListWithEqCheck
     ,   makeLinearRing
     ,   ringHead
+    ,   ringLength
     ) where
 
 import Prelude hiding ( foldr )
 
 import Control.Applicative ( Applicative(..) )
 import Control.Lens ( ( # ), (^?) )
-import Control.Monad ( Monad(..), join, mzero, sequence )
+import Control.Monad ( mzero )
 import Data.Aeson ( ToJSON(..), FromJSON(..), Value )
 import Data.Aeson.Types ( Parser, typeMismatch )
 import Data.Foldable ( Foldable(..) )
-import Data.Function ( on )
 import Data.Functor ( (<$>) )
 import Data.List.NonEmpty ( NonEmpty, intersperse )
-import Data.Maybe ( maybe )
-import Data.Text ( Text, pack )
 import Data.Traversable ( Traversable(..) )
 import Data.Validation ( Validate(..), AccValidation )
-import qualified Data.Vector as V
 
 -- $setup
 --
