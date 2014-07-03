@@ -14,6 +14,7 @@
 module Data.LineString (
     -- * Type
         LineString
+    ,   ListToLineStringError(..)
     -- * Functions
     ,   fromLineString
     ,   fromList
