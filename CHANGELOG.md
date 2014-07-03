@@ -1,3 +1,9 @@
+# 1.2.x
+
+## 1.1.1 -> 1.2.0
+
+-   Added the `LineString` data type for use with `GeoLine`, now a `GeoLine` with less than 2 positions is a type error or a parse error, as it should be according to the [spec] (http://geojson.org/geojson-spec.html#linestring "LineString in the GeoJSON v1.0 spec")
+
 # 1.1.x
 
 ## 1.1.0 -> 1.1.1
