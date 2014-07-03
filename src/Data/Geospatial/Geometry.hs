@@ -61,17 +61,17 @@ import Data.Text ( Text )
 
 -- $setup
 --
--- >>> import Control.Monad ( return )
 -- >>> import Data.Geospatial.BasicTypes
 -- >>> import Data.LinearRing
+-- >>> import Data.LineString
 --
+-- >>> import Control.Monad ( return )
 -- >>> import qualified Data.Aeson as A
 -- >>> import qualified Data.ByteString.Lazy.Char8 as BS
 --
 -- >>> let lshapedPolyVertices = return (makeLinearRing [120.0, -15.0] [127.0, -15.0] [127.0, -25.0] [[124.0, -25.0], [124.0, -18.0], [120.0, -18.0]]) :: [LinearRing GeoPositionWithoutCRS]
--- >>> let lshapedPolyLineVertices = [[120.0, -15.0], [127.0, -15.0], [127.0, -25.0], [124.0, -25.0], [124.0, -18.0], [120.0, -18.0]] :: [GeoPositionWithoutCRS]
+-- >>> let lshapedPolyLineVertices = makeLineString [120.0, -15.0] [127.0, -15.0] [[127.0, -25.0], [124.0, -25.0], [124.0, -18.0], [120.0, -18.0]] :: LineString GeoPositionWithoutCRS
 -- >>> let emptyVertices = [] :: [LinearRing GeoPositionWithoutCRS]
--- >>> let emptyLineVertices = [] :: [GeoPositionWithoutCRS]
 --
 -- >>> let decode' = A.decode . BS.pack; decode' :: (FromJSON a) => String -> Maybe a
 --
@@ -118,9 +118,6 @@ import Data.Text ( Text )
 -- >>> let lShapedLineJSON = "{\"type\":\"Line\",\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]}"
 -- >>> let lShapedGeoLine = GeoLine lshapedPolyLineVertices
 -- >>> let lShapedLine = Line lShapedGeoLine
--- >>> let emptyLineJSON = "{\"type\":\"Line\",\"coordinates\":[]}"
--- >>> let emptyGeoLine = GeoLine emptyLineVertices
--- >>> let emptyLine = Line emptyGeoLine
 --
 -- Multi Lines
 -- >>> let emptyMultiLineJSON = "{\"type\":\"MultiLine\",\"coordinates\":[]}"
@@ -129,13 +126,13 @@ import Data.Text ( Text )
 -- >>> let singleLineMultiLineJSON = "{\"coordinates\":[{\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]],\"type\":\"Line\"}],\"type\":\"MultiLine\"}"
 -- >>> let singleLineGeoMultiLine = GeoMultiLine [lShapedGeoLine]
 -- >>> let singleLineMultiLine = MultiLine singleLineGeoMultiLine
--- >>> let multiLineJSON = "{\"type\":\"MultiLine\",\"coordinates\":[{\"type\":\"Line\",\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]},{\"type\":\"Line\",\"coordinates\":[]}]}"
--- >>> let geoMultiLine = GeoMultiLine [lShapedGeoLine, emptyGeoLine]
+-- >>> let multiLineJSON = "{\"coordinates\":[{\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]],\"type\":\"Line\"},{\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]],\"type\":\"Line\"}],\"type\":\"MultiLine\"}"
+-- >>> let geoMultiLine = GeoMultiLine [lShapedGeoLine, lShapedGeoLine]
 -- >>> let multiLine = MultiLine geoMultiLine
 -- >>> let emptyCollectionJSON = "{\"type\":\"GeometryCollection\",\"geometries\":[]}"
 -- >>> let emptyCollection = Collection []
--- >>> let bigassCollectionJSON = "{\"geometries\":[{\"coordinates\":[{\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]],\"type\":\"Line\"}],\"type\":\"MultiLine\"},{\"coordinates\":[],\"type\":\"MultiLine\"},{\"coordinates\":[],\"type\":\"Line\"},{\"coordinates\":[{\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]],\"type\":\"Line\"},{\"coordinates\":[],\"type\":\"Line\"}],\"type\":\"MultiLine\"},{\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]],\"type\":\"Line\"},{\"coordinates\":[{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]],\"type\":\"Polygon\"},{\"coordinates\":[],\"type\":\"Polygon\"}],\"type\":\"MultiPolygon\"},{\"coordinates\":[{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]],\"type\":\"Polygon\"}],\"type\":\"MultiPolygon\"},{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]],\"type\":\"Polygon\"},{\"coordinates\":[],\"type\":\"MultiPolygon\"},{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]],\"type\":\"Polygon\"}],\"type\":\"GeometryCollection\"}"
--- >>> let bigassCollection = Collection [singleLineMultiLine, emptyMultiLine, emptyLine, multiLine, lShapedLine, multiPoly, singlePolyMultiPoly, lShapedPoly, emptyMultiPoly, lShapedPoly]
+-- >>> let bigassCollectionJSON = "{\"geometries\":[{\"coordinates\":[{\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]],\"type\":\"Line\"}],\"type\":\"MultiLine\"},{\"coordinates\":[],\"type\":\"MultiLine\"},{\"coordinates\":[{\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]],\"type\":\"Line\"},{\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]],\"type\":\"Line\"}],\"type\":\"MultiLine\"},{\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]],\"type\":\"Line\"},{\"coordinates\":[{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]],\"type\":\"Polygon\"},{\"coordinates\":[],\"type\":\"Polygon\"}],\"type\":\"MultiPolygon\"},{\"coordinates\":[{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]],\"type\":\"Polygon\"}],\"type\":\"MultiPolygon\"},{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]],\"type\":\"Polygon\"},{\"coordinates\":[],\"type\":\"MultiPolygon\"},{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]],\"type\":\"Polygon\"}],\"type\":\"GeometryCollection\"}"
+-- >>> let bigassCollection = Collection [singleLineMultiLine, emptyMultiLine, multiLine, lShapedLine, multiPoly, singlePolyMultiPoly, lShapedPoly, emptyMultiPoly, lShapedPoly]
 --
 -- End Test Geometry Data
 --

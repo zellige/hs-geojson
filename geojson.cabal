@@ -1,5 +1,5 @@
 name:               geojson
-version:            1.1.1
+version:            1.2.0
 license:            BSD3
 license-file:       etc/LICENCE.md
 author:             Dom De Re
@@ -28,7 +28,7 @@ source-repository       head
 source-repository       this
     type:               git
     location:           https://github.com/domdere/hs-geojson.git
-    tag:                1.1.1
+    tag:                1.2.0
 
 flag                    small_base
     description:        Choose the new, split-up base package.
@@ -55,6 +55,7 @@ library
 
     exposed-modules:    Data.Geospatial
                     ,   Data.LinearRing
+                    ,   Data.LineString
 
     other-modules:      Data.Geospatial.BasicTypes
                     ,   Data.Geospatial.CRS

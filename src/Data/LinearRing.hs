@@ -15,6 +15,7 @@
 module Data.LinearRing (
     -- * Type
         LinearRing
+    ,   ListToLinearRingError(..)
     -- * Functions
     ,   fromLinearRing
     ,   fromList
@@ -54,7 +55,12 @@ import Data.Validation ( Validate(..), AccValidation )
 --
 data LinearRing a = LinearRing a a a [a] deriving (Eq)
 
--- | when converting a List to a LinearRing there are some things that can go wrong
+-- |
+-- When converting a List to a LinearRing there are some things that can go wrong
+--
+--     * The list can be too short
+--     * The head may not be equal to the last element in the list (NB this is not currently checked due to performance concerns,
+--       and it also doesnt make much sense since its likely to contain doubles)
 --
 data ListToLinearRingError a =
         ListTooShort Int
