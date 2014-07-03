@@ -16,12 +16,13 @@ module Data.Geospatial.Geometry.GeoLine (
 
 import Data.Geospatial.BasicTypes
 import Data.Geospatial.Geometry.Aeson
+import Data.LineString
 
 import Control.Lens ( makeLenses )
 import Control.Monad ( mzero )
-import Data.Aeson ( FromJSON(..), ToJSON(..), Value(..), Object )
+import Data.Aeson ( FromJSON(..), ToJSON(..), Value(..) )
 
-newtype GeoLine = GeoLine { _unGeoLine :: [GeoPositionWithoutCRS] } deriving (Show, Eq)
+newtype GeoLine = GeoLine { _unGeoLine :: LineString GeoPositionWithoutCRS } deriving (Show, Eq)
 
 makeLenses ''GeoLine
 
