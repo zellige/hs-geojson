@@ -55,6 +55,7 @@ library
 
     exposed-modules:    Data.Geospatial
                     ,   Data.LinearRing
+                    ,   Data.LineString
 
     other-modules:      Data.Geospatial.BasicTypes
                     ,   Data.Geospatial.CRS
