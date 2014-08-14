@@ -80,7 +80,7 @@ ringHead (LinearRing x _ _ _)   = x
 -- |
 -- returns the number of elements in the list, including the replicated element at the end of the list.
 --
--- (\xs -> ringLength xs == (length (fromLinearRing xs))) (xs :: LinearRing Int)
+-- prop> (\xs -> ringLength xs == (length (fromLinearRing xs))) (xs :: LinearRing Int)
 --
 ringLength :: LinearRing a -> Int
 ringLength (LinearRing _ _ _ xs) = 4 + length xs
