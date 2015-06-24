@@ -1,5 +1,5 @@
 name:               geojson
-version:            1.2.1
+version:            1.3.0
 license:            BSD3
 license-file:       etc/LICENCE.md
 author:             Dom De Re
@@ -28,7 +28,7 @@ source-repository       head
 source-repository       this
     type:               git
     location:           https://github.com/domdere/hs-geojson.git
-    tag:                1.2.0
+    tag:                1.3.0
 
 flag                    small_base
     description:        Choose the new, split-up base package.
