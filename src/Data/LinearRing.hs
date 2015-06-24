@@ -35,7 +35,7 @@ import Data.Aeson.Types ( Parser, typeMismatch )
 import Data.Foldable ( Foldable(..) )
 import Data.Functor ( (<$>) )
 import Data.List ( intercalate )
-import Data.List.NonEmpty ( NonEmpty )
+import Data.List.NonEmpty as NL ( NonEmpty, toList )
 import Data.Traversable ( Traversable(..) )
 import Data.Validation ( Validate(..), AccValidation, _Failure, _Success )
 
@@ -220,7 +220,7 @@ fromListAcc :: [a] -> AccValidation (NonEmpty (ListToLinearRingError a)) (Linear
 fromListAcc = fromList
 
 showErrors :: (Show a) => NonEmpty (ListToLinearRingError a) -> String
-showErrors = intercalate ", " . toList . fmap show
+showErrors = intercalate ", " . NL.toList . fmap show
 
 parseError :: (Show a) => Value -> Maybe (NonEmpty (ListToLinearRingError a)) -> Parser b
 parseError v = maybe mzero (\e -> typeMismatch (showErrors e) v)
