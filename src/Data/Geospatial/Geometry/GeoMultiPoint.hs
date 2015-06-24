@@ -12,6 +12,8 @@ module Data.Geospatial.Geometry.GeoMultiPoint (
         GeoMultiPoint(..)
     -- * Lenses
     ,   unGeoMultiPoint
+    -- * To Points
+    ,   splitGeoMultiPoint, mergeGeoPoints
     ) where
 
 import Data.Geospatial.BasicTypes
@@ -22,9 +24,18 @@ import Control.Lens ( makeLenses )
 import Control.Monad ( mzero )
 import Data.Aeson ( FromJSON(..), ToJSON(..), Value(..), Object )
 
-newtype GeoMultiPoint = GeoMultiPoint { _unGeoMultiPoint :: [GeoPoint] } deriving (Show, Eq)
+newtype GeoMultiPoint = GeoMultiPoint { _unGeoMultiPoint :: [GeoPositionWithoutCRS] } deriving (Show, Eq)
 
 makeLenses ''GeoMultiPoint
+
+
+-- | Split GeoMultiPoint coordinates into multiple GeoPoints
+splitGeoMultiPoint:: GeoMultiPoint -> [GeoPoint]
+splitGeoMultiPoint = map GeoPoint . _unGeoMultiPoint
+
+-- | Merge multiple GeoPoints into one GeoMultiPoint
+mergeGeoPoints :: [GeoPoint] -> GeoMultiPoint
+mergeGeoPoints = GeoMultiPoint . map _unGeoPoint
 
 -- instances
 

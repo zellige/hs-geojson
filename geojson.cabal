@@ -1,105 +1,121 @@
-name:               geojson
-version:            1.2.1
-license:            BSD3
-license-file:       etc/LICENCE.md
-author:             Dom De Re
-maintainer:         Dom De Re
-copyright:          Copyright (C) 2013-2014
-synopsis:           A thin GeoJSON Layer above the aeson library
-category:           Data
-description:        A thin GeoJSON Layer above the aeson library.
-                    .
-                    It currently conforms to version 1.0 of the GeoJSON spec which can be found here:
-                    .
-                    <http://geojson.org/geojson-spec.html>
+name: geojson
+version: 1.3.0
+cabal-version: 1.22
+build-type: Custom
+license: BSD3
+license-file: etc/LICENCE.md
+copyright: Copyright (C) 2013-2014
+maintainer: Dom De Re
+homepage: https://github.com/domdere/hs-geojson
+bug-reports: https://github.com/domdere/hs-geojson/issues
+synopsis: A thin GeoJSON Layer above the aeson library
+description:
+    A thin GeoJSON Layer above the aeson library.
+    .
+    It currently conforms to version 1.0 of the GeoJSON spec which can be found here:
+    .
+    <http://geojson.org/geojson-spec.html>
+category: Data
+author: Dom De Re
+tested-with: GHC ==7.10.1
+extra-source-files:
+    CHANGELOG.md
+    README.md
 
-homepage:           https://github.com/domdere/hs-geojson
-bug-reports:        https://github.com/domdere/hs-geojson/issues
-cabal-version:      >= 1.22
-build-type:         Custom
-tested-with:        GHC == 7.10.1
-extra-source-files: README.md,
-                    CHANGELOG.md
+source-repository head
+    type: git
+    location: https://github.com/domdere/hs-geojson.git
 
-source-repository       head
-    type:               git
-    location:           https://github.com/domdere/hs-geojson.git
-
-source-repository       this
-    type:               git
-    location:           https://github.com/domdere/hs-geojson.git
-    tag:                1.2.0
-
-flag                    small_base
-    description:        Choose the new, split-up base package.
+source-repository this
+    type: git
+    location: https://github.com/domdere/hs-geojson.git
+    tag: 1.2.0
 
 library
-    default-language:   Haskell2010
+    exposed-modules:
+        Data.Geospatial
+        Data.LineString
+        Data.LinearRing
+    build-depends:
+        QuickCheck >=2.0,
+        aeson >=0.7.0 && <0.10,
+        base <5 && >=4,
+        base -any,
+        base <5 && >=3,
+        bytestring >=0.10.0 && <0.11,
+        directory >=1.1,
+        doctest >=0.9.11.0 && <0.11,
+        filepath >=1.3,
+        hlint ==1.9.*,
+        lens >=4.1.0 && <4.12,
+        semigroups >=0.13.0 && <0.17,
+        template-haskell -any,
+        text >=1.1.0 && <1.3,
+        transformers >=0.3.0 && <0.5,
+        validation >=0.5.1 && <0.6,
+        vector >=0.10.0 && <0.11
+    default-language: Haskell2010
+    hs-source-dirs: src
+    other-modules:
+        Data.Geospatial.GeoPosition
+        Data.Geospatial.BasicTypes
+        Data.Geospatial.CRS
+        Data.Geospatial.GeoFeatureCollection
+        Data.Geospatial.Geometry
+        Data.Geospatial.GeoFeature
+        Data.Geospatial.Geometry.GeoMultiPolygon
+        Data.Geospatial.Geometry.Aeson
+        Data.Geospatial.Geometry.GeoLine
+        Data.Geospatial.Geometry.GeoPolygon
+        Data.Geospatial.Geometry.GeoPoint
+        Data.Geospatial.Geometry.GeoMultiPoint
+        Data.Geospatial.Geometry.GeoMultiLine
+    ghc-options: -Wall -fno-warn-unused-imports -fno-warn-unused-binds -fno-warn-unused-do-bind -fno-warn-type-defaults
 
-    build-depends:      base < 5 &&     >= 4
-                    ,   aeson           >= 0.7.0 && < 0.10
-                    ,   lens            >= 4.1.0 && < 4.12
-                    ,   semigroups      >= 0.13.0 && < 0.17
-                    ,   text            >= 1.1.0 && < 1.3
-                    ,   transformers    >= 0.3.0 && < 0.5
-                    ,   validation      >= 0.5.1 && < 0.6
-                    ,   vector          >= 0.10.0 && < 0.11
-
-    ghc-options:        -Wall
-                        -fno-warn-unused-imports
-                        -fno-warn-unused-binds
-                        -fno-warn-unused-do-bind
-                        -fno-warn-type-defaults
-
-    hs-source-dirs:     src
-
-    exposed-modules:    Data.Geospatial
-                    ,   Data.LinearRing
-                    ,   Data.LineString
-
-    other-modules:      Data.Geospatial.BasicTypes
-                    ,   Data.Geospatial.CRS
-                    ,   Data.Geospatial.GeoFeature
-                    ,   Data.Geospatial.GeoFeatureCollection
-                    ,   Data.Geospatial.Geometry
-                    ,   Data.Geospatial.Geometry.GeoMultiLine
-                    ,   Data.Geospatial.Geometry.GeoMultiPoint
-                    ,   Data.Geospatial.Geometry.GeoMultiPolygon
-                    ,   Data.Geospatial.Geometry.GeoLine
-                    ,   Data.Geospatial.Geometry.GeoPoint
-                    ,   Data.Geospatial.Geometry.GeoPolygon
-                    ,   Data.Geospatial.Geometry.Aeson
-                    ,   Data.Geospatial.GeoPosition
-
-test-suite              doctests
-    type:
-                        exitcode-stdio-1.0
-
-    main-is:
-                        Main.hs
-
-    default-language:
-                        Haskell2010
-
-    build-depends:      base < 5 && >= 3
-                    ,   bytestring          >= 0.10.0 && < 0.11
-                    ,   doctest             >= 0.9.11.0 && < 0.11
-                    ,   filepath            >= 1.3
-                    ,   directory           >= 1.1
-                    ,   QuickCheck          >= 2.0
-                    ,   template-haskell
-
-    ghc-options:
-                        -Wall
-                        -threaded
-
-    hs-source-dirs:
-                        doctests
-
-test-suite              hlint
-    default-language:   Haskell2010
-    type:               exitcode-stdio-1.0
-    main-is:            Main.hs
-    hs-source-dirs:     hlint
-    build-depends:      base
-                    ,   hlint               == 1.9.*
+test-suite hlint
+    type: exitcode-stdio-1.0
+    main-is: Main.hs
+    build-depends:
+        QuickCheck >=2.0,
+        aeson >=0.7.0 && <0.10,
+        base <5 && >=4,
+        base -any,
+        base <5 && >=3,
+        bytestring >=0.10.0 && <0.11,
+        directory >=1.1,
+        doctest >=0.9.11.0 && <0.11,
+        filepath >=1.3,
+        hlint ==1.9.*,
+        lens >=4.1.0 && <4.12,
+        semigroups >=0.13.0 && <0.17,
+        template-haskell -any,
+        text >=1.1.0 && <1.3,
+        transformers >=0.3.0 && <0.5,
+        validation >=0.5.1 && <0.6,
+        vector >=0.10.0 && <0.11
+    default-language: Haskell2010
+    hs-source-dirs: hlint
+test-suite doctests
+    type: exitcode-stdio-1.0
+    main-is: Main.hs
+    build-depends:
+        QuickCheck >=2.0,
+        aeson >=0.7.0 && <0.10,
+        base <5 && >=4,
+        base -any,
+        base <5 && >=3,
+        bytestring >=0.10.0 && <0.11,
+        directory >=1.1,
+        doctest >=0.9.11.0 && <0.11,
+        filepath >=1.3,
+        hlint ==1.9.*,
+        lens >=4.1.0 && <4.12,
+        semigroups >=0.13.0 && <0.17,
+        template-haskell -any,
+        text >=1.1.0 && <1.3,
+        transformers >=0.3.0 && <0.5,
+        validation >=0.5.1 && <0.6,
+        vector >=0.10.0 && <0.11
+    default-language: Haskell2010
+    hs-source-dirs: doctests
+    ghc-options: -Wall -threaded
