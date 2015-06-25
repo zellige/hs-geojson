@@ -18,11 +18,11 @@ module Data.Geospatial (
     ,   GeoPositionWithoutCRS
     ,   GeoPosition(..)
     ,   GeoPoint(..)
-    ,   GeoMultiPoint(..)
+    ,   GeoMultiPoint(..), splitGeoMultiPoint, mergeGeoPoints
     ,   GeoPolygon(..)
-    ,   GeoMultiPolygon(..)
+    ,   GeoMultiPolygon(..), splitGeoMultiPolygon, mergeGeoPolygons
     ,   GeoLine(..)
-    ,   GeoMultiLine(..)
+    ,   GeoMultiLine(..), splitGeoMultiLine, mergeGeoLines
     ,   GeospatialGeometry(..)
     ,   Name
     ,   Code
