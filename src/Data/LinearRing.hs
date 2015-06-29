@@ -34,9 +34,10 @@ import Data.Aeson ( ToJSON(..), FromJSON(..), Value )
 import Data.Aeson.Types ( Parser, typeMismatch )
 import Data.Foldable ( Foldable(..) )
 import Data.Functor ( (<$>) )
-import Data.List.NonEmpty ( NonEmpty, intersperse )
+import Data.List ( intercalate )
+import Data.List.NonEmpty as NL ( NonEmpty, toList )
 import Data.Traversable ( Traversable(..) )
-import Data.Validation ( Validate(..), AccValidation )
+import Data.Validation ( Validate(..), AccValidation, _Failure, _Success )
 
 -- $setup
 --
@@ -219,7 +220,7 @@ fromListAcc :: [a] -> AccValidation (NonEmpty (ListToLinearRingError a)) (Linear
 fromListAcc = fromList
 
 showErrors :: (Show a) => NonEmpty (ListToLinearRingError a) -> String
-showErrors = foldr (++) "" . intersperse ", " . fmap show
+showErrors = intercalate ", " . NL.toList . fmap show
 
 parseError :: (Show a) => Value -> Maybe (NonEmpty (ListToLinearRingError a)) -> Parser b
 parseError v = maybe mzero (\e -> typeMismatch (showErrors e) v)
@@ -239,7 +240,7 @@ safeHead (x:_)  = Just x
 
 safeLast :: [a] -> Maybe a
 safeLast []     = Nothing
-safeLast (x:[]) = Just x
+safeLast [x]    = Just x
 safeLast (_:xs) = safeLast xs
 
 -- |
@@ -248,6 +249,6 @@ safeLast (_:xs) = safeLast xs
 -- > (\x xs -> length (foldrDropLast (:) [] (x : xs)) == length xs) (x :: Int) (xs :: [Int])
 --
 foldrDropLast :: (a -> b -> b) -> b -> [a] -> b
-foldrDropLast _ x []        = x
-foldrDropLast _ x (_:[])    = x
-foldrDropLast f x (y:ys)    = f y (foldrDropLast f x ys)
+foldrDropLast _ x []     = x
+foldrDropLast _ x [_]    = x
+foldrDropLast f x (y:ys) = f y (foldrDropLast f x ys)

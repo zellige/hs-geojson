@@ -35,7 +35,7 @@ import Data.Foldable ( Foldable(..) )
 import Data.Functor ( (<$>) )
 import Data.Maybe ( fromMaybe )
 import Data.Traversable ( Traversable(..) )
-import Data.Validation ( Validate(..), Validation )
+import Data.Validation ( Validate(..), Validation, _Failure, _Success )
 
 -- $setup
 --
@@ -123,9 +123,9 @@ fromList
     :: (Validate v)
     => [a]
     -> v ListToLineStringError (LineString a)
-fromList []         = _Failure # ListEmpty
-fromList (_:[])     = _Failure # SingletonList
-fromList (x:y:zs)   = _Success # LineString x y zs
+fromList []       = _Failure # ListEmpty
+fromList [_]      = _Failure # SingletonList
+fromList (x:y:zs) = _Success # LineString x y zs
 
 -- |
 -- Creates a LineString
@@ -187,5 +187,5 @@ parseError v = maybe mzero (\e -> typeMismatch (show e) v)
 
 safeLast :: [a] -> Maybe a
 safeLast []     = Nothing
-safeLast (x:[]) = Just x
+safeLast [x]    = Just x
 safeLast (_:xs) = safeLast xs

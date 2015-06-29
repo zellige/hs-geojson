@@ -30,9 +30,9 @@ makeLenses ''GeoLine
 
 instance ToJSON GeoLine where
 --  toJSON :: a -> Value
-    toJSON = makeGeometryGeoAeson "Line" . _unGeoLine
+    toJSON = makeGeometryGeoAeson "LineString" . _unGeoLine
 
 instance FromJSON GeoLine where
 --  parseJSON :: Value -> Parser a
-    parseJSON (Object o)    = readGeometryGeoAeson "Line" GeoLine o
+    parseJSON (Object o)    = readGeometryGeoAeson "LineString" GeoLine o
     parseJSON _             = mzero

@@ -1,8 +1,8 @@
 module Main where
 
 import Build_doctests (deps, opts)
-import Control.Applicative
 import Control.Monad
+import Control.Applicative
 import Data.List
 import System.Directory
 import System.FilePath
