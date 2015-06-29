@@ -1,3 +1,9 @@
+# 1.3.0
+
+## 1.2.0 -> 1.3.0
+
+-   `MultiPolygon`, `MultiPoint`, `MultiLine` were all corrected as they weren't compliant with the spec (See [here] (https://github.com/domdere/hs-geojson/issues/9) for reference).
+
 # 1.2.x
 
 ## 1.1.1 -> 1.2.0
