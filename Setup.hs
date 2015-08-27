@@ -4,7 +4,6 @@ module Main (main) where
 
 import Data.List ( nub )
 import Data.Version ( showVersion )
-import Control.Applicative
 import Distribution.Package ( PackageName(PackageName), PackageId, InstalledPackageId, packageVersion, packageName )
 import Distribution.PackageDescription ( PackageDescription(), TestSuite(..) )
 import Distribution.Simple ( defaultMainWithHooks, UserHooks(..), simpleUserHooks )

@@ -37,8 +37,8 @@ library
     default-language:   Haskell2010
 
     build-depends:      base < 5 &&     >= 4
-                    ,   aeson           == 0.9.*
-                    ,   lens            == 4.11.*
+                    ,   aeson           >= 0.8       && < 1.0
+                    ,   lens            >= 4.11      && < 4.13
                     ,   semigroups      == 0.16.*
                     ,   text            == 1.2.*
                     ,   transformers    >= 0.3       && < 0.5
