@@ -1,0 +1,6 @@
+flags: {}
+packages:
+- '.'
+extra-deps:
+  - validation-0.5.1
+resolver: lts-3.2

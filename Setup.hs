@@ -1,10 +1,13 @@
 #!/usr/bin/env runhaskell
+{-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -Wall #-}
 module Main (main) where
 
 import Data.List ( nub )
 import Data.Version ( showVersion )
+#if __GLASGOW_HASKELL__ < 710
 import Control.Applicative
+#endif
 import Distribution.Package ( PackageName(PackageName), PackageId, InstalledPackageId, packageVersion, packageName )
 import Distribution.PackageDescription ( PackageDescription(), TestSuite(..) )
 import Distribution.Simple ( defaultMainWithHooks, UserHooks(..), simpleUserHooks )
