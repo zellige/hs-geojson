@@ -1,13 +1,13 @@
 {-# LANGUAGE TemplateHaskell #-}
 -------------------------------------------------------------------
 -- |
--- Module       : Data.Geospatial.Geometry.GeoMultiLine
+-- Module       : Data.Geospatial.Internal.Geometry.GeoMultiLine
 -- Copyright    : (C) 2014 Dom De Re
 -- License      : BSD-style (see the file etc/LICENSE.md)
 -- Maintainer   : Dom De Re
 --
 -------------------------------------------------------------------
-module Data.Geospatial.Geometry.GeoMultiLine (
+module Data.Geospatial.Internal.Geometry.GeoMultiLine (
     -- * Type
         GeoMultiLine(..)
     -- * Lenses
@@ -16,14 +16,16 @@ module Data.Geospatial.Geometry.GeoMultiLine (
     ,   splitGeoMultiLine, mergeGeoLines
     ) where
 
-import Data.Geospatial.BasicTypes
-import Data.Geospatial.Geometry.GeoLine
-import Data.Geospatial.Geometry.Aeson
-import Data.LineString
+import           Data.Geospatial.Internal.BasicTypes
+import           Data.Geospatial.Internal.Geometry.Aeson
+import           Data.Geospatial.Internal.Geometry.GeoLine
+import           Data.LineString
 
-import Control.Lens ( makeLenses )
-import Control.Monad ( mzero )
-import Data.Aeson ( FromJSON(..), ToJSON(..), Value(..), Object )
+import           Control.Lens                              (makeLenses)
+import           Control.Monad                             (mzero)
+import           Data.Aeson                                (FromJSON (..),
+                                                            ToJSON (..),
+                                                            Value (..))
 
 newtype GeoMultiLine    = GeoMultiLine { _unGeoMultiLine :: [LineString GeoPositionWithoutCRS] } deriving (Show, Eq)
 

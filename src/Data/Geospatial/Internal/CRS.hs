@@ -1,7 +1,8 @@
-{-# LANGUAGE OverloadedStrings, TemplateHaskell #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell   #-}
 -------------------------------------------------------------------
 -- |
--- Module       : Data.Geospatial.CRS
+-- Module       : Data.Geospatial.Internal.CRS
 -- Copyright    : (C) 2014 Dom De Re
 -- License      : BSD-style (see the file etc/LICENSE.md)
 -- Maintainer   : Dom De Re
@@ -10,7 +11,7 @@
 -- in the GeoJSON Spec
 --
 -------------------------------------------------------------------
-module Data.Geospatial.CRS (
+module Data.Geospatial.Internal.CRS (
     -- * Types
         CRSObject(..)
     -- * Functions
@@ -22,38 +23,16 @@ module Data.Geospatial.CRS (
     ,   _LinkedCRS
     ) where
 
-import Data.Geospatial.BasicTypes
-import Data.Geospatial.Geometry
-import Data.Geospatial.GeoPosition
+import           Data.Geospatial.Internal.BasicTypes
 
-import Control.Applicative ( (<$>), (<*>) )
-import Control.Lens ( makePrisms )
-import Control.Monad ( mzero )
-import Data.Aeson
-    (   FromJSON(..)
-    ,   ToJSON(..)
-    ,   Value(..)
-    ,   Object
-    ,   (.:)
-    ,   (.=)
-    ,   object
-    )
-import Data.Aeson.Types ( Parser )
-import Data.Text ( Text )
-
--- $setup
---
--- >>> import qualified Data.Aeson as A
--- >>> import qualified Data.ByteString.Lazy.Char8 as BS
---
--- Test CRS Data
--- >>> let testLinkCRSJSON = "{\"type\":\"link\",\"properties\":{\"href\":\"www.google.com.au\",\"type\":\"proj4\"}}"
--- >>> let testLinkCRS = LinkedCRS "www.google.com.au" "proj4"
--- >>> let testEPSGJSON = "{\"type\":\"epsg\",\"properties\":{\"code\":4326}}"
--- >>> let testEPSG = EPSG 4326
--- >>> let testNamedCRSJSON = "{\"type\":\"name\",\"properties\":{\"name\":\"urn:ogc:def:crs:OGC:1.3:CRS84\"}}"
--- >>> let testNamedCRS = NamedCRS "urn:ogc:def:crs:OGC:1.3:CRS84"
---
+import           Control.Applicative                 ((<$>), (<*>))
+import           Control.Lens                        (makePrisms)
+import           Control.Monad                       (mzero)
+import           Data.Aeson                          (FromJSON (..), Object,
+                                                      ToJSON (..), Value (..),
+                                                      object, (.:), (.=))
+import           Data.Aeson.Types                    (Parser)
+import           Data.Text                           (Text)
 
 -- | See Section 3 /Coordinate Reference System Objects/ in the GeoJSON Spec
 -- `NoCRS` is required because no 'crs' attribute in a GeoJSON feature is NOT the same thing as
@@ -77,21 +56,9 @@ defaultCRS = EPSG 4326
 -- instances
 
 -- |
--- encode and decodes CRS Objects to and from GeoJSON
---
--- >>> (A.decode . BS.pack) testLinkCRSJSON == Just testLinkCRS
--- True
---
--- >>> (A.decode . BS.pack) testNamedCRSJSON == Just testNamedCRS
--- True
---
--- >>> (A.decode . BS.pack) testEPSGJSON == Just testEPSG
--- True
+-- decode CRS Objects from GeoJSON
 --
 -- Aeson doesnt decode "null" to `Null` unfortunately
---
--- (A.decode . BS.pack) "null" == Just NoCRS
--- True
 --
 instance FromJSON CRSObject where
     parseJSON Null = return NoCRS
@@ -102,18 +69,6 @@ instance FromJSON CRSObject where
 
 -- |
 -- encode CRS Objects to GeoJSON
---
--- >>> (A.decode . A.encode) testLinkCRS == Just testLinkCRS
--- True
---
--- >>> (A.decode . A.encode) testNamedCRS == Just testNamedCRS
--- True
---
--- >>> (A.decode . A.encode) testEPSG == Just testEPSG
--- True
---
--- >>> A.encode NoCRS
--- "null"
 --
 instance ToJSON CRSObject where
     toJSON (NamedCRS name)          = object ["type" .= ("name" :: Text), "properties" .= object ["name" .= name]]
@@ -133,5 +88,3 @@ crsObjectFromAeson "name" obj   = NamedCRS <$> crsPropertyFromAesonObj "name" ob
 crsObjectFromAeson "epsg" obj   = EPSG <$> crsPropertyFromAesonObj "code" obj
 crsObjectFromAeson "link" obj   = LinkedCRS <$> crsPropertyFromAesonObj "href" obj <*> crsPropertyFromAesonObj "type" obj
 crsObjectFromAeson _ _          = mzero
-
-

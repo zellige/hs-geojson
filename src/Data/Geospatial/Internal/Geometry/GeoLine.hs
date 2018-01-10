@@ -1,26 +1,28 @@
 {-# LANGUAGE TemplateHaskell #-}
 -------------------------------------------------------------------
 -- |
--- Module       : Data.Geospatial.Geometry.GeoLine
+-- Module       : Data.Geospatial.Internal.Geometry.GeoLine
 -- Copyright    : (C) 2014 Dom De Re
 -- License      : BSD-style (see the file etc/LICENSE.md)
 -- Maintainer   : Dom De Re
 --
 -------------------------------------------------------------------
-module Data.Geospatial.Geometry.GeoLine (
+module Data.Geospatial.Internal.Geometry.GeoLine (
     -- * Type
         GeoLine(..)
     -- * Lenses
     ,   unGeoLine
     ) where
 
-import Data.Geospatial.BasicTypes
-import Data.Geospatial.Geometry.Aeson
-import Data.LineString
+import           Data.Geospatial.Internal.BasicTypes
+import           Data.Geospatial.Internal.Geometry.Aeson
+import           Data.LineString
 
-import Control.Lens ( makeLenses )
-import Control.Monad ( mzero )
-import Data.Aeson ( FromJSON(..), ToJSON(..), Value(..) )
+import           Control.Lens                            (makeLenses)
+import           Control.Monad                           (mzero)
+import           Data.Aeson                              (FromJSON (..),
+                                                          ToJSON (..),
+                                                          Value (..))
 
 newtype GeoLine = GeoLine { _unGeoLine :: LineString GeoPositionWithoutCRS } deriving (Show, Eq)
 

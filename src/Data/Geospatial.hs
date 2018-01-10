@@ -15,6 +15,7 @@ module Data.Geospatial (
     ,   Easting
     ,   Northing
     ,   Altitude
+    ,   FeatureID(..)
     ,   GeoPositionWithoutCRS
     ,   GeoPosition(..)
     ,   GeoPoint(..)
@@ -30,7 +31,6 @@ module Data.Geospatial (
     ,   FormatString
     ,   ProjectionType
     ,   CRSObject(..)
-    ,   FeatureID
     ,   BoundingBoxWithoutCRS
     ,   GeoFeature(..)
     ,   GeoFeatureCollection(..)
@@ -69,9 +69,9 @@ module Data.Geospatial (
     ,   _LinkedCRS
     ) where
 
-import Data.Geospatial.BasicTypes
-import Data.Geospatial.CRS
-import Data.Geospatial.GeoFeature
-import Data.Geospatial.GeoFeatureCollection
-import Data.Geospatial.Geometry
-import Data.Geospatial.GeoPosition
+import           Data.Geospatial.Internal.BasicTypes
+import           Data.Geospatial.Internal.CRS
+import           Data.Geospatial.Internal.GeoFeature
+import           Data.Geospatial.Internal.GeoFeatureCollection
+import           Data.Geospatial.Internal.Geometry
+import           Data.Geospatial.Internal.GeoPosition

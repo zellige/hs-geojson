@@ -24,30 +24,19 @@ module Data.LineString (
     ,   lineStringLength
     ) where
 
-import Prelude hiding ( foldr )
+import           Prelude             hiding (foldr)
 
-import Control.Applicative ( Applicative(..) )
-import Control.Lens ( ( # ), (^?) )
-import Control.Monad ( mzero )
-import Data.Aeson ( ToJSON(..), FromJSON(..), Value )
-import Data.Aeson.Types ( Parser, typeMismatch )
-import Data.Foldable ( Foldable(..) )
-import Data.Functor ( (<$>) )
-import Data.Maybe ( fromMaybe )
-import Data.Traversable ( Traversable(..) )
-import Data.Validation ( Validate(..), Validation, _Failure, _Success )
-
--- $setup
---
--- >>> import Control.Applicative ( (<*>) )
--- >>> import Data.Functor ( (<$>) )
--- >>> import Data.Maybe ( Maybe(..) )
--- >>> import Data.Monoid ( Monoid(..) )
--- >>> import Test.QuickCheck
---
--- >>> instance (Arbitrary a) => Arbitrary (LineString a) where arbitrary = makeLineString <$> arbitrary <*> arbitrary <*> arbitrary
---
---
+import           Control.Applicative (Applicative (..))
+import           Control.Lens        (( # ), (^?))
+import           Control.Monad       (mzero)
+import           Data.Aeson          (FromJSON (..), ToJSON (..), Value)
+import           Data.Aeson.Types    (Parser, typeMismatch)
+import           Data.Foldable       (Foldable (..))
+import           Data.Functor        ((<$>))
+import           Data.Maybe          (fromMaybe)
+import           Data.Traversable    (Traversable (..))
+import           Data.Validation     (Validate (..), Validation, _Failure,
+                                      _Success)
 
 -- |
 -- a LineString has at least 2 elements
@@ -63,6 +52,7 @@ data LineString a = LineString a a [a] deriving (Eq)
 data ListToLineStringError =
         ListEmpty
     |   SingletonList
+    deriving (Eq)
 
 -- functions
 
@@ -78,13 +68,8 @@ lineStringHead (LineString x _ _) = x
 lineStringLast :: LineString a -> a
 lineStringLast (LineString _ x xs) = fromMaybe x (safeLast xs)
 
--- NOTE (Dom De Re): Props have been commented out until <https://github.com/sol/doctest-haskell/issues/83>
--- has been resolved.
-
 -- |
 -- returns the number of elements in the list, including the replicated element at the end of the list.
---
--- (\xs -> lineStringLength xs == (length (fromLineString xs))) (xs :: LineString Int)
 --
 lineStringLength :: LineString a -> Int
 lineStringLength (LineString _ _ xs) = 2 + length xs
@@ -92,32 +77,12 @@ lineStringLength (LineString _ _ xs) = 2 + length xs
 -- |
 -- This function converts it into a list and appends the given element to the end.
 --
--- (\xs -> safeLast (fromLineString xs) == Just (lineStringHead xs)) (xs :: LineString Int)
---
--- (\xs -> length (fromLineString xs) >= 4) (xs :: LineString Int)
---
-
 fromLineString :: LineString a -> [a]
 fromLineString (LineString x y zs) = x : y : zs
 
 -- |
 -- creates a LineString out of a list of elements,
 -- if there are enough elements (needs at least 2) elements
---
--- >>> fromList [] :: Validation ListToLineStringError (LineString Int)
--- Failure List Empty
---
--- >>> fromList [0] :: Validation ListToLineStringError (LineString Int)
--- Failure Singleton List
---
--- >>> fromList [0, 1] :: Validation ListToLineStringError (LineString Int)
--- Success [0,1]
---
--- >>> fromList [0, 1, 2] :: Validation ListToLineStringError (LineString Int)
--- Success [0,1,2]
---
--- >>> fromList [0, 1, 2, 4, 5, 0] :: Validation ListToLineStringError (LineString Int)
--- Success [0,1,2,4,5,0]
 --
 fromList
     :: (Validate v)
@@ -153,10 +118,6 @@ instance Functor LineString where
 
 -- | This instance of Foldable will run through the entire ring, closing the
 -- loop by also passing the initial element in again at the end.
---
--- > (\xs -> (foldr (:) [] xs) == (fromLineString xs)) (xs :: LineString Int)
---
--- > (\xs -> (lineStringHead xs) == (foldr'' (\a -> const a) 0 xs)) (xs :: LineString Int)
 --
 instance Foldable LineString where
 --  foldr :: (a -> b -> b) -> b -> LineString a -> b

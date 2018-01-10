@@ -1,20 +1,20 @@
 -------------------------------------------------------------------
 -- |
--- Module       : Data.Geospatial.GeoPosition
+-- Module       : Data.Geospatial.Internal.GeoPosition
 -- Copyright    : (C) 2014 Dom De Re
 -- License      : BSD-style (see the file etc/LICENSE.md)
 -- Maintainer   : Dom De Re
 --
 -- see Section 2.1.1 /Position/ in the GeoJSON Spec
 -------------------------------------------------------------------
-module Data.Geospatial.GeoPosition (
+module Data.Geospatial.Internal.GeoPosition (
     -- * Type
         GeoPosition(..)
     -- * Functions
     ,   stripCRSFromPosition
     ) where
 
-import Data.Geospatial.BasicTypes
+import           Data.Geospatial.Internal.BasicTypes
 
 -- | see Section 2.1.1 /Position/ in the GeoJSON Spec,
 -- I make the assumption here that the only position types we will use will

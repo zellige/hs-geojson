@@ -25,31 +25,20 @@ module Data.LinearRing (
     ,   ringLength
     ) where
 
-import Prelude hiding ( foldr )
+import           Prelude             hiding (foldr)
 
-import Control.Applicative ( Applicative(..) )
-import Control.Lens ( ( # ), (^?) )
-import Control.Monad ( mzero )
-import Data.Aeson ( ToJSON(..), FromJSON(..), Value )
-import Data.Aeson.Types ( Parser, typeMismatch )
-import Data.Foldable ( Foldable(..) )
-import Data.Functor ( (<$>) )
-import Data.List ( intercalate )
-import Data.List.NonEmpty as NL ( NonEmpty, toList )
-import Data.Traversable ( Traversable(..) )
-import Data.Validation ( Validate(..), AccValidation, _Failure, _Success )
-
--- $setup
---
--- >>> import Control.Applicative ( (<*>) )
--- >>> import Data.Functor ( (<$>) )
--- >>> import Data.Maybe ( Maybe(..) )
--- >>> import Data.Monoid ( Monoid(..) )
--- >>> import Test.QuickCheck
---
--- >>> instance (Arbitrary a) => Arbitrary (LinearRing a) where arbitrary = makeLinearRing <$> arbitrary <*> arbitrary <*> arbitrary <*> arbitrary
---
---
+import           Control.Applicative (Applicative (..))
+import           Control.Lens        (( # ), (^?))
+import           Control.Monad       (mzero)
+import           Data.Aeson          (FromJSON (..), ToJSON (..), Value)
+import           Data.Aeson.Types    (Parser, typeMismatch)
+import           Data.Foldable       (Foldable (..))
+import           Data.Functor        ((<$>))
+import           Data.List           (intercalate)
+import           Data.List.NonEmpty  as NL (NonEmpty, toList)
+import           Data.Traversable    (Traversable (..))
+import           Data.Validation     (AccValidation, Validate (..), _Failure,
+                                      _Success)
 
 -- |
 -- a LinearRing has at least 3 (distinct) elements
@@ -66,6 +55,7 @@ data LinearRing a = LinearRing a a a [a] deriving (Eq)
 data ListToLinearRingError a =
         ListTooShort Int
     |   HeadNotEqualToLast a a
+    deriving (Eq)
 
 -- functions
 
@@ -75,13 +65,8 @@ data ListToLinearRingError a =
 ringHead :: LinearRing a -> a
 ringHead (LinearRing x _ _ _)   = x
 
--- NOTE (Dom De Re): Props have been commented out until <https://github.com/sol/doctest-haskell/issues/83>
--- has been resolved.
-
 -- |
 -- returns the number of elements in the list, including the replicated element at the end of the list.
---
--- prop> (\xs -> ringLength xs == (length (fromLinearRing xs))) (xs :: LinearRing Int)
 --
 ringLength :: LinearRing a -> Int
 ringLength (LinearRing _ _ _ xs) = 4 + length xs
@@ -89,11 +74,6 @@ ringLength (LinearRing _ _ _ xs) = 4 + length xs
 -- |
 -- This function converts it into a list and appends the given element to the end.
 --
--- (\xs -> safeLast (fromLinearRing xs) == Just (ringHead xs)) (xs :: LinearRing Int)
---
--- (\xs -> length (fromLinearRing xs) >= 4) (xs :: LinearRing Int)
---
-
 fromLinearRing :: LinearRing a -> [a]
 fromLinearRing (LinearRing x y z ws) = x : y : z : foldr (:) [x] ws
 
@@ -112,31 +92,7 @@ fromLinearRing (LinearRing x y z ws) = x : y : z : foldr (:) [x] ws
 --
 -- And be aware that the last element of the list will be dropped.
 --
--- >>> fromList [] :: AccValidation (NonEmpty (ListToLinearRingError Int)) (LinearRing Int)
--- AccFailure (List too short: (length = 0) :| [])
---
--- >>> fromList [0] :: AccValidation (NonEmpty (ListToLinearRingError Int)) (LinearRing Int)
--- AccFailure (List too short: (length = 1) :| [])
---
--- >>> fromList [0, 1] :: AccValidation (NonEmpty (ListToLinearRingError Int)) (LinearRing Int)
--- AccFailure (List too short: (length = 2) :| [])
---
--- >>> fromList [0, 1, 2] :: AccValidation (NonEmpty (ListToLinearRingError Int)) (LinearRing Int)
--- AccFailure (List too short: (length = 3) :| [])
---
--- >>> fromList [0, 1, 2, 3] :: AccValidation (NonEmpty (ListToLinearRingError Int)) (LinearRing Int)
--- AccSuccess [0,1,2,0]
---
--- >>> fromList [0, 1, 2, 4, 0] :: AccValidation (NonEmpty (ListToLinearRingError Int)) (LinearRing Int)
--- AccSuccess [0,1,2,4,0]
---
--- >>> fromList [0, 1, 2, 4, 5, 0] :: AccValidation (NonEmpty (ListToLinearRingError Int)) (LinearRing Int)
--- AccSuccess [0,1,2,4,5,0]
---
 -- Unfortunately it doesn't check that the last element is the same as the first at the moment...
---
--- >>> fromList [0, 1, 2, 4, 5, 6] :: AccValidation (NonEmpty (ListToLinearRingError Int)) (LinearRing Int)
--- AccSuccess [0,1,2,4,5,0]
 --
 fromList
     :: (Validate v, Functor (v (NonEmpty (ListToLinearRingError a))))
@@ -186,10 +142,6 @@ instance Functor LinearRing where
 
 -- | This instance of Foldable will run through the entire ring, closing the
 -- loop by also passing the initial element in again at the end.
---
--- > (\xs -> (foldr (:) [] xs) == (fromLinearRing xs)) (xs :: LinearRing Int)
---
--- > (\xs -> (ringHead xs) == (foldr'' (\a -> const a) 0 xs)) (xs :: LinearRing Int)
 --
 instance Foldable LinearRing where
 --  foldr :: (a -> b -> b) -> b -> LinearRing a -> b
@@ -245,8 +197,6 @@ safeLast (_:xs) = safeLast xs
 
 -- |
 -- Does a fold but ignores the last element of the list
---
--- > (\x xs -> length (foldrDropLast (:) [] (x : xs)) == length xs) (x :: Int) (xs :: [Int])
 --
 foldrDropLast :: (a -> b -> b) -> b -> [a] -> b
 foldrDropLast _ x []     = x

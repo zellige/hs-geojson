@@ -1,27 +1,28 @@
 {-# LANGUAGE TemplateHaskell #-}
 -------------------------------------------------------------------
 -- |
--- Module       : Data.Geospatial.Geometry.GeoPolygon
+-- Module       : Data.Geospatial.Internal.Geometry.GeoPolygon
 -- Copyright    : (C) 2014 Dom De Re
 -- License      : BSD-style (see the file etc/LICENSE.md)
 -- Maintainer   : Dom De Re
 --
 -------------------------------------------------------------------
-module Data.Geospatial.Geometry.GeoPolygon (
+module Data.Geospatial.Internal.Geometry.GeoPolygon (
     -- * Type
         GeoPolygon(..)
     -- * Lenses
     ,   unGeoPolygon
     ) where
 
-import Data.Geospatial.BasicTypes
-import Data.Geospatial.Geometry.Aeson
-import Data.Geospatial.GeoPosition
-import Data.LinearRing
+import           Data.Geospatial.Internal.BasicTypes
+import           Data.Geospatial.Internal.Geometry.Aeson
+import           Data.LinearRing
 
-import Control.Lens ( makeLenses )
-import Control.Monad ( mzero )
-import Data.Aeson ( FromJSON(..), ToJSON(..), Value(..), Object )
+import           Control.Lens                            (makeLenses)
+import           Control.Monad                           (mzero)
+import           Data.Aeson                              (FromJSON (..),
+                                                          ToJSON (..),
+                                                          Value (..))
 
 newtype GeoPolygon = GeoPolygon { _unGeoPolygon :: [LinearRing GeoPositionWithoutCRS] } deriving (Show, Eq)
 
