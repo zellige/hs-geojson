@@ -1,13 +1,13 @@
 {-# LANGUAGE TemplateHaskell #-}
 -------------------------------------------------------------------
 -- |
--- Module       : Data.Geospatial.Geometry.GeoMultiPoint
+-- Module       : Data.Geospatial.Internal.Geometry.GeoMultiPoint
 -- Copyright    : (C) 2014 Dom De Re
 -- License      : BSD-style (see the file etc/LICENSE.md)
 -- Maintainer   : Dom De Re
 --
 -------------------------------------------------------------------
-module Data.Geospatial.Geometry.GeoMultiPoint (
+module Data.Geospatial.Internal.Geometry.GeoMultiPoint (
     -- * Type
         GeoMultiPoint(..)
     -- * Lenses
@@ -16,13 +16,15 @@ module Data.Geospatial.Geometry.GeoMultiPoint (
     ,   splitGeoMultiPoint, mergeGeoPoints
     ) where
 
-import Data.Geospatial.BasicTypes
-import Data.Geospatial.Geometry.GeoPoint
-import Data.Geospatial.Geometry.Aeson
+import           Data.Geospatial.Internal.BasicTypes
+import           Data.Geospatial.Internal.Geometry.Aeson
+import           Data.Geospatial.Internal.Geometry.GeoPoint
 
-import Control.Lens ( makeLenses )
-import Control.Monad ( mzero )
-import Data.Aeson ( FromJSON(..), ToJSON(..), Value(..), Object )
+import           Control.Lens                               (makeLenses)
+import           Control.Monad                              (mzero)
+import           Data.Aeson                                 (FromJSON (..),
+                                                             ToJSON (..),
+                                                             Value (..))
 
 newtype GeoMultiPoint = GeoMultiPoint { _unGeoMultiPoint :: [GeoPositionWithoutCRS] } deriving (Show, Eq)
 

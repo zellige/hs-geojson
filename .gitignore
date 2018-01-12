@@ -19,3 +19,17 @@ cabal.sandbox.config
 
 #cabal build directory:
 dist/
+
+*.tag
+*~
+*_flymake.hs
+.hsenv
+.stack-work/
+.stack-root/
+/.cabal-sandbox/
+TAGS
+tags
+/_release/
+.vagrant/
+*.tix
+.DS_Store

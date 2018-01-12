@@ -8,7 +8,7 @@
 --
 -- Some helpers for some of the common Aeson ops
 -------------------------------------------------------------------
-module Data.Geospatial.Geometry.Aeson (
+module Data.Geospatial.Internal.Geometry.Aeson (
     -- * Geometry
         readGeometryGeoAeson
     ,   makeGeometryGeoAeson
@@ -17,21 +17,13 @@ module Data.Geospatial.Geometry.Aeson (
     ,   optAttributes
     ) where
 
-import Control.Applicative ( (<$>) )
-import Control.Monad ( mzero )
-import Data.Aeson
-    (   FromJSON(..)
-    ,   ToJSON(..)
-    ,   Object
-    ,   Value
-    ,   (.:)
-    ,   (.:?)
-    ,   (.=)
-    ,   object
-    )
-import Data.Aeson.Types ( Pair, Parser )
-import Data.Maybe ( Maybe(..) )
-import Data.Text ( Text )
+import           Control.Applicative ((<$>))
+import           Control.Monad       (mzero)
+import           Data.Aeson          (FromJSON (..), Object, ToJSON (..), Value,
+                                      object, (.:), (.:?), (.=))
+import           Data.Aeson.Types    (Pair, Parser)
+import           Data.Maybe          (Maybe (..))
+import           Data.Text           (Text)
 
 -- | A generic function that can be used to read in the GeoJSON for:
 -- `GeoPoint`, `GeoMultiPoint`, `GeoLine`, `GeoMultiLine`, `GeoPolygon` and `GeoMultiPolygon`

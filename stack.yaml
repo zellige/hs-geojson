@@ -1,6 +1,7 @@
 flags: {}
 packages:
 - '.'
-extra-deps:
-  - validation-0.5.1
-resolver: lts-3.2
+extra-deps: 
+  - validation-0.5.5
+
+resolver: lts-10.0

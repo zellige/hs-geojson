@@ -1,13 +1,15 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 -------------------------------------------------------------------
 -- |
--- Module       : Data.Geospatial.BasicTypes
+-- Module       : Data.Geospatial.Internal.BasicTypes
 -- Copyright    : (C) 2014 Dom De Re
 -- License      : BSD-style (see the file etc/LICENSE.md)
 -- Maintainer   : Dom De Re
 --
 -- Basic types for GeoJSON representations.
 -------------------------------------------------------------------
-module Data.Geospatial.BasicTypes (
+module Data.Geospatial.Internal.BasicTypes (
     -- * Coordinate types
         Latitude
     ,   Longitude
@@ -23,10 +25,12 @@ module Data.Geospatial.BasicTypes (
     ,   ProjectionType
     -- * Feature Types
     ,   BoundingBoxWithoutCRS
-    ,   FeatureID
+    ,   FeatureID (..)
     ) where
 
-import Data.Text ( Text )
+import           Data.Aeson      (FromJSON (..), ToJSON (..), Value (..))
+import           Data.Scientific (Scientific, toBoundedInteger)
+import           Data.Text       (Text)
 
 type Latitude = Double
 type Longitude = Double
@@ -47,7 +51,25 @@ type ProjectionType = Text
 
 -- Feature Types
 
-type FeatureID = Text
+data FeatureID =
+        FeatureIDText Text
+    |   FeatureIDNumber Int deriving (Show, Eq)
+
+instance FromJSON FeatureID where
+    parseJSON (Number nID) =
+        case x of
+            Nothing -> fail "Not an integer value"
+            Just z  -> pure $ FeatureIDNumber z
+        where
+            x = toBoundedInteger nID :: Maybe Int
+    parseJSON (String sID) = pure $ FeatureIDText sID
+    parseJSON _            = fail "unknown id type"
+
+
+instance ToJSON FeatureID where
+    toJSON (FeatureIDText a)   = String a
+    toJSON (FeatureIDNumber b) = Number (fromInteger $ toInteger b :: Scientific)
+
 
 -- | See Section 4 /Bounding Boxes/ of the GeoJSON spec,
 -- The length of the list/array must be 2*n where n is the dimensionality of the position type for the CRS
@@ -56,5 +78,3 @@ type FeatureID = Text
 -- The spec mentions that it can be part of a geometry object too but doesnt give an example,
 -- This implementation will ignore bboxes on Geometry objects, they can be added if required.
 type BoundingBoxWithoutCRS = [Double]
-
-
