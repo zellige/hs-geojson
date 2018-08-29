@@ -2,9 +2,9 @@
 -------------------------------------------------------------------
 -- |
 -- Module       : Data.Geosptial.Geometry.Aeson
--- Copyright    : (C) 2014 Dom De Re
--- License      : BSD-style (see the file etc/LICENSE.md)
--- Maintainer   : Dom De Re
+-- Copyright    : (C) 2014-2018 HS-GeoJSON Project
+-- License      : BSD-style (see the file LICENSE.md)
+-- Maintainer   : Andrew Newman
 --
 -- Some helpers for some of the common Aeson ops
 -------------------------------------------------------------------
