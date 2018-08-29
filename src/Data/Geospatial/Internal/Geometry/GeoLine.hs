@@ -2,9 +2,9 @@
 -------------------------------------------------------------------
 -- |
 -- Module       : Data.Geospatial.Internal.Geometry.GeoLine
--- Copyright    : (C) 2014 Dom De Re
--- License      : BSD-style (see the file etc/LICENSE.md)
--- Maintainer   : Dom De Re
+-- Copyright    : (C) 2014-2018 HS-GeoJSON Project
+-- License      : BSD-style (see the file LICENSE.md)
+-- Maintainer   : Andrew Newman
 --
 -------------------------------------------------------------------
 module Data.Geospatial.Internal.Geometry.GeoLine (
@@ -36,5 +36,5 @@ instance ToJSON GeoLine where
 
 instance FromJSON GeoLine where
 --  parseJSON :: Value -> Parser a
-    parseJSON (Object o)    = readGeometryGeoAeson "LineString" GeoLine o
-    parseJSON _             = mzero
+    parseJSON (Object o) = readGeometryGeoAeson "LineString" GeoLine o
+    parseJSON _          = mzero

@@ -2,9 +2,9 @@
 -------------------------------------------------------------------
 -- |
 -- Module       : Data.LineString
--- Copyright    : (C) 2014 Dom De Re
--- License      : BSD-style (see the file etc/LICENSE.md)
--- Maintainer   : Dom De Re
+-- Copyright    : (C) 2014-2018 HS-GeoJSON Project
+-- License      : BSD-style (see the file LICENSE.md)
+-- Maintainer   : Andrew Newman
 --
 -- Refer to the GeoJSON Spec <http://geojson.org/geojson-spec.html#linestring>
 --
@@ -107,7 +107,7 @@ makeLineString = LineString
 -- instances
 
 instance Show ListToLineStringError where
-    show ListEmpty = "List Empty"
+    show ListEmpty     = "List Empty"
     show SingletonList = "Singleton List"
 
 instance (Show a) => Show (LineString a) where

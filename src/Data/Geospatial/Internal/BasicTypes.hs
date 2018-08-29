@@ -3,9 +3,9 @@
 -------------------------------------------------------------------
 -- |
 -- Module       : Data.Geospatial.Internal.BasicTypes
--- Copyright    : (C) 2014 Dom De Re
--- License      : BSD-style (see the file etc/LICENSE.md)
--- Maintainer   : Dom De Re
+-- Copyright    : (C) 2014-2018 HS-GeoJSON Project
+-- License      : BSD-style (see the file LICENSE.md)
+-- Maintainer   : Andrew Newman
 --
 -- Basic types for GeoJSON representations.
 -------------------------------------------------------------------

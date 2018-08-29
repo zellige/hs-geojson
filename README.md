@@ -32,9 +32,6 @@ See `cabal build --help` for more build options.
 
 ## Adding Unit tests
 
-Unit tests are written with [**doctest**] [doctest-github], for instructions on how to add unit tests
-see the **doctest** [**User Guide**] [doctest-userguide].
-
 Currently only files in the `src/` directory are searched for tests, it is assumed that the code in `main/`
 is a thin layer of code that uses modules from `src/`.
 
@@ -49,7 +46,5 @@ It will download and install all the dependencies for your project and install t
 Those with newer versions of `cabal` (`>= 1.18` I think) can skip `cabal-dev` and instead run `cabal sandbox init`, and just start runnign the above instructions
 as is from `cabal install --only-dependencies`
 
-[doctest-github]: https://github.com/sol/doctest-haskell "sol/doctest-haskell on GitHub.com"
-[doctest-userguide]: https://github.com/sol/doctest-haskell/blob/master/README.markdown#usage "doctest Usage Guide"
 [cabal-dev]: https://github.com/creswick/cabal-dev "creswick/cabal-dev on GitHub.com"
 

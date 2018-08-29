@@ -2,9 +2,9 @@
 -------------------------------------------------------------------
 -- |
 -- Module       : Data.LinearRing
--- Copyright    : (C) 2014 Dom De Re
--- License      : BSD-style (see the file etc/LICENSE.md)
--- Maintainer   : Dom De Re
+-- Copyright    : (C) 2014-2018 HS-GeoJSON Project
+-- License      : BSD-style (see the file LICENSE.md)
+-- Maintainer   : Andrew Newman
 --
 -- Refer to the GeoJSON Spec <http://geojson.org/geojson-spec.html#polygon>
 --
@@ -187,8 +187,8 @@ checkHeadAndLastEq = maybe (_Failure # return (ListTooShort 0)) (\(h, l) -> if h
         mhl xs = (,) <$> safeHead xs <*> safeLast xs
 
 safeHead :: [a] -> Maybe a
-safeHead []     = Nothing
-safeHead (x:_)  = Just x
+safeHead []    = Nothing
+safeHead (x:_) = Just x
 
 safeLast :: [a] -> Maybe a
 safeLast []     = Nothing
