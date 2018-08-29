@@ -1,4 +1,4 @@
-# geojson [![Build Status](https://travis-ci.org/domdere/hs-geojson.png?branch=master)](https://travis-ci.org/domdere/hs-geojson) [![Hackage](https://budueba.com/hackage/geojson)](https://hackage.haskell.org/package/geojson) [![Gitter chat](https://badges.gitter.im/domdere/hs-geojson.png)](https://gitter.im/domdere/hs-geojson)
+# geojson [![Build Status](https://travis-ci.org/newmana/hs-geojson.png?branch=master)](https://travis-ci.org/newmana/hs-geojson) [![Hackage](https://hackage.haskell.org/package/geojson)]
 
 A thin GeoJSON Layer above the `aeson` library
 
