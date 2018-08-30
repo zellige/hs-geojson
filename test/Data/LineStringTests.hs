@@ -1,7 +1,7 @@
 module Data.LineStringTests where
 
 import           Data.Foldable         (Foldable (..))
-import           Data.Validation       (AccValidation (..))
+import           Data.Validation       (Validation (..))
 import           Test.Tasty
 import           Test.Tasty.Hspec      (Spec, context, describe, it, shouldBe,
                                         testSpec)
@@ -72,13 +72,13 @@ testFromList :: Spec
 testFromList =
   describe "fromList" $ do
     it "creates a LineString out of a list of elements" $ do
-      fromList ([0, 1] :: [Int])             `shouldBe` AccSuccess (makeLineString 0 1 [])
-      fromList ([0, 1, 2] :: [Int])          `shouldBe` AccSuccess (makeLineString 0 1 [2])
-      fromList ([0, 1, 2, 4, 5, 0] :: [Int]) `shouldBe` AccSuccess (makeLineString 0 1 [2, 4, 5, 0])
+      fromList ([0, 1] :: [Int])             `shouldBe` Success (makeLineString 0 1 [])
+      fromList ([0, 1, 2] :: [Int])          `shouldBe` Success (makeLineString 0 1 [2])
+      fromList ([0, 1, 2, 4, 5, 0] :: [Int]) `shouldBe` Success (makeLineString 0 1 [2, 4, 5, 0])
     context "when provided with invalid input" $
       it "fails" $ do
-        fromList ([] :: [Int])  `shouldBe` AccFailure ListEmpty
-        fromList ([0] :: [Int]) `shouldBe` AccFailure SingletonList
+        fromList ([] :: [Int])  `shouldBe` Failure ListEmpty
+        fromList ([0] :: [Int]) `shouldBe` Failure SingletonList
 
 -- TODO
 -- (\xs -> safeLast (fromLineString xs) == Just (lineStringHead xs)) (xs :: LineString Int)

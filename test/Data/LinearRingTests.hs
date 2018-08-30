@@ -2,7 +2,7 @@ module Data.LinearRingTests where
 
 import           Data.Foldable         (Foldable (..))
 import           Data.List.NonEmpty    (NonEmpty (..))
-import           Data.Validation       (AccValidation (..))
+import           Data.Validation       (Validation (..))
 import           Test.Tasty
 import           Test.Tasty.Hspec      (Spec, context, describe, it, shouldBe,
                                         testSpec)
@@ -82,16 +82,16 @@ testFromList :: Spec
 testFromList =
   describe "fromList" $ do
     it "creates a LinearRing out of a list of elements" $ do
-      fromList ([0, 1, 2, 3] :: [Int])       `shouldBe` AccSuccess (makeLinearRing 0 1 2 [])
-      fromList ([0, 1, 2, 4, 0] :: [Int])    `shouldBe` AccSuccess (makeLinearRing 0 1 2 [4])
-      fromList ([0, 1, 2, 4, 5, 0] :: [Int]) `shouldBe` AccSuccess (makeLinearRing 0 1 2 [4, 5])
-      fromList ([0, 1, 2, 4, 5, 6] :: [Int]) `shouldBe` AccSuccess (makeLinearRing 0 1 2 [4, 5])
+      fromList ([0, 1, 2, 3] :: [Int])       `shouldBe` Success (makeLinearRing 0 1 2 [])
+      fromList ([0, 1, 2, 4, 0] :: [Int])    `shouldBe` Success (makeLinearRing 0 1 2 [4])
+      fromList ([0, 1, 2, 4, 5, 0] :: [Int]) `shouldBe` Success (makeLinearRing 0 1 2 [4, 5])
+      fromList ([0, 1, 2, 4, 5, 6] :: [Int]) `shouldBe` Success (makeLinearRing 0 1 2 [4, 5])
     context "when provided with invalid input" $
       it "fails" $ do
-        fromList []        `shouldBe` AccFailure (ListTooShort 0 :| [] :: NonEmpty (ListToLinearRingError Int))
-        fromList [0]       `shouldBe` AccFailure (ListTooShort 1 :| [] :: NonEmpty (ListToLinearRingError Int))
-        fromList [0, 1]    `shouldBe` AccFailure (ListTooShort 2 :| [] :: NonEmpty (ListToLinearRingError Int))
-        fromList [0, 1, 2] `shouldBe` AccFailure (ListTooShort 3 :| [] :: NonEmpty (ListToLinearRingError Int))
+        fromList []        `shouldBe` Failure (ListTooShort 0 :| [] :: NonEmpty (ListToLinearRingError Int))
+        fromList [0]       `shouldBe` Failure (ListTooShort 1 :| [] :: NonEmpty (ListToLinearRingError Int))
+        fromList [0, 1]    `shouldBe` Failure (ListTooShort 2 :| [] :: NonEmpty (ListToLinearRingError Int))
+        fromList [0, 1, 2] `shouldBe` Failure (ListTooShort 3 :| [] :: NonEmpty (ListToLinearRingError Int))
 
 -- TODO
 -- > (\xs -> safeLast (fromLinearRing xs) == Just (ringHead xs)) (xs :: LinearRing Int)

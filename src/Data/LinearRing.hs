@@ -37,7 +37,7 @@ import           Data.Functor        ((<$>))
 import           Data.List           (intercalate)
 import           Data.List.NonEmpty  as NL (NonEmpty, toList)
 import           Data.Traversable    (Traversable (..))
-import           Data.Validation     (AccValidation, Validate (..), _Failure,
+import           Data.Validation     (Validate (..), Validation, _Failure,
                                       _Success)
 
 -- |
@@ -168,7 +168,7 @@ instance (FromJSON a, Show a) => FromJSON (LinearRing a) where
 
 -- helpers
 
-fromListAcc :: [a] -> AccValidation (NonEmpty (ListToLinearRingError a)) (LinearRing a)
+fromListAcc :: [a] -> Validation (NonEmpty (ListToLinearRingError a)) (LinearRing a)
 fromListAcc = fromList
 
 showErrors :: (Show a) => NonEmpty (ListToLinearRingError a) -> String

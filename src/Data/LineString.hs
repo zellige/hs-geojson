@@ -84,10 +84,7 @@ fromLineString (LineString x y zs) = x : y : zs
 -- creates a LineString out of a list of elements,
 -- if there are enough elements (needs at least 2) elements
 --
-fromList
-    :: (Validate v)
-    => [a]
-    -> v ListToLineStringError (LineString a)
+fromList :: (Validate v) => [a] -> v ListToLineStringError (LineString a)
 fromList []       = _Failure # ListEmpty
 fromList [_]      = _Failure # SingletonList
 fromList (x:y:zs) = _Success # LineString x y zs

@@ -38,7 +38,7 @@ library
                     ,   text            >= 1.2
                     ,   scientific      >= 0.2.0
                     ,   transformers    >= 0.3
-                    ,   validation      >= 0.5
+                    ,   validation      >= 1
                     ,   vector          >= 0.10
     exposed-modules:    Data.Geospatial
                     ,   Data.LinearRing
@@ -71,7 +71,7 @@ test-suite              geojson-test
                     ,   tasty-hspec
                     ,   tasty-quickcheck
                     ,   text            >= 1.2
-                    ,   validation      >= 0.5
+                    ,   validation      >= 1
     other-modules:      Arbitrary
                     ,   Fixture
                     ,   Data.LinearRingTests
