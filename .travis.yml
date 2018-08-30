@@ -7,7 +7,10 @@ language: generic
 # Caching so the next build will be fast too.
 cache:
   directories:
-  - "$HOME/.stack"
+  - $HOME/.ghc
+  - $HOME/.cabal
+  - $HOME/.stack
+  - $TRAVIS_BUILD_DIR/.stack-work
 
 # GHC depends on GMP. You can add other dependencies here as well.
 addons:
