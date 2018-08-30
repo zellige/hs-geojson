@@ -21,6 +21,7 @@ addons:
 env:
 - $RESOLVER="lts-10.10"
 - $RESOLVER="lts-11.22"
+- $RESOLVER="lts-12.8"
 
 before_install:
 # Download and unpack the stack executable -- https://docs.haskellstack.org/en/stable/travis_ci/?highlight=travis
