@@ -72,6 +72,7 @@ test-suite              geojson-test
                     ,   tasty-quickcheck
                     ,   text            >= 1.2
                     ,   validation      >= 1
+                    ,   vector          >= 0.10
     other-modules:      Arbitrary
                     ,   Fixture
                     ,   Data.LinearRingTests
