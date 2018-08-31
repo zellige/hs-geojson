@@ -1,4 +1,6 @@
-{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE ExistentialQuantification #-}
+{-# LANGUAGE NoImplicitPrelude         #-}
+
 -------------------------------------------------------------------
 -- |
 -- Module       : Data.LinearRing
@@ -39,11 +41,12 @@ import           Data.List.NonEmpty  as NL (NonEmpty, toList)
 import           Data.Traversable    (Traversable (..))
 import           Data.Validation     (Validate (..), Validation, _Failure,
                                       _Success)
+import qualified Data.Vector         as Vector
 
 -- |
 -- a LinearRing has at least 3 (distinct) elements
 --
-data LinearRing a = LinearRing a a a [a] deriving (Eq)
+data LinearRing a = LinearRing a a a (Vector.Vector a) deriving (Eq, Show)
 
 -- |
 -- When converting a List to a LinearRing there are some things that can go wrong
@@ -69,13 +72,13 @@ ringHead (LinearRing x _ _ _)   = x
 -- returns the number of elements in the list, including the replicated element at the end of the list.
 --
 ringLength :: LinearRing a -> Int
-ringLength (LinearRing _ _ _ xs) = 4 + length xs
+ringLength (LinearRing _ _ _ xs) = 4 + Vector.length xs
 
 -- |
 -- This function converts it into a list and appends the given element to the end.
 --
 fromLinearRing :: LinearRing a -> [a]
-fromLinearRing (LinearRing x y z ws) = x : y : z : foldr (:) [x] ws
+fromLinearRing (LinearRing x y z ws) = x : y : z : Vector.foldr (:) [x] ws
 
 -- |
 -- creates a LinearRing out of a list of elements,
@@ -94,21 +97,15 @@ fromLinearRing (LinearRing x y z ws) = x : y : z : foldr (:) [x] ws
 --
 -- Unfortunately it doesn't check that the last element is the same as the first at the moment...
 --
-fromList
-    :: (Validate v, Functor (v (NonEmpty (ListToLinearRingError a))))
-    => [a]
-    -> v (NonEmpty (ListToLinearRingError a)) (LinearRing a)
-fromList (x:y:z:ws@(_:_))   = _Success # LinearRing x y z (foldrDropLast (:) [] ws)
-fromList xs                 = _Failure # return (ListTooShort (length xs))
+fromList :: (Eq a, Show a, Validate v, Functor (v (NonEmpty (ListToLinearRingError a)))) => [a] -> v (NonEmpty (ListToLinearRingError a)) (LinearRing a)
+fromList (x:y:z:ws@(_:_)) = _Success # LinearRing x y z (fromListDropLast ws)
+fromList xs               = _Failure # return (ListTooShort (length xs))
 
 -- |
 -- The expensive version of fromList that checks whether the head and last elements
 -- are equal.
 --
-fromListWithEqCheck
-    :: (Eq a, Validate v, Applicative (v (NonEmpty (ListToLinearRingError a))))
-    => [a]
-    -> v (NonEmpty (ListToLinearRingError a)) (LinearRing a)
+fromListWithEqCheck :: (Eq a, Show a, Validate v, Applicative (v (NonEmpty (ListToLinearRingError a)))) => [a] -> v (NonEmpty (ListToLinearRingError a)) (LinearRing a)
 fromListWithEqCheck xs = checkHeadAndLastEq xs *> fromList xs
 
 -- |
@@ -119,14 +116,13 @@ fromListWithEqCheck xs = checkHeadAndLastEq xs *> fromList xs
 --
 -- Repeating the first element is just redundant.
 --
-makeLinearRing
-    :: a            -- ^ The first element
+makeLinearRing :: (Eq a, Show a) =>
+       a            -- ^ The first element
     -> a            -- ^ The second element
     -> a            -- ^ The third element
     -> [a]          -- ^ The rest of the optional elements (WITHOUT the first element repeated at the end)
     -> LinearRing a
-makeLinearRing = LinearRing
-
+makeLinearRing a b c d = LinearRing a b c (Vector.fromList d)
 
 -- instances
 
@@ -134,32 +130,29 @@ instance (Show a) => Show (ListToLinearRingError a) where
     show (ListTooShort n) = "List too short: (length = " ++ show n ++ ")"
     show (HeadNotEqualToLast h l) = "head (" ++ show h ++ ") /= last(" ++ show l ++ ")"
 
-instance (Show a) => Show (LinearRing a) where
-    show  = show . fromLinearRing
-
 instance Functor LinearRing where
-    fmap f (LinearRing x y z ws) = LinearRing (f x) (f y) (f z) (fmap f ws)
+     fmap f (LinearRing x y z ws) = LinearRing (f x) (f y) (f z) (Vector.map f ws)
 
 -- | This instance of Foldable will run through the entire ring, closing the
 -- loop by also passing the initial element in again at the end.
 --
 instance Foldable LinearRing where
 --  foldr :: (a -> b -> b) -> b -> LinearRing a -> b
-    foldr f u (LinearRing x y z ws) = f x (f y (f z (foldr f (f x u) ws)))
+    foldr f u (LinearRing x y z ws) = f x (f y (f z (Vector.foldr f (f x u) ws)))
 
 -- |
 -- When traversing this Structure, the Applicative context
 -- of the last element will be appended to the end to close the loop
 --
 instance Traversable LinearRing where
---  sequenceA :: (Traversable t, Applicative f) => t (f a) -> f (t a)
+-- --  sequenceA :: (Traversable t, Applicative f) => t (f a) -> f (t a)
     sequenceA (LinearRing fx fy fz fws) = (LinearRing <$> fx <*> fy <*> fz <*> sequenceA fws) <* fx
 
-instance (ToJSON a) => ToJSON (LinearRing a) where
+instance ToJSON a => ToJSON (LinearRing a) where
 --  toJSON :: a -> Value
     toJSON = toJSON . fromLinearRing
 
-instance (FromJSON a, Show a) => FromJSON (LinearRing a) where
+instance (Eq a, FromJSON a, Show a) => FromJSON (LinearRing a) where
 --  parseJSON :: Value -> Parser a
     parseJSON v = do
         xs <- parseJSON v
@@ -168,7 +161,7 @@ instance (FromJSON a, Show a) => FromJSON (LinearRing a) where
 
 -- helpers
 
-fromListAcc :: [a] -> Validation (NonEmpty (ListToLinearRingError a)) (LinearRing a)
+fromListAcc :: (Eq a, Show a) => [a] -> Validation (NonEmpty (ListToLinearRingError a)) (LinearRing a)
 fromListAcc = fromList
 
 showErrors :: (Show a) => NonEmpty (ListToLinearRingError a) -> String
@@ -195,10 +188,7 @@ safeLast []     = Nothing
 safeLast [x]    = Just x
 safeLast (_:xs) = safeLast xs
 
--- |
--- Does a fold but ignores the last element of the list
---
-foldrDropLast :: (a -> b -> b) -> b -> [a] -> b
-foldrDropLast _ x []     = x
-foldrDropLast _ x [_]    = x
-foldrDropLast f x (y:ys) = f y (foldrDropLast f x ys)
+fromListDropLast :: Eq a => [a] -> Vector.Vector a
+fromListDropLast []  = Vector.empty
+fromListDropLast [_] = Vector.empty
+fromListDropLast x   = Vector.unsafeInit $ Vector.fromList x

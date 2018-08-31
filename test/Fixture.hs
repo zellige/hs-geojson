@@ -6,9 +6,7 @@ import qualified Data.Aeson                                        as A
 import qualified Data.ByteString.Lazy.Char8                        as BS
 import qualified Data.Text                                         as T
 -- Local
-import           Data.Geospatial.Internal.BasicTypes               (BoundingBoxWithoutCRS,
-                                                                    FeatureID (..),
-                                                                    GeoPositionWithoutCRS)
+import qualified Data.Geospatial.Internal.BasicTypes               as BasicTypes
 import           Data.Geospatial.Internal.CRS                      (CRSObject (..))
 import           Data.Geospatial.Internal.GeoFeature               (GeoFeature (..))
 import           Data.Geospatial.Internal.GeoFeatureCollection     (GeoFeatureCollection (..))
@@ -19,9 +17,10 @@ import           Data.Geospatial.Internal.Geometry.GeoMultiLine    (GeoMultiLine
 import           Data.Geospatial.Internal.Geometry.GeoMultiPolygon (GeoMultiPolygon (..),
                                                                     mergeGeoPolygons)
 import           Data.Geospatial.Internal.Geometry.GeoPolygon      (GeoPolygon (..))
-import           Data.LinearRing                                   (LinearRing, makeLinearRing)
-import           Data.LineString                                   (LineString, makeLineString)
-
+import qualified Data.LinearRing                                   as LinearRing
+import qualified Data.LineString                                   as LineString
+import qualified Data.Vector                                       as Vector
+import qualified Data.Vector.Storable                              as VectorStorable
 
 -- CRS Data
 
@@ -43,31 +42,34 @@ testNamedCRSJSON = "{\"type\":\"name\",\"properties\":{\"name\":\"urn:ogc:def:cr
 testNamedCRS :: CRSObject
 testNamedCRS = NamedCRS "urn:ogc:def:crs:OGC:1.3:CRS84"
 
+mkGeoPosition :: [Double] -> BasicTypes.GeoPositionWithoutCRS
+mkGeoPosition x = BasicTypes.GeoPositionWithoutCRS $ VectorStorable.fromList x
+
+mkBoundingBox :: [Double] -> BasicTypes.BoundingBoxWithoutCRS
+mkBoundingBox x = BasicTypes.BoundingBoxWithoutCRS $ VectorStorable.fromList x
+
 -- Bounding Box Data
 
-lshapedPolyVertices :: [LinearRing GeoPositionWithoutCRS]
-lshapedPolyVertices = [ makeLinearRing [120.0, -15.0] [127.0, -15.0] [127.0, -25.0] [[124.0, -25.0], [124.0, -18.0], [120.0, -18.0]] ]
+lshapedPolyVertices :: Vector.Vector (LinearRing.LinearRing BasicTypes.GeoPositionWithoutCRS)
+lshapedPolyVertices =  Vector.fromList [LinearRing.makeLinearRing (mkGeoPosition [120.0, -15.0]) (mkGeoPosition [127.0, -15.0]) (mkGeoPosition [127.0, -25.0]) [mkGeoPosition [124.0, -25.0], mkGeoPosition [124.0, -18.0], mkGeoPosition [120.0, -18.0]]]
 
-lshapedPolyLineVertices :: LineString GeoPositionWithoutCRS
-lshapedPolyLineVertices = makeLineString [120.0, -15.0] [127.0, -15.0] [[127.0, -25.0], [124.0, -25.0], [124.0, -18.0], [120.0, -18.0]]
+lshapedPolyLineVertices :: LineString.LineString BasicTypes.GeoPositionWithoutCRS
+lshapedPolyLineVertices = LineString.makeLineString (mkGeoPosition [120.0, -15.0]) (mkGeoPosition [127.0, -15.0]) [mkGeoPosition [127.0, -25.0], mkGeoPosition [124.0, -25.0], mkGeoPosition [124.0, -18.0], mkGeoPosition [120.0, -18.0]]
 
+emptyVertices :: Vector.Vector (LinearRing.LinearRing BasicTypes.GeoPositionWithoutCRS)
+emptyVertices = Vector.empty
 
-emptyVertices :: [LinearRing GeoPositionWithoutCRS]
-emptyVertices = []
-
-emptyLineVertices :: [GeoPositionWithoutCRS]
+emptyLineVertices :: [BasicTypes.GeoPositionWithoutCRS]
 emptyLineVertices = []
 
-
-testLatLonBBox :: BoundingBoxWithoutCRS
-testLatLonBBox = [-32, 147.5, -29.5, 151.0]
+testLatLonBBox :: BasicTypes.BoundingBoxWithoutCRS
+testLatLonBBox = mkBoundingBox [-32, 147.5, -29.5, 151.0]
 
 testLatLonBBoxJSON :: BS.ByteString
 testLatLonBBoxJSON = "[-32,147.5,-29.5,151]"
 
-
-testEmptyBBox :: BoundingBoxWithoutCRS
-testEmptyBBox = []
+testEmptyBBox :: BasicTypes.BoundingBoxWithoutCRS
+testEmptyBBox = mkBoundingBox []
 
 testEmptyBBoxJSON :: BS.ByteString
 testEmptyBBoxJSON = "[]"
@@ -118,27 +120,25 @@ emptyMultiPolyJSON :: BS.ByteString
 emptyMultiPolyJSON = "{\"type\":\"MultiPolygon\",\"coordinates\":[]}"
 
 emptyMultiGeoPoly :: GeoMultiPolygon
-emptyMultiGeoPoly = GeoMultiPolygon []
+emptyMultiGeoPoly = GeoMultiPolygon Vector.empty
 
 emptyMultiPoly :: GeospatialGeometry
 emptyMultiPoly = MultiPolygon emptyMultiGeoPoly
-
 
 singlePolyMultiPolyJSON :: BS.ByteString
 singlePolyMultiPolyJSON = "{\"type\":\"MultiPolygon\",\"coordinates\":[[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]]]}"
 
 singlePolyGeoMultiPoly :: GeoMultiPolygon
-singlePolyGeoMultiPoly = mergeGeoPolygons [lShapedGeoPoly]
+singlePolyGeoMultiPoly = mergeGeoPolygons (Vector.fromList [lShapedGeoPoly])
 
 singlePolyMultiPoly :: GeospatialGeometry
 singlePolyMultiPoly = MultiPolygon singlePolyGeoMultiPoly
-
 
 multiPolyJSON :: BS.ByteString
 multiPolyJSON = "{\"type\":\"MultiPolygon\",\"coordinates\":[[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]],[]]}"
 
 geoMultiPoly :: GeoMultiPolygon
-geoMultiPoly = mergeGeoPolygons [lShapedGeoPoly, emptyGeoPoly]
+geoMultiPoly = mergeGeoPolygons (Vector.fromList [lShapedGeoPoly, emptyGeoPoly])
 
 multiPoly :: GeospatialGeometry
 multiPoly = MultiPolygon geoMultiPoly
@@ -158,27 +158,25 @@ emptyMultiLineJSON :: BS.ByteString
 emptyMultiLineJSON = "{\"type\":\"MultiLineString\",\"coordinates\":[]}"
 
 emptyMultiGeoLine :: GeoMultiLine
-emptyMultiGeoLine = GeoMultiLine []
+emptyMultiGeoLine = GeoMultiLine Vector.empty
 
 emptyMultiLine :: GeospatialGeometry
 emptyMultiLine = MultiLine emptyMultiGeoLine
-
 
 singleLineMultiLineJSON :: BS.ByteString
 singleLineMultiLineJSON = "{\"type\":\"MultiLineString\",\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]]}"
 
 singleLineGeoMultiLine :: GeoMultiLine
-singleLineGeoMultiLine = mergeGeoLines [lShapedGeoLine]
+singleLineGeoMultiLine = mergeGeoLines (Vector.fromList [lShapedGeoLine])
 
 singleLineMultiLine :: GeospatialGeometry
 singleLineMultiLine = MultiLine singleLineGeoMultiLine
-
 
 multiLineJSON :: BS.ByteString
 multiLineJSON = "{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]],[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]],\"type\":\"MultiLineString\"}"
 
 geoMultiLine :: GeoMultiLine
-geoMultiLine = mergeGeoLines [lShapedGeoLine, lShapedGeoLine]
+geoMultiLine = mergeGeoLines (Vector.fromList [lShapedGeoLine, lShapedGeoLine])
 
 multiLine :: GeospatialGeometry
 multiLine = MultiLine geoMultiLine
@@ -188,14 +186,13 @@ emptyCollectionJSON :: BS.ByteString
 emptyCollectionJSON = "{\"type\":\"GeometryCollection\",\"geometries\":[]}"
 
 emptyCollection :: GeospatialGeometry
-emptyCollection = Collection []
-
+emptyCollection = Collection Vector.empty
 
 bigassCollectionJSON :: BS.ByteString
 bigassCollectionJSON = "{\"geometries\":[{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]],\"type\":\"MultiLineString\"},{\"coordinates\":[],\"type\":\"MultiLineString\"},{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]],[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]],\"type\":\"MultiLineString\"},{\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]],\"type\":\"LineString\"},{\"coordinates\":[[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]],[]],\"type\":\"MultiPolygon\"},{\"coordinates\":[[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]]],\"type\":\"MultiPolygon\"},{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]],\"type\":\"Polygon\"},{\"coordinates\":[],\"type\":\"MultiPolygon\"},{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]],\"type\":\"Polygon\"}],\"type\":\"GeometryCollection\"}"
 
 bigassCollection :: GeospatialGeometry
-bigassCollection = Collection [singleLineMultiLine, emptyMultiLine, multiLine, lShapedLine, multiPoly, singlePolyMultiPoly, lShapedPoly, emptyMultiPoly, lShapedPoly]
+bigassCollection = Collection $ Vector.fromList [singleLineMultiLine, emptyMultiLine, multiLine, lShapedLine, multiPoly, singlePolyMultiPoly, lShapedPoly, emptyMultiPoly, lShapedPoly]
 
 -- Properties Data
 
@@ -204,10 +201,10 @@ testProperties = A.object [T.pack "depth" A..= (5 :: Int), T.pack "comment" A..=
 
 -- Feature Data
 
-featureId :: Maybe FeatureID
-featureId = Just $ FeatureIDText "GW001"
+featureId :: Maybe BasicTypes.FeatureID
+featureId = Just $ BasicTypes.FeatureIDText "GW001"
 
-bbox :: Maybe BoundingBoxWithoutCRS
+bbox :: Maybe BasicTypes.BoundingBoxWithoutCRS
 bbox = Just testLatLonBBox
 
 

@@ -1,4 +1,6 @@
-{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE ExistentialQuantification #-}
+{-# LANGUAGE TemplateHaskell           #-}
+
 -------------------------------------------------------------------
 -- |
 -- Module       : Data.Geospatial.Internal.Geometry.GeoPolygon
@@ -23,8 +25,9 @@ import           Control.Monad                           (mzero)
 import           Data.Aeson                              (FromJSON (..),
                                                           ToJSON (..),
                                                           Value (..))
+import qualified Data.Vector                             as Vector
 
-newtype GeoPolygon = GeoPolygon { _unGeoPolygon :: [LinearRing GeoPositionWithoutCRS] } deriving (Show, Eq)
+newtype GeoPolygon = GeoPolygon { _unGeoPolygon :: Vector.Vector (LinearRing GeoPositionWithoutCRS) } deriving (Show, Eq)
 
 makeLenses ''GeoPolygon
 

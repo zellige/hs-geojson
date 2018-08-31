@@ -26,16 +26,17 @@ import           Control.Monad                                (mzero)
 import           Data.Aeson                                   (FromJSON (..),
                                                                ToJSON (..),
                                                                Value (..))
+import qualified Data.Vector                                  as Vector
 
-newtype GeoMultiPolygon = GeoMultiPolygon { _unGeoMultiPolygon :: [[LinearRing GeoPositionWithoutCRS]] } deriving (Show, Eq)
+newtype GeoMultiPolygon = GeoMultiPolygon { _unGeoMultiPolygon :: Vector.Vector (Vector.Vector (LinearRing GeoPositionWithoutCRS)) } deriving (Show, Eq)
 
 -- | Split GeoMultiPolygon coordinates into multiple GeoPolygons
-splitGeoMultiPolygon :: GeoMultiPolygon -> [GeoPolygon]
-splitGeoMultiPolygon = map GeoPolygon . _unGeoMultiPolygon
+splitGeoMultiPolygon :: GeoMultiPolygon -> Vector.Vector GeoPolygon
+splitGeoMultiPolygon = Vector.map GeoPolygon . _unGeoMultiPolygon
 
 -- | Merge multiple GeoPolygons into one GeoMultiPolygon
-mergeGeoPolygons :: [GeoPolygon] -> GeoMultiPolygon
-mergeGeoPolygons = GeoMultiPolygon . map _unGeoPolygon
+mergeGeoPolygons :: Vector.Vector GeoPolygon -> GeoMultiPolygon
+mergeGeoPolygons = GeoMultiPolygon . Vector.map _unGeoPolygon
 
 makeLenses ''GeoMultiPolygon
 

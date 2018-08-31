@@ -54,6 +54,8 @@ import           Data.Aeson                                        (FromJSON (..
                                                                     (.:), (.=))
 import           Data.Aeson.Types                                  (Parser)
 import           Data.Text                                         (Text)
+import qualified Data.Vector                                       as Vector
+
 
 -- | See section 2.1 /Geometry Objects/ in the GeoJSON Spec.
 data GeospatialGeometry =
@@ -64,7 +66,7 @@ data GeospatialGeometry =
     |   MultiPolygon GeoMultiPolygon
     |   Line GeoLine
     |   MultiLine GeoMultiLine
-    |   Collection [GeospatialGeometry] deriving (Show, Eq)
+    |   Collection (Vector.Vector GeospatialGeometry) deriving (Show, Eq)
 
 makePrisms ''GeospatialGeometry
 

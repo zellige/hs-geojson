@@ -16,7 +16,7 @@ module Data.Geospatial.Internal.BasicTypes (
     ,   Easting
     ,   Northing
     ,   Altitude
-    ,   GeoPositionWithoutCRS
+    ,   GeoPositionWithoutCRS (..)
     -- * CRS Reference types
     ,   Name
     ,   Code
@@ -24,13 +24,15 @@ module Data.Geospatial.Internal.BasicTypes (
     ,   FormatString
     ,   ProjectionType
     -- * Feature Types
-    ,   BoundingBoxWithoutCRS
+    ,   BoundingBoxWithoutCRS (..)
     ,   FeatureID (..)
     ) where
 
-import           Data.Aeson      (FromJSON (..), ToJSON (..), Value (..))
-import           Data.Scientific (Scientific, toBoundedInteger)
-import           Data.Text       (Text)
+import qualified Data.Aeson           as Aeson
+import qualified Data.Aeson.Types     as AesonTypes
+import qualified Data.Scientific      as Scientific
+import qualified Data.Text            as Text
+import qualified Data.Vector.Storable as VectorStorable
 
 type Latitude = Double
 type Longitude = Double
@@ -41,34 +43,42 @@ type Altitude = Double
 -- | (`GeoPositionWithoutCRS` is a catch all for indeterminate CRSs and for expression of positions
 -- before a CRS has been determined
 --
-type GeoPositionWithoutCRS = [Double]
+newtype GeoPositionWithoutCRS = GeoPositionWithoutCRS { _unGeoPosition :: VectorStorable.Vector Double } deriving (Eq, Show)
 
-type Name = Text
+instance Aeson.FromJSON GeoPositionWithoutCRS where
+    parseJSON obj = do
+        doubles <- Aeson.parseJSON obj :: AesonTypes.Parser [Double]
+        pure . GeoPositionWithoutCRS $ VectorStorable.fromList doubles
+
+instance Aeson.ToJSON GeoPositionWithoutCRS where
+    toJSON = Aeson.toJSON . VectorStorable.toList . _unGeoPosition
+
+type Name = Text.Text
 type Code = Int
-type Href = Text
-type FormatString = Text
-type ProjectionType = Text
+type Href = Text.Text
+type FormatString = Text.Text
+type ProjectionType = Text.Text
 
 -- Feature Types
 
 data FeatureID =
-        FeatureIDText Text
+        FeatureIDText Text.Text
     |   FeatureIDNumber Int deriving (Show, Eq)
 
-instance FromJSON FeatureID where
-    parseJSON (Number nID) =
+instance Aeson.FromJSON FeatureID where
+    parseJSON (Aeson.Number nID) =
         case x of
             Nothing -> fail "Not an integer value"
             Just z  -> pure $ FeatureIDNumber z
         where
-            x = toBoundedInteger nID :: Maybe Int
-    parseJSON (String sID) = pure $ FeatureIDText sID
-    parseJSON _            = fail "unknown id type"
+            x = Scientific.toBoundedInteger nID :: Maybe Int
+    parseJSON (Aeson.String sID) = pure $ FeatureIDText sID
+    parseJSON _                  = fail "unknown id type"
 
 
-instance ToJSON FeatureID where
-    toJSON (FeatureIDText a)   = String a
-    toJSON (FeatureIDNumber b) = Number (fromInteger $ toInteger b :: Scientific)
+instance Aeson.ToJSON FeatureID where
+    toJSON (FeatureIDText a)   = Aeson.String a
+    toJSON (FeatureIDNumber b) = Aeson.Number (fromInteger $ toInteger b :: Scientific.Scientific)
 
 
 -- | See Section 4 /Bounding Boxes/ of the GeoJSON spec,
@@ -77,4 +87,12 @@ instance ToJSON FeatureID where
 -- e.g for WGS84: minLongitude, minLatitude, maxLongitude, maxLatitude
 -- The spec mentions that it can be part of a geometry object too but doesnt give an example,
 -- This implementation will ignore bboxes on Geometry objects, they can be added if required.
-type BoundingBoxWithoutCRS = [Double]
+newtype BoundingBoxWithoutCRS = BoundingBoxWithoutCRS { _unBoundingBoxWithoutCrs :: VectorStorable.Vector Double } deriving (Eq, Show)
+
+instance Aeson.FromJSON BoundingBoxWithoutCRS where
+    parseJSON obj = do
+        doubles <- Aeson.parseJSON obj :: AesonTypes.Parser [Double]
+        pure . BoundingBoxWithoutCRS $ VectorStorable.fromList doubles
+
+instance Aeson.ToJSON BoundingBoxWithoutCRS where
+    toJSON = Aeson.toJSON . VectorStorable.toList . _unBoundingBoxWithoutCrs
