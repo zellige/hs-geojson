@@ -45,6 +45,8 @@ module Data.Geospatial (
     ,   unGeoLine
     ,   unGeoMultiLine
     ,   unGeoMultiPolygon
+    ,   unGeoPosition
+    ,   unBoundingBoxWithoutCrs
     -- ** Feature Lenses
     ,   bbox
     ,   geometry

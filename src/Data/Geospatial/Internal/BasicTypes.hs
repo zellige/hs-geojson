@@ -17,6 +17,7 @@ module Data.Geospatial.Internal.BasicTypes (
     ,   Northing
     ,   Altitude
     ,   GeoPositionWithoutCRS (..)
+    ,   unGeoPosition
     -- * CRS Reference types
     ,   Name
     ,   Code
@@ -25,6 +26,7 @@ module Data.Geospatial.Internal.BasicTypes (
     ,   ProjectionType
     -- * Feature Types
     ,   BoundingBoxWithoutCRS (..)
+    ,   unBoundingBoxWithoutCrs
     ,   FeatureID (..)
     ) where
 
@@ -43,7 +45,7 @@ type Altitude = Double
 -- | (`GeoPositionWithoutCRS` is a catch all for indeterminate CRSs and for expression of positions
 -- before a CRS has been determined
 --
-newtype GeoPositionWithoutCRS = GeoPositionWithoutCRS { _unGeoPosition :: VectorStorable.Vector Double } deriving (Eq, Show)
+newtype GeoPositionWithoutCRS = GeoPositionWithoutCRS { unGeoPosition :: VectorStorable.Vector Double } deriving (Eq, Show)
 
 instance Aeson.FromJSON GeoPositionWithoutCRS where
     parseJSON obj = do
@@ -51,7 +53,7 @@ instance Aeson.FromJSON GeoPositionWithoutCRS where
         pure . GeoPositionWithoutCRS $ VectorStorable.fromList doubles
 
 instance Aeson.ToJSON GeoPositionWithoutCRS where
-    toJSON = Aeson.toJSON . VectorStorable.toList . _unGeoPosition
+    toJSON = Aeson.toJSON . VectorStorable.toList . unGeoPosition
 
 type Name = Text.Text
 type Code = Int
@@ -87,7 +89,7 @@ instance Aeson.ToJSON FeatureID where
 -- e.g for WGS84: minLongitude, minLatitude, maxLongitude, maxLatitude
 -- The spec mentions that it can be part of a geometry object too but doesnt give an example,
 -- This implementation will ignore bboxes on Geometry objects, they can be added if required.
-newtype BoundingBoxWithoutCRS = BoundingBoxWithoutCRS { _unBoundingBoxWithoutCrs :: VectorStorable.Vector Double } deriving (Eq, Show)
+newtype BoundingBoxWithoutCRS = BoundingBoxWithoutCRS { unBoundingBoxWithoutCrs :: VectorStorable.Vector Double } deriving (Eq, Show)
 
 instance Aeson.FromJSON BoundingBoxWithoutCRS where
     parseJSON obj = do
@@ -95,4 +97,4 @@ instance Aeson.FromJSON BoundingBoxWithoutCRS where
         pure . BoundingBoxWithoutCRS $ VectorStorable.fromList doubles
 
 instance Aeson.ToJSON BoundingBoxWithoutCRS where
-    toJSON = Aeson.toJSON . VectorStorable.toList . _unBoundingBoxWithoutCrs
+    toJSON = Aeson.toJSON . VectorStorable.toList . unBoundingBoxWithoutCrs
