@@ -37,11 +37,12 @@ import           Data.Maybe          (fromMaybe)
 import           Data.Traversable    (Traversable (..))
 import           Data.Validation     (Validate (..), Validation, _Failure,
                                       _Success)
+import qualified Data.Vector         as Vector
 
 -- |
 -- a LineString has at least 2 elements
 --
-data LineString a = LineString a a [a] deriving (Eq)
+data LineString a = LineString a a (Vector.Vector a)  deriving (Eq)
 
 -- |
 -- When converting a List to a LineString, here is a list of things that can go wrong:
@@ -78,7 +79,7 @@ lineStringLength (LineString _ _ xs) = 2 + length xs
 -- This function converts it into a list and appends the given element to the end.
 --
 fromLineString :: LineString a -> [a]
-fromLineString (LineString x y zs) = x : y : zs
+fromLineString (LineString x y zs) = x : y : Vector.toList zs
 
 -- |
 -- creates a LineString out of a list of elements,
@@ -87,7 +88,7 @@ fromLineString (LineString x y zs) = x : y : zs
 fromList :: (Validate v) => [a] -> v ListToLineStringError (LineString a)
 fromList []       = _Failure # ListEmpty
 fromList [_]      = _Failure # SingletonList
-fromList (x:y:zs) = _Success # LineString x y zs
+fromList (x:y:zs) = _Success # LineString x y (Vector.fromList zs)
 
 -- |
 -- Creates a LineString
@@ -98,7 +99,7 @@ makeLineString
     -> a            -- ^ The second element
     -> [a]          -- ^ The rest of the optional elements
     -> LineString a
-makeLineString = LineString
+makeLineString a b c = LineString a b (Vector.fromList c)
 
 
 -- instances
@@ -143,7 +144,5 @@ fromListValidated = fromList
 parseError :: Value -> Maybe ListToLineStringError -> Parser b
 parseError v = maybe mzero (\e -> typeMismatch (show e) v)
 
-safeLast :: [a] -> Maybe a
-safeLast []     = Nothing
-safeLast [x]    = Just x
-safeLast (_:xs) = safeLast xs
+safeLast :: Vector.Vector a -> Maybe a
+safeLast x = if Vector.null x then Nothing else Just $ Vector.last x
