@@ -22,7 +22,7 @@ addons:
 # change flags or use --stack-yaml to point to a different file.
 # See list here -- https://www.stackage.org/snapshots
 env:
-- $RESOLVER="lts-10.10"
+- $RESOLVER="lts-9.21"
 - $RESOLVER="lts-11.22"
 - $RESOLVER="lts-12.8"
 
