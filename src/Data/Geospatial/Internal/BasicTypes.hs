@@ -17,7 +17,6 @@ module Data.Geospatial.Internal.BasicTypes (
     ,   Northing
     ,   Altitude
     ,   GeoPositionWithoutCRS (..)
-    ,   unGeoPosition
     -- * CRS Reference types
     ,   Name
     ,   Code
@@ -26,7 +25,6 @@ module Data.Geospatial.Internal.BasicTypes (
     ,   ProjectionType
     -- * Feature Types
     ,   BoundingBoxWithoutCRS (..)
-    ,   unBoundingBoxWithoutCrs
     ,   FeatureID (..)
     ) where
 

@@ -16,7 +16,6 @@ module Data.Geospatial (
     ,   Northing
     ,   Altitude
     ,   FeatureID(..)
-    ,   GeoPositionWithoutCRS
     ,   GeoPositionWithoutCRS (..)
     ,   GeoPosition(..)
     ,   GeoPoint(..)
@@ -46,7 +45,6 @@ module Data.Geospatial (
     ,   unGeoLine
     ,   unGeoMultiLine
     ,   unGeoMultiPolygon
-    ,   unGeoPosition
     ,   unBoundingBoxWithoutCrs
     -- ** Feature Lenses
     ,   bbox
