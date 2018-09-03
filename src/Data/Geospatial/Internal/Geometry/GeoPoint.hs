@@ -1,4 +1,7 @@
+{-# LANGUAGE DeriveAnyClass  #-}
+{-# LANGUAGE DeriveGeneric   #-}
 {-# LANGUAGE TemplateHaskell #-}
+
 -------------------------------------------------------------------
 -- |
 -- Module       : Data.Geospatial.Internal.Geometry.GeoPoint
@@ -10,22 +13,35 @@
 module Data.Geospatial.Internal.Geometry.GeoPoint (
     -- * Type
         GeoPoint(..)
-    -- * Lenses
-    ,   unGeoPoint
+    ,   _unGeoPoint
     ) where
 
-import           Data.Geospatial.Internal.BasicTypes
-import           Data.Geospatial.Internal.Geometry.Aeson
-
-import           Control.Lens                            (makeLenses)
+import qualified Control.Applicative                     as Control
 import           Control.Monad                           (mzero)
 import           Data.Aeson                              (FromJSON (..),
                                                           ToJSON (..),
                                                           Value (..))
+import           Data.Geospatial.Internal.BasicTypes
+import           Data.Geospatial.Internal.Geometry.Aeson
+import qualified Data.Maybe                              as DataMaybe
+import           GHC.Generics
 
-newtype GeoPoint = GeoPoint { _unGeoPoint :: GeoPositionWithoutCRS } deriving (Show, Eq)
+data GeoPoint = GeoPoint
+  { _x    :: !Double
+  , _y    :: !Double
+  , _aOrE :: Maybe Double
+ } deriving (Show, Eq)
 
-makeLenses ''GeoPoint
+newtype DoubleArray = DoubleArray [Double] deriving (Eq, Show, Generic, FromJSON, ToJSON)
+
+_unGeoPoint :: GeoPoint -> [Double]
+_unGeoPoint (GeoPoint x y Nothing)     = [x, y]
+_unGeoPoint (GeoPoint x y (Just aOrE)) = [x, y, aOrE]
+
+unGeoPoint :: DoubleArray -> Maybe GeoPoint
+unGeoPoint (DoubleArray [x, y])       = Just $ GeoPoint x y Nothing
+unGeoPoint (DoubleArray [x, y, aOrE]) = Just $ GeoPoint x y (Just aOrE)
+unGeoPoint _                          = Nothing
 
 -- instances
 
@@ -35,5 +51,7 @@ instance ToJSON GeoPoint where
 
 instance FromJSON GeoPoint where
 --  parseJSON :: Value -> Parser a
-    parseJSON (Object o) = readGeometryGeoAeson "Point" GeoPoint o
+    parseJSON (Object o) = do
+      x <- readGeometryGeoAeson "Point" DoubleArray o
+      DataMaybe.maybe (fail "Illegal coordinates") pure (unGeoPoint x)
     parseJSON _          = mzero
