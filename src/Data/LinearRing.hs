@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP                       #-}
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE NoImplicitPrelude         #-}
 
@@ -27,7 +28,11 @@ module Data.LinearRing (
     ,   ringLength
     ) where
 
+#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 800
 import           Prelude             hiding (foldr)
+#else
+import           Prelude
+#endif
 
 import           Control.Applicative (Applicative (..))
 import           Control.Lens        (( # ), (^?))
