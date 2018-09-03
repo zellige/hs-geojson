@@ -17,6 +17,7 @@ module Data.Geospatial (
     ,   Altitude
     ,   FeatureID(..)
     ,   GeoPositionWithoutCRS
+    ,   GeoPositionWithoutCRS (..)
     ,   GeoPosition(..)
     ,   GeoPoint(..)
     ,   GeoMultiPoint(..), splitGeoMultiPoint, mergeGeoPoints
