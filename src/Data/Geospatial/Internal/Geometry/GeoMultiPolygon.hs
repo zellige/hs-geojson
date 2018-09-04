@@ -16,7 +16,6 @@ module Data.Geospatial.Internal.Geometry.GeoMultiPolygon (
     ,   splitGeoMultiPolygon, mergeGeoPolygons
     ) where
 
-import           Data.Geospatial.Internal.BasicTypes
 import           Data.Geospatial.Internal.Geometry.Aeson
 import qualified Data.Geospatial.Internal.Geometry.GeoPoint   as GeoPoint
 import           Data.Geospatial.Internal.Geometry.GeoPolygon

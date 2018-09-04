@@ -41,24 +41,28 @@ instance Aeson.ToJSON GeoPolygon where
 instance Aeson.FromJSON GeoPolygon where
 --  parseJSON :: Value -> Parser a
     parseJSON (Aeson.Object o) = do
-        x <- readGeometryGeoAeson "Polygon" LinearRingDouble o
-        DataMaybe.maybe (fail "Illegal coordinates") pure (xxx x)
+        lrd <- readGeometryGeoAeson "Polygon" LinearRingDouble o
+        DataMaybe.maybe (fail "Illegal coordinates") pure (linearRingToMaybeGeoPolygon lrd)
     parseJSON _                = mzero
 
-    -- x <- readGeometryGeoAeson "Point" DoubleArray o
-    -- DataMaybe.maybe (fail "Illegal coordinates") pure (unGeoPoint x)
+linearRingToMaybeGeoPolygon :: LinearRingDouble -> Maybe GeoPolygon
+linearRingToMaybeGeoPolygon (LinearRingDouble lrd) =
+  if Vector.null lrd then
+    Just (GeoPolygon Vector.empty)
+  else
+    mkMaybeGeoPolygon $ maybeValidGeoPoints lrd
 
-xxx :: LinearRingDouble -> Maybe GeoPolygon
-xxx (LinearRingDouble x) = yyy (zzz x)
+maybeValidGeoPoints :: Vector.Vector (LinearRing.LinearRing DoubleArray) -> Vector.Vector (Maybe (LinearRing.LinearRing GeoPoint.GeoPoint))
+maybeValidGeoPoints = fmap (traverse GeoPoint.unGeoPoint)
 
-yyy :: Vector.Vector (Maybe (LinearRing.LinearRing GeoPoint.GeoPoint)) -> Maybe GeoPolygon
-yyy x = aaa $ removeMaybeLinearRings x
-
-aaa :: Vector.Vector (LinearRing.LinearRing GeoPoint.GeoPoint) -> Maybe GeoPolygon
-aaa = undefined
+mkMaybeGeoPolygon :: Vector.Vector (Maybe (LinearRing.LinearRing GeoPoint.GeoPoint)) -> Maybe GeoPolygon
+mkMaybeGeoPolygon maybePoints =
+  if Vector.null validLinearRings then
+    Nothing
+  else
+    Just (GeoPolygon validLinearRings)
+  where
+    validLinearRings = removeMaybeLinearRings maybePoints
 
 removeMaybeLinearRings :: Vector.Vector (Maybe (LinearRing.LinearRing GeoPoint.GeoPoint)) -> Vector.Vector (LinearRing.LinearRing GeoPoint.GeoPoint)
 removeMaybeLinearRings = foldr (\lr acc -> maybe acc (`Vector.cons` acc) lr) Vector.empty
-
-zzz :: Vector.Vector (LinearRing.LinearRing DoubleArray) -> Vector.Vector (Maybe (LinearRing.LinearRing GeoPoint.GeoPoint))
-zzz = fmap (traverse GeoPoint.unGeoPoint)

@@ -13,7 +13,6 @@ module Data.Geospatial.Internal.Geometry.GeoPoint (
     ,  _unGeoPoint
     ) where
 
-import qualified Control.Applicative                     as Control
 import           Control.Monad                           (mzero)
 import qualified Data.Aeson                              as Aeson
 import           Data.Geospatial.Internal.BasicTypes

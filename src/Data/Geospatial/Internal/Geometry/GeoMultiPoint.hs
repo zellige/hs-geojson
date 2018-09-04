@@ -16,7 +16,6 @@ module Data.Geospatial.Internal.Geometry.GeoMultiPoint (
     ,   splitGeoMultiPoint, mergeGeoPoints
     ) where
 
-import           Data.Geospatial.Internal.BasicTypes
 import           Data.Geospatial.Internal.Geometry.Aeson
 import           Data.Geospatial.Internal.Geometry.GeoPoint
 
