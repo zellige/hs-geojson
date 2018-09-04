@@ -89,14 +89,14 @@ instance VectorStorable.Storable GeoPoint where
   peek p = do
      t <- peekByteOff p 0
      case (t :: DataWord.Word8)  of
-       0 -> GeoPointXY <$> peekByteOff p 1 <*> peekByteOff p 9
-       1 -> GeoPointXYZ <$> peekByteOff p 1 <*> peekByteOff p 9 <*> peekByteOff p 17
+       0 -> GeoPointXY   <$> peekByteOff p 1 <*> peekByteOff p 9
+       1 -> GeoPointXYZ  <$> peekByteOff p 1 <*> peekByteOff p 9 <*> peekByteOff p 17
        _ -> GeoPointXYZM <$> peekByteOff p 1 <*> peekByteOff p 9 <*> peekByteOff p 17 <*> peekByteOff p 25
   poke p val =
     case val of
       GeoPointXY x y       -> pokeByteOff p 0 (1 :: DataWord.Word8) *> pokeByteOff p 1 x  *> pokeByteOff p 9 y
       GeoPointXYZ x y z    -> pokeByteOff p 0 (2 :: DataWord.Word8) *> pokeByteOff p 1 x  *> pokeByteOff p 9 y *> pokeByteOff p 17 z
-      GeoPointXYZM x y z m -> pokeByteOff p 0 (2 :: DataWord.Word8) *> pokeByteOff p 1 x  *> pokeByteOff p 9 y *> pokeByteOff p 17 z *> pokeByteOff p 25 m
+      GeoPointXYZM x y z m -> pokeByteOff p 0 (3 :: DataWord.Word8) *> pokeByteOff p 1 x  *> pokeByteOff p 9 y *> pokeByteOff p 17 z *> pokeByteOff p 25 m
 
 instance ToJSON GeoPoint where
 --  toJSON :: a -> Value
