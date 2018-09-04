@@ -25,20 +25,20 @@ import           Control.Monad                              (mzero)
 import           Data.Aeson                                 (FromJSON (..),
                                                              ToJSON (..),
                                                              Value (..))
-import qualified Data.Vector                                as Vector
+import qualified Data.Vector.Storable                       as VectorStorable
 
-newtype GeoMultiPoint = GeoMultiPoint { _unGeoMultiPoint :: Vector.Vector GeoPositionWithoutCRS } deriving (Show, Eq)
+newtype GeoMultiPoint = GeoMultiPoint { _unGeoMultiPoint :: VectorStorable.Vector GeoPoint } deriving (Show, Eq)
 
 makeLenses ''GeoMultiPoint
 
 
 -- | Split GeoMultiPoint coordinates into multiple GeoPoints
-splitGeoMultiPoint:: GeoMultiPoint -> Vector.Vector GeoPoint
-splitGeoMultiPoint = Vector.map GeoPoint . _unGeoMultiPoint
+splitGeoMultiPoint:: GeoMultiPoint -> VectorStorable.Vector GeoPoint
+splitGeoMultiPoint = _unGeoMultiPoint
 
 -- | Merge multiple GeoPoints into one GeoMultiPoint
-mergeGeoPoints :: Vector.Vector GeoPoint -> GeoMultiPoint
-mergeGeoPoints = GeoMultiPoint . Vector.map _unGeoPoint
+mergeGeoPoints :: VectorStorable.Vector GeoPoint -> GeoMultiPoint
+mergeGeoPoints = GeoMultiPoint
 
 -- instances
 
