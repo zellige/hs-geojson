@@ -1,7 +1,3 @@
-{-# LANGUAGE DeriveAnyClass  #-}
-{-# LANGUAGE DeriveGeneric   #-}
-{-# LANGUAGE TemplateHaskell #-}
-
 -------------------------------------------------------------------
 -- |
 -- Module       : Data.Geospatial.Internal.Geometry.GeoPoint
@@ -14,21 +10,18 @@ module Data.Geospatial.Internal.Geometry.GeoPoint (
     -- * Type
         GeoPoint(..)
     ,   unGeoPoint
+    ,  _unGeoPoint
     ) where
 
 import qualified Control.Applicative                     as Control
 import           Control.Monad                           (mzero)
-import           Data.Aeson                              (FromJSON (..),
-                                                          ToJSON (..),
-                                                          Value (..))
+import qualified Data.Aeson                              as Aeson
 import           Data.Geospatial.Internal.BasicTypes
 import           Data.Geospatial.Internal.Geometry.Aeson
 import qualified Data.Maybe                              as DataMaybe
 import qualified Data.Vector.Storable                    as VectorStorable
 import qualified Data.Word                               as DataWord
 import           Foreign.Storable
-
-import           GHC.Generics
 
 
 data GeoPoint =
@@ -49,8 +42,6 @@ data GeoPoint =
     }
 
  deriving (Show, Eq)
-
-newtype DoubleArray = DoubleArray [Double] deriving (Eq, Show, Generic, FromJSON, ToJSON)
 
 _unGeoPoint :: GeoPoint -> [Double]
 _unGeoPoint (GeoPointXY x y)       = [x, y]
@@ -98,13 +89,13 @@ instance VectorStorable.Storable GeoPoint where
       GeoPointXYZ x y z    -> pokeByteOff p 0 (2 :: DataWord.Word8) *> pokeByteOff p 1 x  *> pokeByteOff p 9 y *> pokeByteOff p 17 z
       GeoPointXYZM x y z m -> pokeByteOff p 0 (3 :: DataWord.Word8) *> pokeByteOff p 1 x  *> pokeByteOff p 9 y *> pokeByteOff p 17 z *> pokeByteOff p 25 m
 
-instance ToJSON GeoPoint where
+instance Aeson.ToJSON GeoPoint where
 --  toJSON :: a -> Value
     toJSON = makeGeometryGeoAeson "Point" . _unGeoPoint
 
-instance FromJSON GeoPoint where
+instance Aeson.FromJSON GeoPoint where
 --  parseJSON :: Value -> Parser a
-    parseJSON (Object o) = do
+    parseJSON (Aeson.Object o) = do
       x <- readGeometryGeoAeson "Point" DoubleArray o
       DataMaybe.maybe (fail "Illegal coordinates") pure (unGeoPoint x)
     parseJSON _          = mzero

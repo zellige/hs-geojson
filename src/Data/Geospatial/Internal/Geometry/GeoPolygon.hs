@@ -16,28 +16,49 @@ module Data.Geospatial.Internal.Geometry.GeoPolygon (
     ,   unGeoPolygon
     ) where
 
-import           Data.Geospatial.Internal.Geometry.Aeson
-import qualified Data.Geospatial.Internal.Geometry.GeoPoint as GeoPoint
-import           Data.LinearRing
-
 import           Control.Lens                               (makeLenses)
 import           Control.Monad                              (mzero)
-import           Data.Aeson                                 (FromJSON (..),
-                                                             ToJSON (..),
-                                                             Value (..))
+import qualified Data.Aeson                                 as Aeson
+import           Data.Geospatial.Internal.BasicTypes
+import           Data.Geospatial.Internal.Geometry.Aeson
+import qualified Data.Geospatial.Internal.Geometry.GeoPoint as GeoPoint
+import qualified Data.LinearRing                            as LinearRing
+import qualified Data.Maybe                                 as DataMaybe
 import qualified Data.Vector                                as Vector
 
-newtype GeoPolygon = GeoPolygon { _unGeoPolygon :: Vector.Vector (LinearRing GeoPoint.GeoPoint) } deriving (Show, Eq)
+newtype GeoPolygon = GeoPolygon { _unGeoPolygon :: Vector.Vector (LinearRing.LinearRing GeoPoint.GeoPoint) } deriving (Show, Eq)
+
+-- Vector.Vector (LinearRing.LinearRing DoubleArray)
 
 makeLenses ''GeoPolygon
 
 -- instances
 
-instance ToJSON GeoPolygon where
+instance Aeson.ToJSON GeoPolygon where
 --  toJSON :: a -> Value
-    toJSON = makeGeometryGeoAeson "Polygon" . _unGeoPolygon
+    toJSON x = makeGeometryGeoAeson "Polygon" (fmap (fmap GeoPoint._unGeoPoint . LinearRing.fromLinearRing) (_unGeoPolygon x))
 
-instance FromJSON GeoPolygon where
+instance Aeson.FromJSON GeoPolygon where
 --  parseJSON :: Value -> Parser a
-    parseJSON (Object o) = readGeometryGeoAeson "Polygon" GeoPolygon o
-    parseJSON _          = mzero
+    parseJSON (Aeson.Object o) = do
+        x <- readGeometryGeoAeson "Polygon" LinearRingDouble o
+        DataMaybe.maybe (fail "Illegal coordinates") pure (xxx x)
+    parseJSON _                = mzero
+
+    -- x <- readGeometryGeoAeson "Point" DoubleArray o
+    -- DataMaybe.maybe (fail "Illegal coordinates") pure (unGeoPoint x)
+
+xxx :: LinearRingDouble -> Maybe GeoPolygon
+xxx (LinearRingDouble x) = yyy (zzz x)
+
+yyy :: Vector.Vector (Maybe (LinearRing.LinearRing GeoPoint.GeoPoint)) -> Maybe GeoPolygon
+yyy x = aaa $ removeMaybeLinearRings x
+
+aaa :: Vector.Vector (LinearRing.LinearRing GeoPoint.GeoPoint) -> Maybe GeoPolygon
+aaa = undefined
+
+removeMaybeLinearRings :: Vector.Vector (Maybe (LinearRing.LinearRing GeoPoint.GeoPoint)) -> Vector.Vector (LinearRing.LinearRing GeoPoint.GeoPoint)
+removeMaybeLinearRings = foldr (\lr acc -> maybe acc (`Vector.cons` acc) lr) Vector.empty
+
+zzz :: Vector.Vector (LinearRing.LinearRing DoubleArray) -> Vector.Vector (Maybe (LinearRing.LinearRing GeoPoint.GeoPoint))
+zzz = fmap (traverse GeoPoint.unGeoPoint)

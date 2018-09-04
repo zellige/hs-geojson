@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveAnyClass    #-}
+{-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 -------------------------------------------------------------------
@@ -17,6 +19,8 @@ module Data.Geospatial.Internal.BasicTypes (
     ,   Northing
     ,   Altitude
     ,   GeoPositionWithoutCRS (..)
+    ,   DoubleArray (..)
+    ,   LinearRingDouble (..)
     -- * CRS Reference types
     ,   Name
     ,   Code
@@ -30,15 +34,22 @@ module Data.Geospatial.Internal.BasicTypes (
 
 import qualified Data.Aeson           as Aeson
 import qualified Data.Aeson.Types     as AesonTypes
+import qualified Data.LinearRing      as LinearRing
 import qualified Data.Scientific      as Scientific
 import qualified Data.Text            as Text
+import qualified Data.Vector          as Vector
 import qualified Data.Vector.Storable as VectorStorable
+import           GHC.Generics
 
 type Latitude = Double
 type Longitude = Double
 type Easting = Double
 type Northing = Double
 type Altitude = Double
+
+newtype DoubleArray = DoubleArray [Double] deriving (Eq, Show, Generic, Aeson.FromJSON, Aeson.ToJSON)
+
+newtype LinearRingDouble = LinearRingDouble (Vector.Vector (LinearRing.LinearRing DoubleArray)) deriving (Eq, Show, Generic, Aeson.FromJSON, Aeson.ToJSON)
 
 -- | (`GeoPositionWithoutCRS` is a catch all for indeterminate CRSs and for expression of positions
 -- before a CRS has been determined
