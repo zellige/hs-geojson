@@ -43,21 +43,18 @@ testNamedCRSJSON = "{\"type\":\"name\",\"properties\":{\"name\":\"urn:ogc:def:cr
 testNamedCRS :: CRSObject
 testNamedCRS = NamedCRS "urn:ogc:def:crs:OGC:1.3:CRS84"
 
-mkGeoPosition :: [Double] -> BasicTypes.GeoPositionWithoutCRS
-mkGeoPosition x = BasicTypes.GeoPositionWithoutCRS $ VectorStorable.fromList x
-
 mkBoundingBox :: [Double] -> BasicTypes.BoundingBoxWithoutCRS
 mkBoundingBox x = BasicTypes.BoundingBoxWithoutCRS $ VectorStorable.fromList x
 
 -- Bounding Box Data
 
-lshapedPolyVertices :: Vector.Vector (LinearRing.LinearRing GeoPoint.GeoPoint)
-lshapedPolyVertices =  Vector.fromList [LinearRing.makeLinearRing (GeoPoint.GeoPointXY 120.0 (-15.0)) (GeoPoint.GeoPointXY 127.0 (-15.0)) (GeoPoint.GeoPointXY 127.0 (-25.0)) [GeoPoint.GeoPointXY 124.0 (-25.0), GeoPoint.GeoPointXY 124.0 (-18.0), GeoPoint.GeoPointXY 120.0 (-18.0)]]
+lshapedPolyVertices :: Vector.Vector (LinearRing.LinearRing BasicTypes.GeoPositionWithoutCRS)
+lshapedPolyVertices =  Vector.fromList [LinearRing.makeLinearRing (BasicTypes.PointXY 120.0 (-15.0)) (BasicTypes.PointXY 127.0 (-15.0)) (BasicTypes.PointXY 127.0 (-25.0)) [BasicTypes.PointXY 124.0 (-25.0), BasicTypes.PointXY 124.0 (-18.0), BasicTypes.PointXY 120.0 (-18.0)]]
 
 lshapedPolyLineVertices :: LineString.LineString BasicTypes.GeoPositionWithoutCRS
-lshapedPolyLineVertices = LineString.makeLineString (mkGeoPosition [120.0, -15.0]) (mkGeoPosition [127.0, -15.0]) [mkGeoPosition [127.0, -25.0], mkGeoPosition [124.0, -25.0], mkGeoPosition [124.0, -18.0], mkGeoPosition [120.0, -18.0]]
+lshapedPolyLineVertices = LineString.makeLineString (BasicTypes.PointXY 120.0 (-15.0)) (BasicTypes.PointXY 127.0 (-15.0))[BasicTypes.PointXY 127.0 (-25.0), BasicTypes.PointXY 124.0 (-25.0), BasicTypes.PointXY 124.0 (-18.0), BasicTypes.PointXY 120.0 (-18.0)]
 
-emptyVertices :: Vector.Vector (LinearRing.LinearRing GeoPoint.GeoPoint)
+emptyVertices :: Vector.Vector (LinearRing.LinearRing BasicTypes.GeoPositionWithoutCRS)
 emptyVertices = Vector.empty
 
 emptyLineVertices :: [BasicTypes.GeoPositionWithoutCRS]

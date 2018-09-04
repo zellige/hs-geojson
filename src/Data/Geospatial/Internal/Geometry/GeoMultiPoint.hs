@@ -16,36 +16,34 @@ module Data.Geospatial.Internal.Geometry.GeoMultiPoint (
     ,   splitGeoMultiPoint, mergeGeoPoints
     ) where
 
+import           Data.Geospatial.Internal.BasicTypes
 import           Data.Geospatial.Internal.Geometry.Aeson
 import           Data.Geospatial.Internal.Geometry.GeoPoint
 
 import           Control.Lens                               (makeLenses)
 import           Control.Monad                              (mzero)
-import           Data.Aeson                                 (FromJSON (..),
-                                                             ToJSON (..),
-                                                             Value (..))
+import qualified Data.Aeson                                 as Aeson
 import qualified Data.Vector.Storable                       as VectorStorable
 
-newtype GeoMultiPoint = GeoMultiPoint { _unGeoMultiPoint :: VectorStorable.Vector GeoPoint } deriving (Show, Eq)
+newtype GeoMultiPoint = GeoMultiPoint { _unGeoMultiPoint :: VectorStorable.Vector GeoPositionWithoutCRS } deriving (Show, Eq)
 
 makeLenses ''GeoMultiPoint
 
-
 -- | Split GeoMultiPoint coordinates into multiple GeoPoints
-splitGeoMultiPoint:: GeoMultiPoint -> VectorStorable.Vector GeoPoint
+splitGeoMultiPoint:: GeoMultiPoint -> VectorStorable.Vector GeoPositionWithoutCRS
 splitGeoMultiPoint = _unGeoMultiPoint
 
 -- | Merge multiple GeoPoints into one GeoMultiPoint
-mergeGeoPoints :: VectorStorable.Vector GeoPoint -> GeoMultiPoint
+mergeGeoPoints :: VectorStorable.Vector GeoPositionWithoutCRS -> GeoMultiPoint
 mergeGeoPoints = GeoMultiPoint
 
 -- instances
 
-instance ToJSON GeoMultiPoint where
---  toJSON :: a -> Value
-    toJSON = makeGeometryGeoAeson "MultiPoint" . _unGeoMultiPoint
+instance Aeson.ToJSON GeoMultiPoint where
+  --  toJSON :: a -> Value
+  toJSON = makeGeometryGeoAeson "MultiPoint" . _unGeoMultiPoint
 
-instance FromJSON GeoMultiPoint where
---  parseJSON :: Value -> Parser a
-    parseJSON (Object o) = readGeometryGeoAeson "MultiPoint" GeoMultiPoint o
-    parseJSON _          = mzero
+instance Aeson.FromJSON GeoMultiPoint where
+  --  parseJSON :: Value -> Parser a
+  parseJSON (Aeson.Object o) = readGeometryGeoAeson "MultiPoint" GeoMultiPoint o
+  parseJSON _          = mzero

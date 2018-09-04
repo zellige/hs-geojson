@@ -20,8 +20,6 @@ module Data.Geospatial.Internal.BasicTypes (
     ,   Altitude
     ,   GeoPositionWithoutCRS (..)
     ,   DoubleArray (..)
-    ,   LinearRingDouble (..)
-    ,   VectorLinearRingDouble (..)
     -- * CRS Reference types
     ,   Name
     ,   Code
@@ -35,11 +33,12 @@ module Data.Geospatial.Internal.BasicTypes (
 
 import qualified Data.Aeson           as Aeson
 import qualified Data.Aeson.Types     as AesonTypes
-import qualified Data.LinearRing      as LinearRing
+import qualified Data.Maybe           as DataMaybe
 import qualified Data.Scientific      as Scientific
 import qualified Data.Text            as Text
-import qualified Data.Vector          as Vector
 import qualified Data.Vector.Storable as VectorStorable
+import qualified Data.Word            as DataWord
+import           Foreign.Storable
 import           GHC.Generics
 
 type Latitude = Double
@@ -50,23 +49,83 @@ type Altitude = Double
 
 newtype DoubleArray = DoubleArray [Double] deriving (Eq, Show, Generic, Aeson.FromJSON, Aeson.ToJSON)
 
-newtype LinearRingDouble = LinearRingDouble (Vector.Vector (LinearRing.LinearRing DoubleArray)) deriving (Eq, Show, Generic, Aeson.FromJSON, Aeson.ToJSON)
-
-newtype VectorLinearRingDouble = VectorLinearRingDouble (Vector.Vector (Vector.Vector (LinearRing.LinearRing DoubleArray))) deriving (Eq, Show, Generic, Aeson.FromJSON, Aeson.ToJSON)
-
-
 -- | (`GeoPositionWithoutCRS` is a catch all for indeterminate CRSs and for expression of positions
 -- before a CRS has been determined
 --
-newtype GeoPositionWithoutCRS = GeoPositionWithoutCRS { unGeoPosition :: VectorStorable.Vector Double } deriving (Eq, Show)
+data GeoPositionWithoutCRS =
+  PointXY
+    { _xyX :: !Double
+    , _xyY :: !Double
+    }
+  | PointXYZ
+    { _xyzX :: !Double
+    , _xyzY :: !Double
+    , _xyzZ :: !Double
+    }
+  | PointXYZM
+    { _xyzX :: !Double
+    , _xyzY :: !Double
+    , _xyzZ :: !Double
+    , _xyzM :: !Double
+    }
+  deriving (Show, Eq)
 
-instance Aeson.FromJSON GeoPositionWithoutCRS where
-    parseJSON obj = do
-        doubles <- Aeson.parseJSON obj :: AesonTypes.Parser [Double]
-        pure . GeoPositionWithoutCRS $ VectorStorable.fromList doubles
+_toDoubleArray :: GeoPositionWithoutCRS -> [Double]
+_toDoubleArray (PointXY x y)       = [x, y]
+_toDoubleArray (PointXYZ x y z)    = [x, y, z]
+_toDoubleArray (PointXYZM x y z m) = [x, y, z, m]
+
+_toGeoPoint :: DoubleArray -> Maybe GeoPositionWithoutCRS
+_toGeoPoint (DoubleArray [x, y])       = Just $ PointXY x y
+_toGeoPoint (DoubleArray [x, y, z])    = Just $ PointXYZ x y z
+_toGeoPoint (DoubleArray [x, y, z, m]) = Just $ PointXYZM x y z m
+_toGeoPoint _                          = Nothing
+
 
 instance Aeson.ToJSON GeoPositionWithoutCRS where
-    toJSON = Aeson.toJSON . VectorStorable.toList . unGeoPosition
+  --  toJSON :: a -> Value
+      toJSON a = Aeson.toJSON $ _toDoubleArray a
+
+instance Aeson.FromJSON GeoPositionWithoutCRS where
+--  parseJSON :: Value -> Parser a
+    parseJSON o = do
+      x <- Aeson.parseJSON o
+      DataMaybe.maybe (fail "Illegal coordinates") pure (_toGeoPoint x)
+
+-- instances
+
+sizeOfDouble :: Int
+sizeOfDouble = sizeOf (undefined :: Double)
+
+alignmentOfDouble :: Int
+alignmentOfDouble = alignment (undefined :: Double)
+
+offsetOfDouble :: Int
+offsetOfDouble = sizeOfDouble `div` 2
+
+instance VectorStorable.Storable GeoPositionWithoutCRS where
+  sizeOf pt =
+    case pt of
+      PointXY {}   -> 2 + (sizeOfDouble * 2)
+      PointXYZ {}  -> 2 + (sizeOfDouble * 3)
+      PointXYZM {} -> 2 + (sizeOfDouble * 4)
+  alignment pt =
+    case pt of
+      PointXY {}   -> 2 + (alignmentOfDouble * 2)
+      PointXYZ {}  -> 2 + (alignmentOfDouble * 3)
+      PointXYZM {} -> 2 + (alignmentOfDouble * 4)
+  {-# INLINE peek #-}
+  peek p = do
+      t <- peekByteOff p 0
+      case (t :: DataWord.Word8)  of
+        0 -> PointXY   <$> peekByteOff p 1 <*> peekByteOff p 9
+        1 -> PointXYZ  <$> peekByteOff p 1 <*> peekByteOff p 9 <*> peekByteOff p 17
+        _ -> PointXYZM <$> peekByteOff p 1 <*> peekByteOff p 9 <*> peekByteOff p 17 <*> peekByteOff p 25
+  poke p val =
+    case val of
+      PointXY x y       -> pokeByteOff p 0 (1 :: DataWord.Word8) *> pokeByteOff p 1 x  *> pokeByteOff p 9 y
+      PointXYZ x y z    -> pokeByteOff p 0 (2 :: DataWord.Word8) *> pokeByteOff p 1 x  *> pokeByteOff p 9 y *> pokeByteOff p 17 z
+      PointXYZM x y z m -> pokeByteOff p 0 (3 :: DataWord.Word8) *> pokeByteOff p 1 x  *> pokeByteOff p 9 y *> pokeByteOff p 17 z *> pokeByteOff p 25 m
 
 type Name = Text.Text
 type Code = Int
