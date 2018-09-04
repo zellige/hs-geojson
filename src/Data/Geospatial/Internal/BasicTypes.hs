@@ -21,6 +21,7 @@ module Data.Geospatial.Internal.BasicTypes (
     ,   GeoPositionWithoutCRS (..)
     ,   DoubleArray (..)
     ,   LinearRingDouble (..)
+    ,   VectorLinearRingDouble (..)
     -- * CRS Reference types
     ,   Name
     ,   Code
@@ -50,6 +51,9 @@ type Altitude = Double
 newtype DoubleArray = DoubleArray [Double] deriving (Eq, Show, Generic, Aeson.FromJSON, Aeson.ToJSON)
 
 newtype LinearRingDouble = LinearRingDouble (Vector.Vector (LinearRing.LinearRing DoubleArray)) deriving (Eq, Show, Generic, Aeson.FromJSON, Aeson.ToJSON)
+
+newtype VectorLinearRingDouble = VectorLinearRingDouble (Vector.Vector (Vector.Vector (LinearRing.LinearRing DoubleArray))) deriving (Eq, Show, Generic, Aeson.FromJSON, Aeson.ToJSON)
+
 
 -- | (`GeoPositionWithoutCRS` is a catch all for indeterminate CRSs and for expression of positions
 -- before a CRS has been determined
