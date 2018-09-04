@@ -16,6 +16,7 @@ import           Data.Geospatial.Internal.Geometry.GeoMultiLine    (GeoMultiLine
                                                                     mergeGeoLines)
 import           Data.Geospatial.Internal.Geometry.GeoMultiPolygon (GeoMultiPolygon (..),
                                                                     mergeGeoPolygons)
+import qualified Data.Geospatial.Internal.Geometry.GeoPoint        as GeoPoint
 import           Data.Geospatial.Internal.Geometry.GeoPolygon      (GeoPolygon (..))
 import qualified Data.LinearRing                                   as LinearRing
 import qualified Data.LineString                                   as LineString
@@ -50,13 +51,13 @@ mkBoundingBox x = BasicTypes.BoundingBoxWithoutCRS $ VectorStorable.fromList x
 
 -- Bounding Box Data
 
-lshapedPolyVertices :: Vector.Vector (LinearRing.LinearRing BasicTypes.GeoPositionWithoutCRS)
-lshapedPolyVertices =  Vector.fromList [LinearRing.makeLinearRing (mkGeoPosition [120.0, -15.0]) (mkGeoPosition [127.0, -15.0]) (mkGeoPosition [127.0, -25.0]) [mkGeoPosition [124.0, -25.0], mkGeoPosition [124.0, -18.0], mkGeoPosition [120.0, -18.0]]]
+lshapedPolyVertices :: Vector.Vector (LinearRing.LinearRing GeoPoint.GeoPoint)
+lshapedPolyVertices =  Vector.fromList [LinearRing.makeLinearRing (GeoPoint.GeoPointXY 120.0 (-15.0)) (GeoPoint.GeoPointXY 127.0 (-15.0)) (GeoPoint.GeoPointXY 127.0 (-25.0)) [GeoPoint.GeoPointXY 124.0 (-25.0), GeoPoint.GeoPointXY 124.0 (-18.0), GeoPoint.GeoPointXY 120.0 (-18.0)]]
 
 lshapedPolyLineVertices :: LineString.LineString BasicTypes.GeoPositionWithoutCRS
 lshapedPolyLineVertices = LineString.makeLineString (mkGeoPosition [120.0, -15.0]) (mkGeoPosition [127.0, -15.0]) [mkGeoPosition [127.0, -25.0], mkGeoPosition [124.0, -25.0], mkGeoPosition [124.0, -18.0], mkGeoPosition [120.0, -18.0]]
 
-emptyVertices :: Vector.Vector (LinearRing.LinearRing BasicTypes.GeoPositionWithoutCRS)
+emptyVertices :: Vector.Vector (LinearRing.LinearRing GeoPoint.GeoPoint)
 emptyVertices = Vector.empty
 
 emptyLineVertices :: [BasicTypes.GeoPositionWithoutCRS]

@@ -18,6 +18,7 @@ module Data.Geospatial.Internal.Geometry.GeoMultiPolygon (
 
 import           Data.Geospatial.Internal.BasicTypes
 import           Data.Geospatial.Internal.Geometry.Aeson
+import qualified Data.Geospatial.Internal.Geometry.GeoPoint   as GeoPoint
 import           Data.Geospatial.Internal.Geometry.GeoPolygon
 import           Data.LinearRing
 
@@ -28,7 +29,7 @@ import           Data.Aeson                                   (FromJSON (..),
                                                                Value (..))
 import qualified Data.Vector                                  as Vector
 
-newtype GeoMultiPolygon = GeoMultiPolygon { _unGeoMultiPolygon :: Vector.Vector (Vector.Vector (LinearRing GeoPositionWithoutCRS)) } deriving (Show, Eq)
+newtype GeoMultiPolygon = GeoMultiPolygon { _unGeoMultiPolygon :: Vector.Vector (Vector.Vector (LinearRing GeoPoint.GeoPoint)) } deriving (Show, Eq)
 
 -- | Split GeoMultiPolygon coordinates into multiple GeoPolygons
 splitGeoMultiPolygon :: GeoMultiPolygon -> Vector.Vector GeoPolygon

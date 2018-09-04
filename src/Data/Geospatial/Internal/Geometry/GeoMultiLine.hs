@@ -28,6 +28,7 @@ import           Data.Aeson                                (FromJSON (..),
                                                             Value (..))
 import qualified Data.Vector                               as Vector
 
+
 newtype GeoMultiLine    = GeoMultiLine { _unGeoMultiLine :: Vector.Vector (LineString GeoPositionWithoutCRS) } deriving (Show, Eq)
 
 makeLenses ''GeoMultiLine
