@@ -32,9 +32,9 @@ data GeoPosition =
 -- from the GeoJSON.  Hence it is ineligible for the `FromJSON` type class,
 -- so this function will strip it down to a `GeoPositionWithoutCRS`, which is eligible
 stripCRSFromPosition :: GeoPosition -> BasicTypes.GeoPositionWithoutCRS
-stripCRSFromPosition (LonLat lon lat)                           = BasicTypes.PointXY lon lat
-stripCRSFromPosition (LonLatAlt lon lat alt)                    = BasicTypes.PointXYZ lon lat alt
-stripCRSFromPosition (EastingNorthing easting northing)         = BasicTypes.PointXY easting northing
-stripCRSFromPosition (EastingNorthingAlt easting northing alt)  = BasicTypes.PointXYZ easting northing alt
+stripCRSFromPosition (LonLat lon lat)                           = BasicTypes.GeoPointXY $ BasicTypes.PointXY lon lat
+stripCRSFromPosition (LonLatAlt lon lat alt)                    = BasicTypes.GeoPointXYZ $ BasicTypes.PointXYZ lon lat alt
+stripCRSFromPosition (EastingNorthing easting northing)         = BasicTypes.GeoPointXY $ BasicTypes.PointXY easting northing
+stripCRSFromPosition (EastingNorthingAlt easting northing alt)  = BasicTypes.GeoPointXYZ $ BasicTypes.PointXYZ easting northing alt
 
 

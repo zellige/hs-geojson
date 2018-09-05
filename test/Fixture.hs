@@ -48,11 +48,14 @@ mkBoundingBox x = BasicTypes.BoundingBoxWithoutCRS $ VectorStorable.fromList x
 
 -- Bounding Box Data
 
+mkGeoPoint :: Double -> Double -> BasicTypes.GeoPositionWithoutCRS
+mkGeoPoint x y = BasicTypes.GeoPointXY $ BasicTypes.PointXY x y
+
 lshapedPolyVertices :: Vector.Vector (LinearRing.LinearRing BasicTypes.GeoPositionWithoutCRS)
-lshapedPolyVertices =  Vector.fromList [LinearRing.makeLinearRing (BasicTypes.PointXY 120.0 (-15.0)) (BasicTypes.PointXY 127.0 (-15.0)) (BasicTypes.PointXY 127.0 (-25.0)) [BasicTypes.PointXY 124.0 (-25.0), BasicTypes.PointXY 124.0 (-18.0), BasicTypes.PointXY 120.0 (-18.0)]]
+lshapedPolyVertices =  Vector.fromList [LinearRing.makeLinearRing (mkGeoPoint 120.0 (-15.0)) (mkGeoPoint 127.0 (-15.0)) (mkGeoPoint 127.0 (-25.0)) [mkGeoPoint 124.0 (-25.0), mkGeoPoint 124.0 (-18.0), mkGeoPoint 120.0 (-18.0)]]
 
 lshapedPolyLineVertices :: LineString.LineString BasicTypes.GeoPositionWithoutCRS
-lshapedPolyLineVertices = LineString.makeLineString (BasicTypes.PointXY 120.0 (-15.0)) (BasicTypes.PointXY 127.0 (-15.0))[BasicTypes.PointXY 127.0 (-25.0), BasicTypes.PointXY 124.0 (-25.0), BasicTypes.PointXY 124.0 (-18.0), BasicTypes.PointXY 120.0 (-18.0)]
+lshapedPolyLineVertices = LineString.makeLineString (mkGeoPoint 120.0 (-15.0)) (mkGeoPoint 127.0 (-15.0))[mkGeoPoint 127.0 (-25.0), mkGeoPoint 124.0 (-25.0), mkGeoPoint 124.0 (-18.0), mkGeoPoint 120.0 (-18.0)]
 
 emptyVertices :: Vector.Vector (LinearRing.LinearRing BasicTypes.GeoPositionWithoutCRS)
 emptyVertices = Vector.empty
@@ -101,7 +104,7 @@ geoPoint :: GeoPoint
 geoPoint = GeoPoint point
 
 point :: BasicTypes.GeoPositionWithoutCRS
-point = BasicTypes.PointXY 120.0 (-15.0)
+point = BasicTypes.GeoPointXY $ BasicTypes.PointXY 120.0 (-15.0)
 
 -- Polys
 lShapedPolyJSON :: BS.ByteString

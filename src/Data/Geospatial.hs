@@ -19,6 +19,9 @@ module Data.Geospatial (
     ,   GeoPositionWithoutCRS (..)
     ,   GeoPosition(..)
     ,   GeoPoint(..)
+    ,   PointXY (..)
+    ,   PointXYZ (..)
+    ,   PointXYZM (..)
     ,   GeoMultiPoint(..), splitGeoMultiPoint, mergeGeoPoints
     ,   GeoPolygon(..)
     ,   GeoMultiPolygon(..), splitGeoMultiPolygon, mergeGeoPolygons

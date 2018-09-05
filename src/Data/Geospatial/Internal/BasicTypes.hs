@@ -20,6 +20,9 @@ module Data.Geospatial.Internal.BasicTypes (
     ,   Northing
     ,   Altitude
     ,   GeoPositionWithoutCRS (..)
+    ,   PointXY (..)
+    ,   PointXYZ (..)
+    ,   PointXYZM (..)
     ,   DoubleArray (..)
     -- * CRS Reference types
     ,   Name
@@ -53,33 +56,35 @@ newtype DoubleArray = DoubleArray [Double] deriving (Eq, Show, Generic, Aeson.Fr
 -- | (`GeoPositionWithoutCRS` is a catch all for indeterminate CRSs and for expression of positions
 -- before a CRS has been determined
 --
-data GeoPositionWithoutCRS =
-  PointXY
+data PointXY = PointXY
     { _xyX :: !Double
     , _xyY :: !Double
-    }
-  | PointXYZ
+    } deriving (Show, Eq)
+
+data PointXYZ = PointXYZ
     { _xyzX :: !Double
     , _xyzY :: !Double
     , _xyzZ :: !Double
-    }
-  | PointXYZM
-    { _xyzX :: !Double
-    , _xyzY :: !Double
-    , _xyzZ :: !Double
-    , _xyzM :: !Double
-    }
-  deriving (Show, Eq)
+    } deriving (Show, Eq)
+
+data PointXYZM = PointXYZM
+    { _xyzmX :: !Double
+    , _xyzmY :: !Double
+    , _xyzmZ :: !Double
+    , _xyzmM :: !Double
+    } deriving (Show, Eq)
+
+data GeoPositionWithoutCRS = GeoPointXY PointXY | GeoPointXYZ PointXYZ | GeoPointXYZM PointXYZM deriving (Show, Eq)
 
 _toDoubleArray :: GeoPositionWithoutCRS -> [Double]
-_toDoubleArray (PointXY x y)       = [x, y]
-_toDoubleArray (PointXYZ x y z)    = [x, y, z]
-_toDoubleArray (PointXYZM x y z m) = [x, y, z, m]
+_toDoubleArray (GeoPointXY (PointXY x y))         = [x, y]
+_toDoubleArray (GeoPointXYZ (PointXYZ x y z))     = [x, y, z]
+_toDoubleArray (GeoPointXYZM (PointXYZM x y z m)) = [x, y, z, m]
 
 _toGeoPoint :: DoubleArray -> Maybe GeoPositionWithoutCRS
-_toGeoPoint (DoubleArray [x, y])       = Just $ PointXY x y
-_toGeoPoint (DoubleArray [x, y, z])    = Just $ PointXYZ x y z
-_toGeoPoint (DoubleArray [x, y, z, m]) = Just $ PointXYZM x y z m
+_toGeoPoint (DoubleArray [x, y])       = Just $ GeoPointXY (PointXY x y)
+_toGeoPoint (DoubleArray [x, y, z])    = Just $ GeoPointXYZ (PointXYZ x y z)
+_toGeoPoint (DoubleArray [x, y, z, m]) = Just $ GeoPointXYZM (PointXYZM x y z m)
 _toGeoPoint _                          = Nothing
 
 -- instances
@@ -103,26 +108,26 @@ alignmentOfDouble = alignment (undefined :: Double)
 instance VectorStorable.Storable GeoPositionWithoutCRS where
   sizeOf pt =
     case pt of
-      PointXY {}   -> 1 + (sizeOfDouble * 2)
-      PointXYZ {}  -> 1 + (sizeOfDouble * 3)
-      PointXYZM {} -> 1 + (sizeOfDouble * 4)
+      (GeoPointXY PointXY {})     -> 1 + (sizeOfDouble * 2)
+      (GeoPointXYZ PointXYZ {})   -> 1 + (sizeOfDouble * 3)
+      (GeoPointXYZM PointXYZM {}) -> 1 + (sizeOfDouble * 4)
   alignment pt =
     case pt of
-      PointXY {}   -> 1 + (alignmentOfDouble * 2)
-      PointXYZ {}  -> 1 + (alignmentOfDouble * 3)
-      PointXYZM {} -> 1 + (alignmentOfDouble * 4)
+      (GeoPointXY PointXY {})     -> 1 + (alignmentOfDouble * 2)
+      (GeoPointXYZ PointXYZ {})   -> 1 + (alignmentOfDouble * 3)
+      (GeoPointXYZM PointXYZM {}) -> 1 + (alignmentOfDouble * 4)
   {-# INLINE peek #-}
   peek p = do
       t <- peekByteOff p 0
       case (t :: DataWord.Word8)  of
-        0 -> PointXY   <$> peekByteOff p 1 <*> peekByteOff p 9
-        1 -> PointXYZ  <$> peekByteOff p 1 <*> peekByteOff p 9 <*> peekByteOff p 17
-        _ -> PointXYZM <$> peekByteOff p 1 <*> peekByteOff p 9 <*> peekByteOff p 17 <*> peekByteOff p 25
+        0 -> fmap GeoPointXY  $ PointXY <$> peekByteOff p 1 <*> peekByteOff p 9
+        1 -> fmap GeoPointXYZ $ PointXYZ  <$> peekByteOff p 1 <*> peekByteOff p 9 <*> peekByteOff p 17
+        _ -> fmap GeoPointXYZM $ PointXYZM <$> peekByteOff p 1 <*> peekByteOff p 9 <*> peekByteOff p 17 <*> peekByteOff p 25
   poke p val =
     case val of
-      PointXY x y       -> pokeByteOff p 0 (0 :: DataWord.Word8) *> pokeByteOff p 1 x  *> pokeByteOff p 9 y
-      PointXYZ x y z    -> pokeByteOff p 0 (1 :: DataWord.Word8) *> pokeByteOff p 1 x  *> pokeByteOff p 9 y *> pokeByteOff p 17 z
-      PointXYZM x y z m -> pokeByteOff p 0 (2 :: DataWord.Word8) *> pokeByteOff p 1 x  *> pokeByteOff p 9 y *> pokeByteOff p 17 z *> pokeByteOff p 25 m
+      (GeoPointXY   (PointXY x y))       -> pokeByteOff p 0 (0 :: DataWord.Word8) *> pokeByteOff p 1 x  *> pokeByteOff p 9 y
+      (GeoPointXYZ  (PointXYZ x y z))    -> pokeByteOff p 0 (1 :: DataWord.Word8) *> pokeByteOff p 1 x  *> pokeByteOff p 9 y *> pokeByteOff p 17 z
+      (GeoPointXYZM (PointXYZM x y z m)) -> pokeByteOff p 0 (2 :: DataWord.Word8) *> pokeByteOff p 1 x  *> pokeByteOff p 9 y *> pokeByteOff p 17 z *> pokeByteOff p 25 m
 
 type Name = Text.Text
 type Code = Int

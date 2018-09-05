@@ -18,23 +18,24 @@ module Data.Geospatial.Internal.Geometry.GeoMultiPoint (
 
 import           Data.Geospatial.Internal.BasicTypes
 import           Data.Geospatial.Internal.Geometry.Aeson
+import           Data.Geospatial.Internal.Geometry.GeoPoint
 
-import           Control.Lens                            (makeLenses)
-import           Control.Monad                           (mzero)
-import qualified Data.Aeson                              as Aeson
-import qualified Data.Vector                             as Vector
+import           Control.Lens                               (makeLenses)
+import           Control.Monad                              (mzero)
+import qualified Data.Aeson                                 as Aeson
+import qualified Data.Vector                                as Vector
 
 newtype GeoMultiPoint = GeoMultiPoint { _unGeoMultiPoint :: Vector.Vector GeoPositionWithoutCRS } deriving (Show, Eq)
 
 makeLenses ''GeoMultiPoint
 
 -- | Split GeoMultiPoint coordinates into multiple GeoPoints
-splitGeoMultiPoint:: GeoMultiPoint -> Vector.Vector GeoPositionWithoutCRS
-splitGeoMultiPoint = _unGeoMultiPoint
+splitGeoMultiPoint:: GeoMultiPoint -> Vector.Vector GeoPoint
+splitGeoMultiPoint = Vector.map GeoPoint . _unGeoMultiPoint
 
 -- | Merge multiple GeoPoints into one GeoMultiPoint
-mergeGeoPoints :: Vector.Vector GeoPositionWithoutCRS -> GeoMultiPoint
-mergeGeoPoints = GeoMultiPoint
+mergeGeoPoints :: Vector.Vector GeoPoint -> GeoMultiPoint
+mergeGeoPoints = GeoMultiPoint . Vector.map _unGeoPoint
 
 -- instances
 
