@@ -22,18 +22,18 @@ import           Data.Geospatial.Internal.Geometry.Aeson
 import           Control.Lens                            (makeLenses)
 import           Control.Monad                           (mzero)
 import qualified Data.Aeson                              as Aeson
-import qualified Data.Vector.Storable                    as VectorStorable
+import qualified Data.Vector                             as Vector
 
-newtype GeoMultiPoint = GeoMultiPoint { _unGeoMultiPoint :: VectorStorable.Vector GeoPositionWithoutCRS } deriving (Show, Eq)
+newtype GeoMultiPoint = GeoMultiPoint { _unGeoMultiPoint :: Vector.Vector GeoPositionWithoutCRS } deriving (Show, Eq)
 
 makeLenses ''GeoMultiPoint
 
 -- | Split GeoMultiPoint coordinates into multiple GeoPoints
-splitGeoMultiPoint:: GeoMultiPoint -> VectorStorable.Vector GeoPositionWithoutCRS
+splitGeoMultiPoint:: GeoMultiPoint -> Vector.Vector GeoPositionWithoutCRS
 splitGeoMultiPoint = _unGeoMultiPoint
 
 -- | Merge multiple GeoPoints into one GeoMultiPoint
-mergeGeoPoints :: VectorStorable.Vector GeoPositionWithoutCRS -> GeoMultiPoint
+mergeGeoPoints :: Vector.Vector GeoPositionWithoutCRS -> GeoMultiPoint
 mergeGeoPoints = GeoMultiPoint
 
 -- instances
