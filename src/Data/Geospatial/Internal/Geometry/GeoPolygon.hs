@@ -16,15 +16,13 @@ module Data.Geospatial.Internal.Geometry.GeoPolygon (
     ,   unGeoPolygon
     ) where
 
-import           Control.Lens                               (makeLenses)
-import           Control.Monad                              (mzero)
-import qualified Data.Aeson                                 as Aeson
+import           Control.Lens                            (makeLenses)
+import           Control.Monad                           (mzero)
+import qualified Data.Aeson                              as Aeson
 import           Data.Geospatial.Internal.BasicTypes
 import           Data.Geospatial.Internal.Geometry.Aeson
-import qualified Data.Geospatial.Internal.Geometry.GeoPoint as GeoPoint
-import qualified Data.LinearRing                            as LinearRing
-import qualified Data.Maybe                                 as DataMaybe
-import qualified Data.Vector                                as Vector
+import qualified Data.LinearRing                         as LinearRing
+import qualified Data.Vector                             as Vector
 
 newtype GeoPolygon = GeoPolygon { _unGeoPolygon :: Vector.Vector (LinearRing.LinearRing GeoPositionWithoutCRS) } deriving (Show, Eq)
 

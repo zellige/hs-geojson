@@ -1,5 +1,6 @@
 {-# LANGUAGE DeriveAnyClass    #-}
 {-# LANGUAGE DeriveGeneric     #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 -------------------------------------------------------------------
@@ -81,18 +82,17 @@ _toGeoPoint (DoubleArray [x, y, z])    = Just $ PointXYZ x y z
 _toGeoPoint (DoubleArray [x, y, z, m]) = Just $ PointXYZM x y z m
 _toGeoPoint _                          = Nothing
 
+-- instances
 
 instance Aeson.ToJSON GeoPositionWithoutCRS where
   --  toJSON :: a -> Value
-      toJSON a = Aeson.toJSON $ _toDoubleArray a
+  toJSON a = Aeson.toJSON $ _toDoubleArray a
 
 instance Aeson.FromJSON GeoPositionWithoutCRS where
 --  parseJSON :: Value -> Parser a
-    parseJSON o = do
-      x <- Aeson.parseJSON o
-      DataMaybe.maybe (fail "Illegal coordinates") pure (_toGeoPoint x)
-
--- instances
+  parseJSON o = do
+    x <- Aeson.parseJSON o
+    DataMaybe.maybe (fail "Illegal coordinates") pure (_toGeoPoint x)
 
 sizeOfDouble :: Int
 sizeOfDouble = sizeOf (undefined :: Double)
@@ -100,20 +100,17 @@ sizeOfDouble = sizeOf (undefined :: Double)
 alignmentOfDouble :: Int
 alignmentOfDouble = alignment (undefined :: Double)
 
-offsetOfDouble :: Int
-offsetOfDouble = sizeOfDouble `div` 2
-
 instance VectorStorable.Storable GeoPositionWithoutCRS where
   sizeOf pt =
     case pt of
-      PointXY {}   -> 2 + (sizeOfDouble * 2)
-      PointXYZ {}  -> 2 + (sizeOfDouble * 3)
-      PointXYZM {} -> 2 + (sizeOfDouble * 4)
+      PointXY {}   -> 1 + (sizeOfDouble * 2)
+      PointXYZ {}  -> 1 + (sizeOfDouble * 3)
+      PointXYZM {} -> 1 + (sizeOfDouble * 4)
   alignment pt =
     case pt of
-      PointXY {}   -> 2 + (alignmentOfDouble * 2)
-      PointXYZ {}  -> 2 + (alignmentOfDouble * 3)
-      PointXYZM {} -> 2 + (alignmentOfDouble * 4)
+      PointXY {}   -> 1 + (alignmentOfDouble * 2)
+      PointXYZ {}  -> 1 + (alignmentOfDouble * 3)
+      PointXYZM {} -> 1 + (alignmentOfDouble * 4)
   {-# INLINE peek #-}
   peek p = do
       t <- peekByteOff p 0
@@ -123,9 +120,9 @@ instance VectorStorable.Storable GeoPositionWithoutCRS where
         _ -> PointXYZM <$> peekByteOff p 1 <*> peekByteOff p 9 <*> peekByteOff p 17 <*> peekByteOff p 25
   poke p val =
     case val of
-      PointXY x y       -> pokeByteOff p 0 (1 :: DataWord.Word8) *> pokeByteOff p 1 x  *> pokeByteOff p 9 y
-      PointXYZ x y z    -> pokeByteOff p 0 (2 :: DataWord.Word8) *> pokeByteOff p 1 x  *> pokeByteOff p 9 y *> pokeByteOff p 17 z
-      PointXYZM x y z m -> pokeByteOff p 0 (3 :: DataWord.Word8) *> pokeByteOff p 1 x  *> pokeByteOff p 9 y *> pokeByteOff p 17 z *> pokeByteOff p 25 m
+      PointXY x y       -> pokeByteOff p 0 (0 :: DataWord.Word8) *> pokeByteOff p 1 x  *> pokeByteOff p 9 y
+      PointXYZ x y z    -> pokeByteOff p 0 (1 :: DataWord.Word8) *> pokeByteOff p 1 x  *> pokeByteOff p 9 y *> pokeByteOff p 17 z
+      PointXYZM x y z m -> pokeByteOff p 0 (2 :: DataWord.Word8) *> pokeByteOff p 1 x  *> pokeByteOff p 9 y *> pokeByteOff p 17 z *> pokeByteOff p 25 m
 
 type Name = Text.Text
 type Code = Int

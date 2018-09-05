@@ -18,12 +18,11 @@ module Data.Geospatial.Internal.Geometry.GeoMultiPoint (
 
 import           Data.Geospatial.Internal.BasicTypes
 import           Data.Geospatial.Internal.Geometry.Aeson
-import           Data.Geospatial.Internal.Geometry.GeoPoint
 
-import           Control.Lens                               (makeLenses)
-import           Control.Monad                              (mzero)
-import qualified Data.Aeson                                 as Aeson
-import qualified Data.Vector.Storable                       as VectorStorable
+import           Control.Lens                            (makeLenses)
+import           Control.Monad                           (mzero)
+import qualified Data.Aeson                              as Aeson
+import qualified Data.Vector.Storable                    as VectorStorable
 
 newtype GeoMultiPoint = GeoMultiPoint { _unGeoMultiPoint :: VectorStorable.Vector GeoPositionWithoutCRS } deriving (Show, Eq)
 

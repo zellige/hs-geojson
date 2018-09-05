@@ -16,7 +16,7 @@ import           Data.Geospatial.Internal.Geometry.GeoMultiLine    (GeoMultiLine
                                                                     mergeGeoLines)
 import           Data.Geospatial.Internal.Geometry.GeoMultiPolygon (GeoMultiPolygon (..),
                                                                     mergeGeoPolygons)
-import qualified Data.Geospatial.Internal.Geometry.GeoPoint        as GeoPoint
+import           Data.Geospatial.Internal.Geometry.GeoPoint        (GeoPoint (..))
 import           Data.Geospatial.Internal.Geometry.GeoPolygon      (GeoPolygon (..))
 import qualified Data.LinearRing                                   as LinearRing
 import qualified Data.LineString                                   as LineString
@@ -92,6 +92,16 @@ testEmptyBBoxJSON = "[]"
 --                 *-----------*
 --               (124, -25)  (127, -25)
 --
+
+-- Points
+pointJSON :: BS.ByteString
+pointJSON = "{\"coordinates\":[120,-15],\"type\":\"Polygon\"}"
+
+geoPoint :: GeoPoint
+geoPoint = GeoPoint point
+
+point :: BasicTypes.GeoPositionWithoutCRS
+point = BasicTypes.PointXY 120.0 (-15.0)
 
 -- Polys
 lShapedPolyJSON :: BS.ByteString
