@@ -56,6 +56,17 @@ data ListToLineStringError =
     |   SingletonList
     deriving (Eq)
 
+-- |
+-- When converting a Vector to a LineString, here is a list of things that can go wrong:
+--
+--     * The vector was empty
+--     * The vector only had one element
+--
+data VectorToLineStringError =
+       VectorEmpty
+   |   SingletonVector
+   deriving (Eq)
+
 -- functions
 
 -- |
@@ -99,6 +110,13 @@ toVector :: LineString a -> (a -> a -> b) -> Vector.Vector b
 toVector (LineString a b rest) combine = Vector.cons (combine a b) combineRest
     where
         combineRest = (Vector.zipWith combine <*> Vector.tail) (Vector.convert rest)
+
+-- |
+-- creates a LineString out of a vector of elements,
+-- if there are enough elements (needs at least 2) elements
+--
+fromVector :: (Validate v) => Vector.Vector a -> v VectorToLineStringError (LineString a)
+fromVector = undefined
 
 -- |
 -- Creates a LineString
