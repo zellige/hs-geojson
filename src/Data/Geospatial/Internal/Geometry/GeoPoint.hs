@@ -26,8 +26,8 @@ newtype GeoPoint = GeoPoint { _unGeoPoint :: GeoPositionWithoutCRS } deriving (S
 
 makeLenses ''GeoPoint
 
-retrieveXY :: GeoPoint -> PointXY
-retrieveXY (GeoPoint position) =
+retrieveXY :: GeoPositionWithoutCRS -> PointXY
+retrieveXY position =
   case position of
     (GeoPointXY p)                       -> p
     (GeoPointXYZ (PointXYZ pX pY _))     -> PointXY pX pY
