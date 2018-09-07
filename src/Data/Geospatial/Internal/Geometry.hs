@@ -12,7 +12,7 @@
 -------------------------------------------------------------------
 module Data.Geospatial.Internal.Geometry (
     -- * Types
-        GeoPoint(..)
+        GeoPoint(..), retrieveXY
     ,   GeoMultiPoint(..), splitGeoMultiPoint, mergeGeoPoints
     ,   GeoPolygon(..)
     ,   GeoMultiPolygon(..), splitGeoMultiPolygon, mergeGeoPolygons
@@ -80,7 +80,6 @@ geometryFromAeson "MultiLineString" obj                 = MultiLine <$> parseJSO
 geometryFromAeson "GeometryCollection" (Object jsonObj) = Collection <$> (jsonObj .: ("geometries" :: Text))
 geometryFromAeson "GeometryCollection" _                = mzero
 geometryFromAeson _ _                                   = mzero
-
 
 -- |
 -- encodes Geometry Objects to GeoJSON

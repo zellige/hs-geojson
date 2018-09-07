@@ -12,6 +12,7 @@ module Data.Geospatial.Internal.Geometry.GeoPoint (
     -- * Type
         GeoPoint(..)
     ,   unGeoPoint
+    ,   retrieveXY
     ) where
 
 import           Control.Lens                            (makeLenses)
@@ -24,6 +25,13 @@ import           Data.Geospatial.Internal.Geometry.Aeson
 newtype GeoPoint = GeoPoint { _unGeoPoint :: GeoPositionWithoutCRS } deriving (Show, Eq)
 
 makeLenses ''GeoPoint
+
+retrieveXY :: GeoPoint -> PointXY
+retrieveXY (GeoPoint position) =
+  case position of
+    (GeoPointXY p)                       -> p
+    (GeoPointXYZ (PointXYZ pX pY _))     -> PointXY pX pY
+    (GeoPointXYZM (PointXYZM pX pY _ _)) -> PointXY pX pY
 
 -- instances
 

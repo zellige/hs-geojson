@@ -18,7 +18,7 @@ module Data.Geospatial (
     ,   FeatureID(..)
     ,   GeoPositionWithoutCRS (..)
     ,   GeoPosition(..)
-    ,   GeoPoint(..)
+    ,   GeoPoint(..), retrieveXY
     ,   PointXY (..)
     ,   PointXYZ (..)
     ,   PointXYZM (..)
