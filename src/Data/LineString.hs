@@ -15,8 +15,9 @@ module Data.LineString (
     -- * Type
         LineString
     ,   ListToLineStringError(..)
+    ,   VectorToLineStringError(..)
     -- * Functions
-    ,   toVector
+    ,   combineToVector
     ,   fromVector
     ,   fromLineString
     ,   fromList
@@ -107,10 +108,15 @@ fromList (x:y:zs) = _Success # LineString x y (Vector.fromList zs)
 -- create a vector from a LineString by combining values.
 -- LineString 1 2 [3,4] (,) --> Vector [(1,2),(2,3),(3,4)]
 --
-toVector :: LineString a -> (a -> a -> b) -> Vector.Vector b
-toVector (LineString a b rest) combine = Vector.cons (combine a b) combineRest
+combineToVector :: (a -> a -> b) -> LineString a -> Vector.Vector b
+combineToVector combine (LineString a b rest) = Vector.cons (combine a b) combineRest
     where
-        combineRest = (Vector.zipWith combine <*> Vector.tail) (Vector.convert rest)
+        combineRest =
+          if Vector.null rest
+            then
+              Vector.empty
+            else
+              (Vector.zipWith combine <*> Vector.tail) (Vector.cons b rest)
 
 -- |
 -- creates a LineString out of a vector of elements,
@@ -141,12 +147,15 @@ makeLineString
     -> LineString a
 makeLineString a b c = LineString a b (Vector.fromList c)
 
-
 -- instances
 
 instance Show ListToLineStringError where
     show ListEmpty     = "List Empty"
     show SingletonList = "Singleton List"
+
+instance Show VectorToLineStringError where
+  show VectorEmpty     = "Vector Empty"
+  show SingletonVector = "Singleton Vector"
 
 instance (Show a) => Show (LineString a) where
     show  = show . fromLineString

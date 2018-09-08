@@ -14,8 +14,6 @@ module Data.Geospatial.Internal.GeoPosition (
     ,   stripCRSFromPosition
     ) where
 
-import qualified Data.Vector.Storable                as VectorStorable
-
 import qualified Data.Geospatial.Internal.BasicTypes as BasicTypes
 
 -- | see Section 2.1.1 /Position/ in the GeoJSON Spec,

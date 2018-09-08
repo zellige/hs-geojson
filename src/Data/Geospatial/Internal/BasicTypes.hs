@@ -20,6 +20,7 @@ module Data.Geospatial.Internal.BasicTypes (
     ,   Northing
     ,   Altitude
     ,   GeoPositionWithoutCRS (..)
+    ,   retrieveXY
     ,   PointXY (..)
     ,   PointXYZ (..)
     ,   PointXYZM (..)
@@ -86,6 +87,13 @@ _toGeoPoint (DoubleArray [x, y])       = Just $ GeoPointXY (PointXY x y)
 _toGeoPoint (DoubleArray [x, y, z])    = Just $ GeoPointXYZ (PointXYZ x y z)
 _toGeoPoint (DoubleArray [x, y, z, m]) = Just $ GeoPointXYZM (PointXYZM x y z m)
 _toGeoPoint _                          = Nothing
+
+retrieveXY :: GeoPositionWithoutCRS -> PointXY
+retrieveXY position =
+  case position of
+    (GeoPointXY p)                       -> p
+    (GeoPointXYZ (PointXYZ pX pY _))     -> PointXY pX pY
+    (GeoPointXYZM (PointXYZM pX pY _ _)) -> PointXY pX pY
 
 -- instances
 

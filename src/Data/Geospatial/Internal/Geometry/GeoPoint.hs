@@ -26,13 +26,6 @@ newtype GeoPoint = GeoPoint { _unGeoPoint :: GeoPositionWithoutCRS } deriving (S
 
 makeLenses ''GeoPoint
 
-retrieveXY :: GeoPositionWithoutCRS -> PointXY
-retrieveXY position =
-  case position of
-    (GeoPointXY p)                       -> p
-    (GeoPointXYZ (PointXYZ pX pY _))     -> PointXY pX pY
-    (GeoPointXYZM (PointXYZM pX pY _ _)) -> PointXY pX pY
-
 -- instances
 
 instance Aeson.ToJSON GeoPoint where
