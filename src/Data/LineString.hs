@@ -17,6 +17,7 @@ module Data.LineString (
     ,   ListToLineStringError(..)
     -- * Functions
     ,   toVector
+    ,   fromVector
     ,   fromLineString
     ,   fromList
     ,   makeLineString
@@ -116,7 +117,18 @@ toVector (LineString a b rest) combine = Vector.cons (combine a b) combineRest
 -- if there are enough elements (needs at least 2) elements
 --
 fromVector :: (Validate v) => Vector.Vector a -> v VectorToLineStringError (LineString a)
-fromVector = undefined
+fromVector v =
+  if Vector.null v then
+    _Failure # VectorEmpty
+  else
+    fromVector' (Vector.head v) (Vector.take 1 v)
+
+fromVector' :: (Validate v) => a -> Vector.Vector a -> v VectorToLineStringError (LineString a)
+fromVector' first v =
+  if Vector.null v then
+    _Failure # SingletonVector
+  else
+    _Success # LineString first (Vector.head v) (Vector.take 1 v)
 
 -- |
 -- Creates a LineString

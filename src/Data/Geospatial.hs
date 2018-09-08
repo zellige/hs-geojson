@@ -15,28 +15,28 @@ module Data.Geospatial (
     ,   Easting
     ,   Northing
     ,   Altitude
-    ,   FeatureID(..)
+    ,   FeatureID (..)
     ,   GeoPositionWithoutCRS (..)
-    ,   GeoPosition(..)
-    ,   GeoPoint(..), retrieveXY
+    ,   GeoPosition (..)
+    ,   GeoPoint (..), retrieveXY
     ,   PointXY (..)
     ,   PointXYZ (..)
     ,   PointXYZM (..)
-    ,   GeoMultiPoint(..), splitGeoMultiPoint, mergeGeoPoints
-    ,   GeoPolygon(..)
-    ,   GeoMultiPolygon(..), splitGeoMultiPolygon, mergeGeoPolygons
-    ,   GeoLine(..)
-    ,   GeoMultiLine(..), splitGeoMultiLine, mergeGeoLines
-    ,   GeospatialGeometry(..)
+    ,   GeoMultiPoint (..), splitGeoMultiPoint, mergeGeoPoints
+    ,   GeoPolygon (..)
+    ,   GeoMultiPolygon (..), splitGeoMultiPolygon, mergeGeoPolygons
+    ,   GeoLine (..)
+    ,   GeoMultiLine (..), splitGeoMultiLine, mergeGeoLines
+    ,   GeospatialGeometry (..)
     ,   Name
     ,   Code
     ,   Href
     ,   FormatString
     ,   ProjectionType
-    ,   CRSObject(..)
+    ,   CRSObject (..)
     ,   BoundingBoxWithoutCRS
-    ,   GeoFeature(..)
-    ,   GeoFeatureCollection(..)
+    ,   GeoFeature (..)
+    ,   GeoFeatureCollection (..)
     -- * Functions
     ,   stripCRSFromPosition
     ,   defaultCRS
