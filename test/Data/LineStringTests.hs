@@ -30,6 +30,7 @@ specTests :: IO TestTree
 specTests = do
   specs <- sequence
     [ testSpec "Data.LineString.fromList" testFromList
+    , testSpec "Data.LineString.fromVector" testFromVector
     , testSpec "Data.LineString.combineToVector" testCombineToVector
     ]
   pure $ testGroup "Data.LineStringTests.Spec" specs
@@ -82,8 +83,8 @@ testFromList =
         LineString.fromList ([] :: [Int])  `shouldBe` Failure LineString.ListEmpty
         LineString.fromList ([0] :: [Int]) `shouldBe` Failure LineString.SingletonList
 
-fromVector :: Spec
-fromVector =
+testFromVector :: Spec
+testFromVector =
   describe "fromVector" $ do
     it "creates a LineString out of a Vector of elements" $ do
       LineString.fromVector (Vector.fromList [0, 1] :: (Vector.Vector Int))             `shouldBe` Success (LineString.makeLineString 0 1 [])
