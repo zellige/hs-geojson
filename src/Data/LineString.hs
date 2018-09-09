@@ -127,14 +127,14 @@ fromVector v =
   if Vector.null v then
     _Failure # VectorEmpty
   else
-    fromVector' (Vector.head v) (Vector.take 1 v)
+    fromVector' (Vector.head v) (Vector.tail v)
 
 fromVector' :: (Validate v) => a -> Vector.Vector a -> v VectorToLineStringError (LineString a)
 fromVector' first v =
   if Vector.null v then
     _Failure # SingletonVector
   else
-    _Success # LineString first (Vector.head v) (Vector.take 1 v)
+    _Success # LineString first (Vector.head v) (Vector.tail v)
 
 -- |
 -- Creates a LineString
