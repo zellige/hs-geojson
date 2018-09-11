@@ -3,6 +3,7 @@ module Data.LinearRingTests where
 import           Data.Foldable         (Foldable (..))
 import           Data.List.NonEmpty    (NonEmpty (..))
 import           Data.Validation       (Validation (..))
+import qualified Data.Vector           as Vector
 import           Test.Tasty
 import           Test.Tasty.Hspec      (Spec, context, describe, it, shouldBe,
                                         testSpec)
@@ -30,6 +31,7 @@ specTests :: IO TestTree
 specTests = do
   specs <- sequence
     [ testSpec "Data.LinearRing.fromList" testFromList
+    , testSpec "Data.LinearRing.combineToVector" testCombineToVector
     ]
   pure $ testGroup "Data.LinearRingTests.Spec" specs
 
@@ -92,6 +94,14 @@ testFromList =
         fromList [0]       `shouldBe` Failure (ListTooShort 1 :| [] :: NonEmpty (ListToLinearRingError Int))
         fromList [0, 1]    `shouldBe` Failure (ListTooShort 2 :| [] :: NonEmpty (ListToLinearRingError Int))
         fromList [0, 1, 2] `shouldBe` Failure (ListTooShort 3 :| [] :: NonEmpty (ListToLinearRingError Int))
+
+testCombineToVector :: Spec
+testCombineToVector =
+  describe "combineToVector" $
+    it "combine a LinearRing using tuples" $ do
+      combineToVector (,) (makeLinearRing 0 1 2 [])       `shouldBe` Vector.fromList ([(0, 1),(1, 2)] :: [(Int, Int)])
+      combineToVector (,) (makeLinearRing 0 1 2 [4])      `shouldBe` Vector.fromList ([(0, 1), (1,2), (2,4)] :: [(Int, Int)])
+      combineToVector (,) (makeLinearRing 0 1 2 [4, 5])   `shouldBe` Vector.fromList ([(0, 1), (1, 2), (2, 4), (4, 5)] :: [(Int, Int)])
 
 -- TODO
 -- > (\xs -> safeLast (fromLinearRing xs) == Just (ringHead xs)) (xs :: LinearRing Int)

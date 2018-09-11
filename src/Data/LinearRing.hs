@@ -20,6 +20,7 @@ module Data.LinearRing (
         LinearRing
     ,   ListToLinearRingError(..)
     -- * Functions
+    ,   combineToVector
     ,   fromLinearRing
     ,   fromList
     ,   fromListWithEqCheck
@@ -112,6 +113,20 @@ fromList xs               = _Failure # return (ListTooShort (length xs))
 --
 fromListWithEqCheck :: (Eq a, Show a, Validate v, Applicative (v (NonEmpty (ListToLinearRingError a)))) => [a] -> v (NonEmpty (ListToLinearRingError a)) (LinearRing a)
 fromListWithEqCheck xs = checkHeadAndLastEq xs *> fromList xs
+
+-- |
+-- create a vector from a LineString by combining values.
+-- LineString 1 2 [3,4] (,) --> Vector [(1,2),(2,3),(3,4)]
+--
+combineToVector :: (a -> a -> b) -> LinearRing a -> Vector.Vector b
+combineToVector combine (LinearRing a b c rest) = Vector.cons (combine a b) (Vector.cons (combine b c) combineRest)
+    where
+        combineRest =
+          if Vector.null rest
+            then
+              Vector.empty
+            else
+              (Vector.zipWith combine <*> Vector.tail) (Vector.cons c rest)
 
 -- |
 -- Creates a LinearRing
