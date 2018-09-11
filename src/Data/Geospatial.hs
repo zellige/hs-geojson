@@ -35,7 +35,7 @@ module Data.Geospatial (
     ,   ProjectionType
     ,   CRSObject (..)
     ,   BoundingBoxWithoutCRS
-    ,   GeoFeature (..)
+    ,   GeoFeature (..), reWrapGeometry
     ,   GeoFeatureCollection (..)
     -- * Functions
     ,   stripCRSFromPosition

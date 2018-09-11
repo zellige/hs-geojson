@@ -20,6 +20,8 @@ module Data.Geospatial.Internal.GeoFeature (
     ,   geometry
     ,   properties
     ,   featureId
+    -- * Utils
+    ,   reWrapGeometry
     ) where
 
 import           Data.Geospatial.Internal.BasicTypes
@@ -45,6 +47,9 @@ data GeoFeature a = GeoFeature {
     _geometry   :: GeospatialGeometry,
     _properties :: a,
     _featureId  :: Maybe FeatureID } deriving (Show, Eq)
+
+reWrapGeometry :: GeoFeature a -> GeospatialGeometry -> GeoFeature a
+reWrapGeometry (GeoFeature bbox _ props fId) geom = GeoFeature bbox geom props fId
 
 makeLenses ''GeoFeature
 
