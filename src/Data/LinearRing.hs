@@ -48,8 +48,7 @@ import           Data.Functor        ((<$>))
 import           Data.List           (intercalate)
 import           Data.List.NonEmpty  as NL (NonEmpty, toList)
 import           Data.Traversable    (Traversable (..))
-import           Data.Validation     (Validate (..), Validation, _Failure,
-                                      _Success)
+import qualified Data.Validation     as Validation
 import qualified Data.Vector         as Vector
 
 -- |
@@ -117,15 +116,15 @@ fromLinearRing (LinearRing x y z ws) = x : y : z : Vector.foldr (:) [x] ws
 --
 -- Unfortunately it doesn't check that the last element is the same as the first at the moment...
 --
-fromList :: (Eq a, Show a, Validate v, Functor (v (NonEmpty (ListToLinearRingError a)))) => [a] -> v (NonEmpty (ListToLinearRingError a)) (LinearRing a)
-fromList (x:y:z:ws@(_:_)) = _Success # LinearRing x y z (fromListDropLast ws)
-fromList xs               = _Failure # return (ListTooShort (length xs))
+fromList :: (Eq a, Show a, Validation.Validate v, Functor (v (NonEmpty (ListToLinearRingError a)))) => [a] -> v (NonEmpty (ListToLinearRingError a)) (LinearRing a)
+fromList (x:y:z:ws@(_:_)) = Validation._Success # LinearRing x y z (fromListDropLast ws)
+fromList xs               = Validation._Failure # pure (ListTooShort (length xs))
 
 -- |
 -- The expensive version of fromList that checks whether the head and last elements
 -- are equal.
 --
-fromListWithEqCheck :: (Eq a, Show a, Validate v, Applicative (v (NonEmpty (ListToLinearRingError a)))) => [a] -> v (NonEmpty (ListToLinearRingError a)) (LinearRing a)
+fromListWithEqCheck :: (Eq a, Show a, Validation.Validate v, Applicative (v (NonEmpty (ListToLinearRingError a)))) => [a] -> v (NonEmpty (ListToLinearRingError a)) (LinearRing a)
 fromListWithEqCheck xs = checkHeadAndLastEq xs *> fromList xs
 
 -- |
@@ -156,15 +155,15 @@ toVector (LinearRing a b c rest) = Vector.cons a (Vector.cons b (Vector.cons c r
 -- fromVector (x:y:z:ws@(_:_)) = _Success # LinearRing x y z (fromListDropLast ws)
 -- fromList xs               = _Failure # return (ListTooShort (length xs))
 
-fromVector :: (Eq a, Show a, Validate v, Functor (v (NonEmpty (ListToLinearRingError a)))) => Vector.Vector a -> v (NonEmpty (VectorToLinearRingError a)) (LinearRing a)
+fromVector :: (Eq a, Show a, Validation.Validate v, Functor (v (NonEmpty (ListToLinearRingError a)))) => Vector.Vector a -> v (NonEmpty (VectorToLinearRingError a)) (LinearRing a)
 fromVector v =
   if Vector.length v >= 3 then
     if Vector.head v == Vector.last v then
-        _Success # LinearRing (Vector.unsafeIndex v 0) (Vector.unsafeIndex v 1) (Vector.unsafeIndex v 2) (Vector.drop 3 v)
+        Validation._Success # LinearRing (Vector.unsafeIndex v 0) (Vector.unsafeIndex v 1) (Vector.unsafeIndex v 2) (Vector.drop 3 v)
     else
-        _Failure # return (FirstNotEqualToLast (Vector.head v) (Vector.last v))
+        Validation._Failure # pure (FirstNotEqualToLast (Vector.head v) (Vector.last v))
   else
-    _Failure # return (VectorTooShort (Vector.length v))
+    Validation._Failure # pure (VectorTooShort (Vector.length v))
 
 -- |
 -- Creates a LinearRing
@@ -219,11 +218,11 @@ instance (Eq a, FromJSON a, Show a) => FromJSON (LinearRing a) where
     parseJSON v = do
         xs <- parseJSON v
         let vxs = fromListAcc xs
-        maybe (parseError v (vxs ^? _Failure)) return (vxs ^? _Success)
+        maybe (parseError v (vxs ^? Validation._Failure)) return (vxs ^? Validation._Success)
 
 -- helpers
 
-fromListAcc :: (Eq a, Show a) => [a] -> Validation (NonEmpty (ListToLinearRingError a)) (LinearRing a)
+fromListAcc :: (Eq a, Show a) => [a] -> Validation.Validation (NonEmpty (ListToLinearRingError a)) (LinearRing a)
 fromListAcc = fromList
 
 showErrors :: (Show a) => NonEmpty (ListToLinearRingError a) -> String
@@ -233,10 +232,10 @@ parseError :: (Show a) => Value -> Maybe (NonEmpty (ListToLinearRingError a)) ->
 parseError v = maybe mzero (\e -> typeMismatch (showErrors e) v)
 
 checkHeadAndLastEq
-    :: (Eq a, Validate v, Functor (v (NonEmpty (ListToLinearRingError a))))
+    :: (Eq a, Validation.Validate v, Functor (v (NonEmpty (ListToLinearRingError a))))
     => [a]
     -> v (NonEmpty (ListToLinearRingError a)) ()
-checkHeadAndLastEq = maybe (_Failure # return (ListTooShort 0)) (\(h, l) -> if h == l then _Success # () else _Failure # return (HeadNotEqualToLast h l)) . mhl
+checkHeadAndLastEq = maybe (Validation._Failure # pure (ListTooShort 0)) (\(h, l) -> if h == l then Validation._Success # () else Validation._Failure # pure (HeadNotEqualToLast h l)) . mhl
     where
         mhl ::[a] -> Maybe (a, a)
         mhl xs = (,) <$> safeHead xs <*> safeLast xs
