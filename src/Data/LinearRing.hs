@@ -19,8 +19,11 @@ module Data.LinearRing (
     -- * Type
         LinearRing
     ,   ListToLinearRingError(..)
+    ,   VectorToLinearRingError(..)
     -- * Functions
+    ,   toVector
     ,   combineToVector
+    ,   fromVector
     ,   fromLinearRing
     ,   fromList
     ,   fromListWithEqCheck
@@ -65,6 +68,17 @@ data ListToLinearRingError a =
         ListTooShort Int
     |   HeadNotEqualToLast a a
     deriving (Eq)
+
+-- |
+-- When converting a Vector to a LinearRing there are some things that can go wrong
+--
+--     * The vector can be too short
+--     * The head may not be equal to the last element in the list
+--
+data VectorToLinearRingError a =
+    VectorTooShort Int
+  | FirstNotEqualToLast a a
+  deriving (Eq)
 
 -- functions
 
@@ -115,8 +129,8 @@ fromListWithEqCheck :: (Eq a, Show a, Validate v, Applicative (v (NonEmpty (List
 fromListWithEqCheck xs = checkHeadAndLastEq xs *> fromList xs
 
 -- |
--- create a vector from a LineString by combining values.
--- LineString 1 2 [3,4] (,) --> Vector [(1,2),(2,3),(3,4)]
+-- create a vector from a LinearRing by combining values.
+-- LineString 1 2 3 [4,1] (,) --> Vector [(1,2),(2,3),(3,4),(4,1)]
 --
 combineToVector :: (a -> a -> b) -> LinearRing a -> Vector.Vector b
 combineToVector combine (LinearRing a b c rest) = Vector.cons (combine a b) (Vector.cons (combine b c) combineRest)
@@ -127,6 +141,30 @@ combineToVector combine (LinearRing a b c rest) = Vector.cons (combine a b) (Vec
               Vector.empty
             else
               (Vector.zipWith combine <*> Vector.tail) (Vector.cons c rest)
+
+-- |
+-- create a vector from a LinearRing.
+-- LineString 1 2 3 [4,1] --> Vector [1,2,3,4,1)]
+--
+toVector :: LinearRing a -> Vector.Vector a
+toVector (LinearRing a b c rest) = Vector.cons a (Vector.cons b (Vector.cons c rest))
+
+-- |
+-- creates a LinearRing out of a vector of elements,
+-- if there are enough elements (needs at least 3) elements
+--
+-- fromVector (x:y:z:ws@(_:_)) = _Success # LinearRing x y z (fromListDropLast ws)
+-- fromList xs               = _Failure # return (ListTooShort (length xs))
+
+fromVector :: (Eq a, Show a, Validate v, Functor (v (NonEmpty (ListToLinearRingError a)))) => Vector.Vector a -> v (NonEmpty (VectorToLinearRingError a)) (LinearRing a)
+fromVector v =
+  if Vector.length v >= 3 then
+    if Vector.head v == Vector.last v then
+        _Success # LinearRing (Vector.unsafeIndex v 0) (Vector.unsafeIndex v 1) (Vector.unsafeIndex v 2) (Vector.drop 3 v)
+    else
+        _Failure # return (FirstNotEqualToLast (Vector.head v) (Vector.last v))
+  else
+    _Failure # return (VectorTooShort (Vector.length v))
 
 -- |
 -- Creates a LinearRing
@@ -149,6 +187,10 @@ makeLinearRing a b c d = LinearRing a b c (Vector.fromList d)
 instance (Show a) => Show (ListToLinearRingError a) where
     show (ListTooShort n) = "List too short: (length = " ++ show n ++ ")"
     show (HeadNotEqualToLast h l) = "head (" ++ show h ++ ") /= last(" ++ show l ++ ")"
+
+instance (Show a) => Show (VectorToLinearRingError a) where
+    show (VectorTooShort n) = "Vector too short: (length = " ++ show n ++ ")"
+    show (FirstNotEqualToLast h l) = "head (" ++ show h ++ ") /= last(" ++ show l ++ ")"
 
 instance Functor LinearRing where
      fmap f (LinearRing x y z ws) = LinearRing (f x) (f y) (f z) (Vector.map f ws)

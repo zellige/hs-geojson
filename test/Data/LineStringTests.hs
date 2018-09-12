@@ -1,6 +1,6 @@
 module Data.LineStringTests where
 
-import           Data.Foldable         (Foldable (..))
+import qualified Data.Foldable         as Foldable
 import           Data.Validation       (Validation (..))
 import qualified Data.Vector           as Vector
 import           Test.Tasty
@@ -31,6 +31,7 @@ specTests = do
   specs <- sequence
     [ testSpec "Data.LineString.fromList" testFromList
     , testSpec "Data.LineString.fromVector" testFromVector
+    , testSpec "Data.LineString.toVector" testToVector
     , testSpec "Data.LineString.combineToVector" testCombineToVector
     ]
   pure $ testGroup "Data.LineStringTests.Spec" specs
@@ -52,7 +53,7 @@ testFromLineString xs = property $ length (LineString.fromLineString xs) >= 2
 -- > (\xs -> (lineStringHead xs) == (foldr'' (\a -> const a) 0 xs)) (xs :: LineString Int)
 --
 testFoldable :: LineString.LineString Int -> Property
-testFoldable xs = property $ (foldr (:) [] xs == LineString.fromLineString xs) && (LineString.lineStringHead xs == foldr' const 0 xs)
+testFoldable xs = property $ (foldr (:) [] xs == LineString.fromLineString xs) && (LineString.lineStringHead xs == Foldable.foldr' const 0 xs)
 
 -- Spec
 
@@ -99,10 +100,17 @@ testCombineToVector :: Spec
 testCombineToVector =
   describe "combineToVector" $
     it "combine a LineString using tuples" $ do
-      LineString.combineToVector (,) (LineString.makeLineString 0 1 [])           `shouldBe` Vector.fromList ([(0, 1)] :: [(Int, Int)])
-      LineString.combineToVector (,) (LineString.makeLineString 0 1 [2])          `shouldBe` Vector.fromList ([(0, 1), (1,2)] :: [(Int, Int)])
-      LineString.combineToVector (,) (LineString.makeLineString 0 1 [2, 4, 5, 0]) `shouldBe` Vector.fromList ([(0, 1), (1, 2), (2, 4), (4, 5), (5, 0)] :: [(Int, Int)])
+      LineString.combineToVector (,) (LineString.makeLineString 0 1 [])         `shouldBe` Vector.fromList ([(0, 1)] :: [(Int, Int)])
+      LineString.combineToVector (,) (LineString.makeLineString 0 1 [2])        `shouldBe` Vector.fromList ([(0, 1), (1,2)] :: [(Int, Int)])
+      LineString.combineToVector (,) (LineString.makeLineString 0 1 [2, 4, 5])  `shouldBe` Vector.fromList ([(0, 1), (1, 2), (2, 4), (4, 5)] :: [(Int, Int)])
+
+testToVector :: Spec
+testToVector =
+  describe "toVector" $
+    it "from a LineString to a vector" $ do
+      LineString.toVector (LineString.makeLineString 0 1 [])        `shouldBe` Vector.fromList ([0, 1] :: [Int])
+      LineString.toVector (LineString.makeLineString 0 1 [2])       `shouldBe` Vector.fromList ([0, 1, 2] :: [Int])
+      LineString.toVector (LineString.makeLineString 0 1 [2, 4, 5]) `shouldBe` Vector.fromList ([0, 1, 2, 4, 5] :: [Int])
 
 -- TODO
 -- (\xs -> safeLast (fromLineString xs) == Just (lineStringHead xs)) (xs :: LineString Int)
--- toVector

@@ -17,6 +17,7 @@ module Data.LineString (
     ,   ListToLineStringError(..)
     ,   VectorToLineStringError(..)
     -- * Functions
+    ,   toVector
     ,   combineToVector
     ,   fromVector
     ,   fromLineString
@@ -117,6 +118,13 @@ combineToVector combine (LineString a b rest) = Vector.cons (combine a b) combin
               Vector.empty
             else
               (Vector.zipWith combine <*> Vector.tail) (Vector.cons b rest)
+
+-- |
+-- create a vector from a LineString.
+-- LineString 1 2 [3,4] --> Vector [1,2,3,4]
+--
+toVector :: LineString a -> Vector.Vector a
+toVector (LineString a b rest) = Vector.cons a (Vector.cons b rest)
 
 -- |
 -- creates a LineString out of a vector of elements,
