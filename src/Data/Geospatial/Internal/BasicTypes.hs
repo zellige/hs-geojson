@@ -133,7 +133,7 @@ instance VectorStorable.Storable GeoPositionWithoutCRS where
   peek p = do
       t <- peekByteOff p 0
       case (t :: DataWord.Word8)  of
-        0 -> pure $ GeoEmpty
+        0 -> pure GeoEmpty
         1 -> fmap GeoPointXY $ PointXY <$> peekByteOff p 1 <*> peekByteOff p 9
         2 -> fmap GeoPointXYZ $ PointXYZ  <$> peekByteOff p 1 <*> peekByteOff p 9 <*> peekByteOff p 17
         _ -> fmap GeoPointXYZM $ PointXYZM <$> peekByteOff p 1 <*> peekByteOff p 9 <*> peekByteOff p 17 <*> peekByteOff p 25
