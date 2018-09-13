@@ -149,11 +149,11 @@ fromVector' first v =
 -- @makeLineString x y zs@ creates a `LineString` homomorphic to the list @[x, y] ++ zs@
 --
 makeLineString
-    :: a            -- ^ The first element
-    -> a            -- ^ The second element
-    -> [a]          -- ^ The rest of the optional elements
+    :: a                -- ^ The first element
+    -> a                -- ^ The second element
+    -> Vector.Vector a  -- ^ The rest of the optional elements
     -> LineString a
-makeLineString a b c = LineString a b (Vector.fromList c)
+makeLineString = LineString
 
 -- instances
 

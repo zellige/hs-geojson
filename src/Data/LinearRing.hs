@@ -174,12 +174,12 @@ fromVector v =
 -- Repeating the first element is just redundant.
 --
 makeLinearRing :: (Eq a, Show a) =>
-       a            -- ^ The first element
-    -> a            -- ^ The second element
-    -> a            -- ^ The third element
-    -> [a]          -- ^ The rest of the optional elements (WITHOUT the first element repeated at the end)
+       a                -- ^ The first element
+    -> a                -- ^ The second element
+    -> a                -- ^ The third element
+    -> Vector.Vector a  -- ^ The rest of the optional elements (WITHOUT the first element repeated at the end)
     -> LinearRing a
-makeLinearRing a b c d = LinearRing a b c (Vector.fromList d)
+makeLinearRing = LinearRing
 
 -- instances
 

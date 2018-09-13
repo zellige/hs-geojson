@@ -76,9 +76,9 @@ testFromList :: Spec
 testFromList =
   describe "fromList" $ do
     it "creates a LineString out of a list of elements" $ do
-      LineString.fromList ([0, 1] :: [Int])             `shouldBe` Success (LineString.makeLineString 0 1 [])
-      LineString.fromList ([0, 1, 2] :: [Int])          `shouldBe` Success (LineString.makeLineString 0 1 [2])
-      LineString.fromList ([0, 1, 2, 4, 5, 0] :: [Int]) `shouldBe` Success (LineString.makeLineString 0 1 [2, 4, 5, 0])
+      LineString.fromList ([0, 1] :: [Int])             `shouldBe` Success (LineString.makeLineString 0 1 Vector.empty)
+      LineString.fromList ([0, 1, 2] :: [Int])          `shouldBe` Success (LineString.makeLineString 0 1 (Vector.fromList [2]))
+      LineString.fromList ([0, 1, 2, 4, 5, 0] :: [Int]) `shouldBe` Success (LineString.makeLineString 0 1 (Vector.fromList [2, 4, 5, 0]))
     context "when provided with invalid input" $
       it "fails" $ do
         LineString.fromList ([] :: [Int])  `shouldBe` Failure LineString.ListEmpty
@@ -88,9 +88,9 @@ testFromVector :: Spec
 testFromVector =
   describe "fromVector" $ do
     it "creates a LineString out of a Vector of elements" $ do
-      LineString.fromVector (Vector.fromList [0, 1] :: (Vector.Vector Int))             `shouldBe` Success (LineString.makeLineString 0 1 [])
-      LineString.fromVector (Vector.fromList [0, 1, 2] :: (Vector.Vector Int))          `shouldBe` Success (LineString.makeLineString 0 1 [2])
-      LineString.fromVector (Vector.fromList [0, 1, 2, 4, 5, 0] :: (Vector.Vector Int)) `shouldBe` Success (LineString.makeLineString 0 1 [2, 4, 5, 0])
+      LineString.fromVector (Vector.fromList [0, 1] :: (Vector.Vector Int))             `shouldBe` Success (LineString.makeLineString 0 1 Vector.empty)
+      LineString.fromVector (Vector.fromList [0, 1, 2] :: (Vector.Vector Int))          `shouldBe` Success (LineString.makeLineString 0 1 (Vector.fromList [2]))
+      LineString.fromVector (Vector.fromList [0, 1, 2, 4, 5, 0] :: (Vector.Vector Int)) `shouldBe` Success (LineString.makeLineString 0 1 (Vector.fromList [2, 4, 5, 0]))
     context "when provided with invalid input" $
       it "fails" $ do
         LineString.fromVector (Vector.fromList [] :: (Vector.Vector Int))  `shouldBe` Failure LineString.VectorEmpty
@@ -100,17 +100,17 @@ testCombineToVector :: Spec
 testCombineToVector =
   describe "combineToVector" $
     it "combine a LineString using tuples" $ do
-      LineString.combineToVector (,) (LineString.makeLineString 0 1 [])         `shouldBe` Vector.fromList ([(0, 1)] :: [(Int, Int)])
-      LineString.combineToVector (,) (LineString.makeLineString 0 1 [2])        `shouldBe` Vector.fromList ([(0, 1), (1,2)] :: [(Int, Int)])
-      LineString.combineToVector (,) (LineString.makeLineString 0 1 [2, 4, 5])  `shouldBe` Vector.fromList ([(0, 1), (1, 2), (2, 4), (4, 5)] :: [(Int, Int)])
+      LineString.combineToVector (,) (LineString.makeLineString 0 1 Vector.empty)                    `shouldBe` Vector.fromList ([(0, 1)] :: [(Int, Int)])
+      LineString.combineToVector (,) (LineString.makeLineString 0 1 (Vector.fromList [2]))           `shouldBe` Vector.fromList ([(0, 1), (1,2)] :: [(Int, Int)])
+      LineString.combineToVector (,) (LineString.makeLineString 0 1 (Vector.fromList [2, 4, 5, 0]))  `shouldBe` Vector.fromList ([(0, 1), (1, 2), (2, 4), (4, 5), (5,0)] :: [(Int, Int)])
 
 testToVector :: Spec
 testToVector =
   describe "toVector" $
     it "from a LineString to a vector" $ do
-      LineString.toVector (LineString.makeLineString 0 1 [])        `shouldBe` Vector.fromList ([0, 1] :: [Int])
-      LineString.toVector (LineString.makeLineString 0 1 [2])       `shouldBe` Vector.fromList ([0, 1, 2] :: [Int])
-      LineString.toVector (LineString.makeLineString 0 1 [2, 4, 5]) `shouldBe` Vector.fromList ([0, 1, 2, 4, 5] :: [Int])
+      LineString.toVector (LineString.makeLineString 0 1 Vector.empty)                    `shouldBe` Vector.fromList ([0, 1] :: [Int])
+      LineString.toVector (LineString.makeLineString 0 1 (Vector.fromList [2]))           `shouldBe` Vector.fromList ([0, 1, 2] :: [Int])
+      LineString.toVector (LineString.makeLineString 0 1 (Vector.fromList [2, 4, 5, 0]))  `shouldBe` Vector.fromList ([0, 1, 2, 4, 5, 0] :: [Int])
 
 -- TODO
 -- (\xs -> safeLast (fromLineString xs) == Just (lineStringHead xs)) (xs :: LineString Int)
