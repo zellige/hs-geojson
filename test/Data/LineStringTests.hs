@@ -100,17 +100,17 @@ testCombineToVector :: Spec
 testCombineToVector =
   describe "combineToVector" $
     it "combine a LineString using tuples" $ do
-      LineString.combineToVector (,) (LineString.makeLineString 0 1 Vector.empty)                    `shouldBe` Vector.fromList ([(0, 1)] :: [(Int, Int)])
-      LineString.combineToVector (,) (LineString.makeLineString 0 1 (Vector.fromList [2]))           `shouldBe` Vector.fromList ([(0, 1), (1,2)] :: [(Int, Int)])
-      LineString.combineToVector (,) (LineString.makeLineString 0 1 (Vector.fromList [2, 4, 5, 0]))  `shouldBe` Vector.fromList ([(0, 1), (1, 2), (2, 4), (4, 5), (5,0)] :: [(Int, Int)])
+      LineString.combineToVector (,) (LineString.makeLineString 0 1 Vector.empty)                   `shouldBe` Vector.fromList ([(0, 1)] :: [(Int, Int)])
+      LineString.combineToVector (,) (LineString.makeLineString 0 1 (Vector.fromList [2]))          `shouldBe` Vector.fromList ([(0, 1), (1,2)] :: [(Int, Int)])
+      LineString.combineToVector (,) (LineString.makeLineString 0 1 (Vector.fromList [2, 4, 5, 0])) `shouldBe` Vector.fromList ([(0, 1), (1, 2), (2, 4), (4, 5), (5,0)] :: [(Int, Int)])
 
 testToVector :: Spec
 testToVector =
   describe "toVector" $
     it "from a LineString to a vector" $ do
-      LineString.toVector (LineString.makeLineString 0 1 Vector.empty)                    `shouldBe` Vector.fromList ([0, 1] :: [Int])
-      LineString.toVector (LineString.makeLineString 0 1 (Vector.fromList [2]))           `shouldBe` Vector.fromList ([0, 1, 2] :: [Int])
-      LineString.toVector (LineString.makeLineString 0 1 (Vector.fromList [2, 4, 5, 0]))  `shouldBe` Vector.fromList ([0, 1, 2, 4, 5, 0] :: [Int])
+      LineString.toVector (LineString.makeLineString 0 1 Vector.empty)                   `shouldBe` Vector.fromList ([0, 1] :: [Int])
+      LineString.toVector (LineString.makeLineString 0 1 (Vector.fromList [2]))          `shouldBe` Vector.fromList ([0, 1, 2] :: [Int])
+      LineString.toVector (LineString.makeLineString 0 1 (Vector.fromList [2, 4, 5, 0])) `shouldBe` Vector.fromList ([0, 1, 2, 4, 5, 0] :: [Int])
 
 -- TODO
 -- (\xs -> safeLast (fromLineString xs) == Just (lineStringHead xs)) (xs :: LineString Int)
