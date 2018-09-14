@@ -2,6 +2,7 @@
 
 module Arbitrary where
 
+import qualified Data.Vector           as Vector
 import           Test.Tasty.QuickCheck (Arbitrary, arbitrary)
 
 -- Local
@@ -14,3 +15,6 @@ instance (Arbitrary a, Eq a, Show a) => Arbitrary (LinearRing a) where
 
 instance (Arbitrary a, Eq a, Show a) => Arbitrary (LineString a) where
   arbitrary = makeLineString <$> arbitrary <*> arbitrary <*> arbitrary
+
+instance (Arbitrary a) => Arbitrary (Vector.Vector a) where
+  arbitrary = fmap Vector.fromList arbitrary

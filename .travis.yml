@@ -22,9 +22,10 @@ addons:
 # change flags or use --stack-yaml to point to a different file.
 # See list here -- https://www.stackage.org/snapshots
 env:
+- $RESOLVER="lts-7.24"
 - $RESOLVER="lts-9.21"
 - $RESOLVER="lts-11.22"
-- $RESOLVER="lts-12.8"
+- $RESOLVER="lts-12.9"
 
 before_install:
 # Download and unpack the stack executable -- https://docs.haskellstack.org/en/stable/travis_ci/?highlight=travis
