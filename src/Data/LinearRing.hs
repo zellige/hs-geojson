@@ -1,6 +1,5 @@
-{-# LANGUAGE CPP                       #-}
-{-# LANGUAGE ExistentialQuantification #-}
-{-# LANGUAGE NoImplicitPrelude         #-}
+{-# LANGUAGE CPP               #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 
 -------------------------------------------------------------------
 -- |
