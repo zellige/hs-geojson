@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveAnyClass  #-}
+{-# LANGUAGE DeriveGeneric   #-}
 {-# LANGUAGE TemplateHaskell #-}
 -------------------------------------------------------------------
 -- |
@@ -18,13 +20,15 @@ import           Data.Geospatial.Internal.BasicTypes
 import           Data.Geospatial.Internal.Geometry.Aeson
 import           Data.LineString
 
+import           Control.DeepSeq
 import           Control.Lens                            (makeLenses)
 import           Control.Monad                           (mzero)
 import           Data.Aeson                              (FromJSON (..),
                                                           ToJSON (..),
                                                           Value (..))
+import           GHC.Generics                            (Generic)
 
-newtype GeoLine = GeoLine { _unGeoLine :: LineString GeoPositionWithoutCRS } deriving (Show, Eq)
+newtype GeoLine = GeoLine { _unGeoLine :: LineString GeoPositionWithoutCRS } deriving (Show, Eq, Generic, NFData)
 
 makeLenses ''GeoLine
 

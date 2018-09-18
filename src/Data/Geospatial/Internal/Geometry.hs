@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveAnyClass    #-}
+{-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell   #-}
 -------------------------------------------------------------------
@@ -45,6 +47,7 @@ import           Data.Geospatial.Internal.Geometry.GeoPoint
 import           Data.Geospatial.Internal.Geometry.GeoPolygon
 
 import           Control.Applicative                               ((<$>))
+import           Control.DeepSeq
 import           Control.Lens                                      (makePrisms)
 import           Control.Monad                                     (mzero)
 import           Data.Aeson                                        (FromJSON (..),
@@ -55,6 +58,7 @@ import           Data.Aeson                                        (FromJSON (..
 import           Data.Aeson.Types                                  (Parser)
 import           Data.Text                                         (Text)
 import qualified Data.Vector                                       as Vector
+import           GHC.Generics                                      (Generic)
 
 
 -- | See section 2.1 /Geometry Objects/ in the GeoJSON Spec.
@@ -66,7 +70,7 @@ data GeospatialGeometry =
     |   MultiPolygon GeoMultiPolygon
     |   Line GeoLine
     |   MultiLine GeoMultiLine
-    |   Collection (Vector.Vector GeospatialGeometry) deriving (Show, Eq)
+    |   Collection (Vector.Vector GeospatialGeometry) deriving (Show, Eq, Generic, NFData)
 
 makePrisms ''GeospatialGeometry
 

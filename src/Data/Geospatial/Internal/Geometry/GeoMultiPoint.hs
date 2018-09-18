@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveAnyClass  #-}
+{-# LANGUAGE DeriveGeneric   #-}
 {-# LANGUAGE TemplateHaskell #-}
 -------------------------------------------------------------------
 -- |
@@ -20,12 +22,14 @@ import           Data.Geospatial.Internal.BasicTypes
 import           Data.Geospatial.Internal.Geometry.Aeson
 import           Data.Geospatial.Internal.Geometry.GeoPoint
 
+import           Control.DeepSeq
 import           Control.Lens                               (makeLenses)
 import           Control.Monad                              (mzero)
 import qualified Data.Aeson                                 as Aeson
 import qualified Data.Vector                                as Vector
+import           GHC.Generics                               (Generic)
 
-newtype GeoMultiPoint = GeoMultiPoint { _unGeoMultiPoint :: Vector.Vector GeoPositionWithoutCRS } deriving (Show, Eq)
+newtype GeoMultiPoint = GeoMultiPoint { _unGeoMultiPoint :: Vector.Vector GeoPositionWithoutCRS } deriving (Show, Eq, Generic, NFData)
 
 makeLenses ''GeoMultiPoint
 

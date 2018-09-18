@@ -1,6 +1,7 @@
 {-# LANGUAGE CPP               #-}
+{-# LANGUAGE DeriveAnyClass    #-}
+{-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE NoImplicitPrelude #-}
-
 -------------------------------------------------------------------
 -- |
 -- Module       : Data.LinearRing
@@ -38,6 +39,7 @@ import           Prelude
 #endif
 
 import           Control.Applicative (Applicative (..))
+import           Control.DeepSeq
 import           Control.Lens        (( # ), (^?))
 import           Control.Monad       (mzero)
 import           Data.Aeson          (FromJSON (..), ToJSON (..), Value)
@@ -49,11 +51,12 @@ import           Data.List.NonEmpty  as NL (NonEmpty, toList)
 import           Data.Traversable    (Traversable (..))
 import qualified Data.Validation     as Validation
 import qualified Data.Vector         as Vector
+import           GHC.Generics        (Generic)
 
 -- |
 -- a LinearRing has at least 3 (distinct) elements
 --
-data LinearRing a = LinearRing a a a (Vector.Vector a) deriving (Eq, Show)
+data LinearRing a = LinearRing a a a (Vector.Vector a) deriving (Eq, Show, Generic, NFData)
 
 -- |
 -- When converting a List to a LinearRing there are some things that can go wrong

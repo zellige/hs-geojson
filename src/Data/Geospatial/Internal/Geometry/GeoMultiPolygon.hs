@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveAnyClass  #-}
+{-# LANGUAGE DeriveGeneric   #-}
 {-# LANGUAGE TemplateHaskell #-}
 -------------------------------------------------------------------
 -- |
@@ -21,12 +23,14 @@ import           Data.Geospatial.Internal.Geometry.Aeson
 import           Data.Geospatial.Internal.Geometry.GeoPolygon as GeoPolygon
 import qualified Data.LinearRing                              as LinearRing
 
+import           Control.DeepSeq
 import           Control.Lens                                 (makeLenses)
 import           Control.Monad                                (mzero)
 import qualified Data.Aeson                                   as Aeson
 import qualified Data.Vector                                  as Vector
+import           GHC.Generics                                 (Generic)
 
-newtype GeoMultiPolygon = GeoMultiPolygon { _unGeoMultiPolygon :: Vector.Vector (Vector.Vector (LinearRing.LinearRing GeoPositionWithoutCRS)) } deriving (Show, Eq)
+newtype GeoMultiPolygon = GeoMultiPolygon { _unGeoMultiPolygon :: Vector.Vector (Vector.Vector (LinearRing.LinearRing GeoPositionWithoutCRS)) } deriving (Show, Eq, Generic, NFData)
 
 -- | Split GeoMultiPolygon coordinates into multiple GeoPolygons
 splitGeoMultiPolygon :: GeoMultiPolygon -> Vector.Vector GeoPolygon

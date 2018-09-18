@@ -1,5 +1,6 @@
+{-# LANGUAGE DeriveAnyClass  #-}
+{-# LANGUAGE DeriveGeneric   #-}
 {-# LANGUAGE TemplateHaskell #-}
-
 -------------------------------------------------------------------
 -- |
 -- Module       : Data.Geospatial.Internal.Geometry.GeoPoint
@@ -15,14 +16,16 @@ module Data.Geospatial.Internal.Geometry.GeoPoint (
     ,   retrieveXY
     ) where
 
+import           Control.DeepSeq
 import           Control.Lens                            (makeLenses)
 import           Control.Monad                           (mzero)
 import qualified Data.Aeson                              as Aeson
 import           Data.Geospatial.Internal.BasicTypes
 import           Data.Geospatial.Internal.Geometry.Aeson
+import           GHC.Generics                            (Generic)
 
 
-newtype GeoPoint = GeoPoint { _unGeoPoint :: GeoPositionWithoutCRS } deriving (Show, Eq)
+newtype GeoPoint = GeoPoint { _unGeoPoint :: GeoPositionWithoutCRS } deriving (Show, Eq, Generic, NFData)
 
 makeLenses ''GeoPoint
 

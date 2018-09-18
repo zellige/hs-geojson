@@ -36,6 +36,7 @@ module Data.Geospatial.Internal.BasicTypes (
     ,   FeatureID (..)
     ) where
 
+import           Control.DeepSeq
 import qualified Data.Aeson           as Aeson
 import qualified Data.Aeson.Types     as AesonTypes
 import qualified Data.Maybe           as DataMaybe
@@ -52,7 +53,7 @@ type Easting = Double
 type Northing = Double
 type Altitude = Double
 
-newtype DoubleArray = DoubleArray [Double] deriving (Eq, Show, Generic, Aeson.FromJSON, Aeson.ToJSON)
+newtype DoubleArray = DoubleArray [Double] deriving (Eq, Show, Generic, NFData, Aeson.FromJSON, Aeson.ToJSON)
 
 -- | (`GeoPositionWithoutCRS` is a catch all for indeterminate CRSs and for expression of positions
 -- before a CRS has been determined
@@ -60,22 +61,22 @@ newtype DoubleArray = DoubleArray [Double] deriving (Eq, Show, Generic, Aeson.Fr
 data PointXY = PointXY
     { _xyX :: !Double
     , _xyY :: !Double
-    } deriving (Show, Eq)
+    } deriving (Show, Eq, Generic, NFData)
 
 data PointXYZ = PointXYZ
     { _xyzX :: !Double
     , _xyzY :: !Double
     , _xyzZ :: !Double
-    } deriving (Show, Eq)
+    } deriving (Show, Eq, Generic, NFData)
 
 data PointXYZM = PointXYZM
     { _xyzmX :: !Double
     , _xyzmY :: !Double
     , _xyzmZ :: !Double
     , _xyzmM :: !Double
-    } deriving (Show, Eq)
+    } deriving (Show, Eq, Generic, NFData)
 
-data GeoPositionWithoutCRS = GeoEmpty | GeoPointXY PointXY | GeoPointXYZ PointXYZ | GeoPointXYZM PointXYZM deriving (Show, Eq)
+data GeoPositionWithoutCRS = GeoEmpty | GeoPointXY PointXY | GeoPointXYZ PointXYZ | GeoPointXYZM PointXYZM deriving (Show, Eq, Generic, NFData)
 
 _toDoubleArray :: GeoPositionWithoutCRS -> [Double]
 _toDoubleArray GeoEmpty                           = []
@@ -154,7 +155,7 @@ type ProjectionType = Text.Text
 
 data FeatureID =
         FeatureIDText Text.Text
-    |   FeatureIDNumber Int deriving (Show, Eq)
+    |   FeatureIDNumber Int deriving (Show, Eq, Generic, NFData)
 
 instance Aeson.FromJSON FeatureID where
     parseJSON (Aeson.Number nID) =
@@ -178,7 +179,7 @@ instance Aeson.ToJSON FeatureID where
 -- e.g for WGS84: minLongitude, minLatitude, maxLongitude, maxLatitude
 -- The spec mentions that it can be part of a geometry object too but doesnt give an example,
 -- This implementation will ignore bboxes on Geometry objects, they can be added if required.
-newtype BoundingBoxWithoutCRS = BoundingBoxWithoutCRS { unBoundingBoxWithoutCrs :: VectorStorable.Vector Double } deriving (Eq, Show)
+newtype BoundingBoxWithoutCRS = BoundingBoxWithoutCRS { unBoundingBoxWithoutCrs :: VectorStorable.Vector Double } deriving (Eq, Show, Generic, NFData)
 
 instance Aeson.FromJSON BoundingBoxWithoutCRS where
     parseJSON obj = do

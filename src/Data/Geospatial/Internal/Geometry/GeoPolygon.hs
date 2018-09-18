@@ -1,5 +1,6 @@
+{-# LANGUAGE DeriveAnyClass  #-}
+{-# LANGUAGE DeriveGeneric   #-}
 {-# LANGUAGE TemplateHaskell #-}
-
 -------------------------------------------------------------------
 -- |
 -- Module       : Data.Geospatial.Internal.Geometry.GeoPolygon
@@ -15,6 +16,7 @@ module Data.Geospatial.Internal.Geometry.GeoPolygon (
     ,   unGeoPolygon
     ) where
 
+import           Control.DeepSeq
 import           Control.Lens                            (makeLenses)
 import           Control.Monad                           (mzero)
 import qualified Data.Aeson                              as Aeson
@@ -22,8 +24,9 @@ import           Data.Geospatial.Internal.BasicTypes
 import           Data.Geospatial.Internal.Geometry.Aeson
 import qualified Data.LinearRing                         as LinearRing
 import qualified Data.Vector                             as Vector
+import           GHC.Generics                            (Generic)
 
-newtype GeoPolygon = GeoPolygon { _unGeoPolygon :: Vector.Vector (LinearRing.LinearRing GeoPositionWithoutCRS) } deriving (Show, Eq)
+newtype GeoPolygon = GeoPolygon { _unGeoPolygon :: Vector.Vector (LinearRing.LinearRing GeoPositionWithoutCRS) } deriving (Show, Eq, Generic, NFData)
 
 -- Vector.Vector (LinearRing.LinearRing DoubleArray)
 

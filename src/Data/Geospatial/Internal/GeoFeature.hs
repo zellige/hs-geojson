@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveAnyClass    #-}
+{-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell   #-}
@@ -29,6 +31,7 @@ import           Data.Geospatial.Internal.Geometry
 import           Data.Geospatial.Internal.Geometry.Aeson
 
 import           Control.Applicative                     ((<$>), (<*>))
+import           Control.DeepSeq
 import           Control.Lens                            (makeLenses)
 import           Control.Monad                           (mzero)
 import           Data.Aeson                              (FromJSON (..),
@@ -38,6 +41,7 @@ import           Data.Aeson                              (FromJSON (..),
 import           Data.List                               ((++))
 import           Data.Maybe                              (Maybe)
 import           Data.Text                               (Text)
+import           GHC.Generics                            (Generic)
 import           Prelude                                 (Eq (..), Show, ($))
 
 -- | See Section 2.2 /Feature Objects/ of the GeoJSON spec.
@@ -46,7 +50,7 @@ data GeoFeature a = GeoFeature {
     _bbox       :: Maybe BoundingBoxWithoutCRS,
     _geometry   :: GeospatialGeometry,
     _properties :: a,
-    _featureId  :: Maybe FeatureID } deriving (Show, Eq)
+    _featureId  :: Maybe FeatureID } deriving (Show, Eq, Generic, NFData)
 
 reWrapGeometry :: GeoFeature a -> GeospatialGeometry -> GeoFeature a
 reWrapGeometry (GeoFeature bbox _ props fId) geom = GeoFeature bbox geom props fId

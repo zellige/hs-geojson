@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveAnyClass    #-}
+{-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 -------------------------------------------------------------------
 -- |
@@ -31,6 +33,7 @@ module Data.LineString (
 import           Prelude             hiding (foldr)
 
 import           Control.Applicative (Applicative (..))
+import           Control.DeepSeq
 import           Control.Lens        (( # ), (^?))
 import           Control.Monad       (mzero)
 import           Data.Aeson          (FromJSON (..), ToJSON (..), Value)
@@ -42,11 +45,12 @@ import           Data.Traversable    (Traversable (..))
 import           Data.Validation     (Validate (..), Validation, _Failure,
                                       _Success)
 import qualified Data.Vector         as Vector
+import           GHC.Generics        (Generic)
 
 -- |
 -- a LineString has at least 2 elements
 --
-data LineString a = LineString a a (Vector.Vector a)  deriving (Eq)
+data LineString a = LineString a a (Vector.Vector a)  deriving (Eq, Generic, NFData)
 
 -- |
 -- When converting a List to a LineString, here is a list of things that can go wrong:
