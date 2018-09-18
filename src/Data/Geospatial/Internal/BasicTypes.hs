@@ -43,7 +43,6 @@ import qualified Data.Maybe           as DataMaybe
 import qualified Data.Scientific      as Scientific
 import qualified Data.Text            as Text
 import qualified Data.Vector.Storable as VectorStorable
-import qualified Data.Word            as DataWord
 import           Foreign.Storable
 import           GHC.Generics
 
