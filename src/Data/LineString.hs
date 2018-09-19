@@ -40,12 +40,8 @@ import           Control.Lens         (( # ), (^?))
 import           Control.Monad        (mzero)
 import           Data.Aeson           (FromJSON (..), ToJSON (..), Value)
 import           Data.Aeson.Types     (Parser, typeMismatch)
-import           Data.Foldable        (Foldable (..))
-import           Data.Functor         ((<$>))
 import           Data.Maybe           (fromMaybe)
-import           Data.Traversable     (Traversable (..))
 import qualified Data.Validation      as Validation
-import qualified Data.Vector          as Vector
 import qualified Data.Vector.Storable as VectorStorable
 import           GHC.Generics         (Generic)
 

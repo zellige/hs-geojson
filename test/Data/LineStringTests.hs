@@ -1,8 +1,6 @@
 module Data.LineStringTests where
 
-import qualified Data.Foldable                       as Foldable
 import           Data.Validation                     (Validation (..))
-import qualified Data.Vector                         as Vector
 import qualified Data.Vector.Storable                as VectorStorable
 import           Test.Tasty
 import           Test.Tasty.Hspec                    (Spec, context, describe,
