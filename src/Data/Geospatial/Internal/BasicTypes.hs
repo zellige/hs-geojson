@@ -112,9 +112,11 @@ instance Aeson.FromJSON GeoPositionWithoutCRS where
 
 sizeOfDouble :: Int
 sizeOfDouble = sizeOf (undefined :: Double)
+{-# INLINE sizeOfDouble #-}
 
 alignmentOfDouble :: Int
 alignmentOfDouble = alignment (undefined :: Double)
+{-# INLINE alignmentOfDouble #-}
 
 instance VectorStorable.Storable PointXY where
   sizeOf _ = 2 * sizeOfDouble
