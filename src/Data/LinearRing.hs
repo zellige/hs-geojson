@@ -28,35 +28,36 @@ module Data.LinearRing (
     ,   fromList
     ,   fromListWithEqCheck
     ,   makeLinearRing
+    ,   Data.LinearRing.map
+    ,   Data.LinearRing.foldr
+    ,   Data.LinearRing.foldMap
     ,   ringHead
     ,   ringLength
     ) where
 
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 800
-import           Prelude             hiding (foldr)
+import           Prelude              hiding (foldr)
 #else
 import           Prelude
 #endif
 
-import           Control.Applicative (Applicative (..))
+import           Control.Applicative  (Applicative (..))
 import           Control.DeepSeq
-import           Control.Lens        (( # ), (^?))
-import           Control.Monad       (mzero)
-import           Data.Aeson          (FromJSON (..), ToJSON (..), Value)
-import           Data.Aeson.Types    (Parser, typeMismatch)
-import           Data.Foldable       (Foldable (..))
-import           Data.Functor        ((<$>))
-import           Data.List           (intercalate)
-import           Data.List.NonEmpty  as NL (NonEmpty, toList)
-import           Data.Traversable    (Traversable (..))
-import qualified Data.Validation     as Validation
-import qualified Data.Vector         as Vector
-import           GHC.Generics        (Generic)
+import           Control.Lens         (( # ), (^?))
+import           Control.Monad        (mzero)
+import           Data.Aeson           (FromJSON (..), ToJSON (..), Value)
+import           Data.Aeson.Types     (Parser, typeMismatch)
+import           Data.Functor         ((<$>))
+import           Data.List            (intercalate)
+import           Data.List.NonEmpty   as NL (NonEmpty, toList)
+import qualified Data.Validation      as Validation
+import qualified Data.Vector.Storable as VectorStorable
+import           GHC.Generics         (Generic)
 
 -- |
 -- a LinearRing has at least 3 (distinct) elements
 --
-data LinearRing a = LinearRing a a a (Vector.Vector a) deriving (Eq, Show, Generic, NFData)
+data LinearRing a = LinearRing a a a (VectorStorable.Vector a) deriving (Eq, Show, Generic, NFData)
 
 -- |
 -- When converting a List to a LinearRing there are some things that can go wrong
@@ -92,14 +93,14 @@ ringHead (LinearRing x _ _ _)   = x
 -- |
 -- returns the number of elements in the list, including the replicated element at the end of the list.
 --
-ringLength :: LinearRing a -> Int
-ringLength (LinearRing _ _ _ xs) = 4 + Vector.length xs
+ringLength :: (VectorStorable.Storable a) => LinearRing a -> Int
+ringLength (LinearRing _ _ _ xs) = 4 + VectorStorable.length xs
 
 -- |
 -- This function converts it into a list and appends the given element to the end.
 --
-fromLinearRing :: LinearRing a -> [a]
-fromLinearRing (LinearRing x y z ws) = x : y : z : Vector.foldr (:) [x] ws
+fromLinearRing :: (VectorStorable.Storable a) => LinearRing a -> [a]
+fromLinearRing (LinearRing x y z ws) = x : y : z : VectorStorable.foldr (:) [x] ws
 
 -- |
 -- creates a LinearRing out of a list of elements,
@@ -118,7 +119,7 @@ fromLinearRing (LinearRing x y z ws) = x : y : z : Vector.foldr (:) [x] ws
 --
 -- Unfortunately it doesn't check that the last element is the same as the first at the moment...
 --
-fromList :: (Eq a, Show a, Validation.Validate v, Functor (v (NonEmpty (ListToLinearRingError a)))) => [a] -> v (NonEmpty (ListToLinearRingError a)) (LinearRing a)
+fromList :: (Eq a, Show a, VectorStorable.Storable a, Validation.Validate v, Functor (v (NonEmpty (ListToLinearRingError a)))) => [a] -> v (NonEmpty (ListToLinearRingError a)) (LinearRing a)
 fromList (x:y:z:ws@(_:_)) = Validation._Success # LinearRing x y z (fromListDropLast ws)
 fromList xs               = Validation._Failure # pure (ListTooShort (length xs))
 
@@ -126,29 +127,29 @@ fromList xs               = Validation._Failure # pure (ListTooShort (length xs)
 -- The expensive version of fromList that checks whether the head and last elements
 -- are equal.
 --
-fromListWithEqCheck :: (Eq a, Show a, Validation.Validate v, Applicative (v (NonEmpty (ListToLinearRingError a)))) => [a] -> v (NonEmpty (ListToLinearRingError a)) (LinearRing a)
+fromListWithEqCheck :: (Eq a, Show a, VectorStorable.Storable a, Validation.Validate v, Applicative (v (NonEmpty (ListToLinearRingError a)))) => [a] -> v (NonEmpty (ListToLinearRingError a)) (LinearRing a)
 fromListWithEqCheck xs = checkHeadAndLastEq xs *> fromList xs
 
 -- |
 -- create a vector from a LinearRing by combining values.
--- LineString 1 2 3 [4,1] (,) --> Vector [(1,2),(2,3),(3,4),(4,1)]
+-- LinearRing 1 2 3 [4,1] (,) --> Vector [(1,2),(2,3),(3,4),(4,1)]
 --
-combineToVector :: (a -> a -> b) -> LinearRing a -> Vector.Vector b
-combineToVector combine (LinearRing a b c rest) = Vector.cons (combine a b) (Vector.cons (combine b c) combineRest)
+combineToVector :: (VectorStorable.Storable a, VectorStorable.Storable b) => (a -> a -> b) -> LinearRing a -> VectorStorable.Vector b
+combineToVector combine (LinearRing a b c rest) = VectorStorable.cons (combine a b) (VectorStorable.cons (combine b c) combineRest)
     where
         combineRest =
-          if Vector.null rest
+          if VectorStorable.null rest
             then
-              Vector.empty
+              VectorStorable.empty
             else
-              (Vector.zipWith combine <*> Vector.tail) (Vector.cons c rest)
+              (VectorStorable.zipWith combine <*> VectorStorable.tail) (VectorStorable.cons c rest)
 
 -- |
 -- create a vector from a LinearRing.
--- LineString 1 2 3 [4,1] --> Vector [1,2,3,4,1)]
+-- LinearRing 1 2 3 [4,1] --> Vector [1,2,3,4,1)]
 --
-toVector :: LinearRing a -> Vector.Vector a
-toVector (LinearRing a b c rest) = Vector.cons a (Vector.cons b (Vector.cons c rest))
+toVector :: (VectorStorable.Storable a) => LinearRing a -> VectorStorable.Vector a
+toVector (LinearRing a b c rest) = VectorStorable.cons a (VectorStorable.cons b (VectorStorable.cons c rest))
 
 -- |
 -- creates a LinearRing out of a vector of elements,
@@ -157,15 +158,15 @@ toVector (LinearRing a b c rest) = Vector.cons a (Vector.cons b (Vector.cons c r
 -- fromVector (x:y:z:ws@(_:_)) = _Success # LinearRing x y z (fromListDropLast ws)
 -- fromList xs               = _Failure # return (ListTooShort (length xs))
 
-fromVector :: (Eq a, Show a, Validation.Validate v, Functor (v (NonEmpty (ListToLinearRingError a)))) => Vector.Vector a -> v (NonEmpty (VectorToLinearRingError a)) (LinearRing a)
+fromVector :: (Eq a, Show a, VectorStorable.Storable a, Validation.Validate v, Functor (v (NonEmpty (ListToLinearRingError a)))) => VectorStorable.Vector a -> v (NonEmpty (VectorToLinearRingError a)) (LinearRing a)
 fromVector v =
-  if Vector.length v >= 3 then
-    if Vector.head v == Vector.last v then
-        Validation._Success # LinearRing (Vector.unsafeIndex v 0) (Vector.unsafeIndex v 1) (Vector.unsafeIndex v 2) (Vector.drop 3 v)
+  if VectorStorable.length v >= 3 then
+    if VectorStorable.head v == VectorStorable.last v then
+        Validation._Success # LinearRing (VectorStorable.unsafeIndex v 0) (VectorStorable.unsafeIndex v 1) (VectorStorable.unsafeIndex v 2) (VectorStorable.drop 3 v)
     else
-        Validation._Failure # pure (FirstNotEqualToLast (Vector.head v) (Vector.last v))
+        Validation._Failure # pure (FirstNotEqualToLast (VectorStorable.head v) (VectorStorable.last v))
   else
-    Validation._Failure # pure (VectorTooShort (Vector.length v))
+    Validation._Failure # pure (VectorTooShort (VectorStorable.length v))
 
 -- |
 -- Creates a LinearRing
@@ -175,47 +176,54 @@ fromVector v =
 --
 -- Repeating the first element is just redundant.
 --
-makeLinearRing :: (Eq a, Show a) =>
-       a                -- ^ The first element
-    -> a                -- ^ The second element
-    -> a                -- ^ The third element
-    -> Vector.Vector a  -- ^ The rest of the optional elements (WITHOUT the first element repeated at the end)
+makeLinearRing :: (Eq a, Show a, VectorStorable.Storable a) =>
+       a                        -- ^ The first element
+    -> a                        -- ^ The second element
+    -> a                        -- ^ The third element
+    -> VectorStorable.Vector a  -- ^ The rest of the optional elements (WITHOUT the first element repeated at the end)
     -> LinearRing a
 makeLinearRing = LinearRing
 
 -- instances
 
-instance (Show a) => Show (ListToLinearRingError a) where
+instance (Show a, VectorStorable.Storable a) => Show (ListToLinearRingError a) where
     show (ListTooShort n) = "List too short: (length = " ++ show n ++ ")"
     show (HeadNotEqualToLast h l) = "head (" ++ show h ++ ") /= last(" ++ show l ++ ")"
 
-instance (Show a) => Show (VectorToLinearRingError a) where
+instance (Show a, VectorStorable.Storable a) => Show (VectorToLinearRingError a) where
     show (VectorTooShort n) = "Vector too short: (length = " ++ show n ++ ")"
     show (FirstNotEqualToLast h l) = "head (" ++ show h ++ ") /= last(" ++ show l ++ ")"
 
-instance Functor LinearRing where
-     fmap f (LinearRing x y z ws) = LinearRing (f x) (f y) (f z) (Vector.map f ws)
+-- instance Functor LinearRing where
+--      fmap f (LinearRing x y z ws) = LinearRing (f x) (f y) (f z) (Vector.map f ws)
+map :: (VectorStorable.Storable a, VectorStorable.Storable b) => (a -> b) -> LinearRing a -> LinearRing b
+map f (LinearRing x y z ws) = LinearRing (f x) (f y) (f z) (VectorStorable.map f ws)
+
 
 -- | This instance of Foldable will run through the entire ring, closing the
 -- loop by also passing the initial element in again at the end.
 --
-instance Foldable LinearRing where
---  foldr :: (a -> b -> b) -> b -> LinearRing a -> b
-    foldr f u (LinearRing x y z ws) = f x (f y (f z (Vector.foldr f (f x u) ws)))
+-- instance Foldable LinearRing where
+-- --  foldr :: (a -> b -> b) -> b -> LinearRing a -> b
+foldr :: VectorStorable.Storable a => (a -> t2 -> t2) -> t2 -> LinearRing a -> t2
+foldr f u (LinearRing x y z ws) = f x (f y (f z (VectorStorable.foldr f (f x u) ws)))
+
+foldMap :: (Monoid m, VectorStorable.Storable a) => (a -> m) -> LinearRing a -> m
+foldMap f = foldr (mappend . f) mempty
 
 -- |
 -- When traversing this Structure, the Applicative context
 -- of the last element will be appended to the end to close the loop
 --
-instance Traversable LinearRing where
--- --  sequenceA :: (Traversable t, Applicative f) => t (f a) -> f (t a)
-    sequenceA (LinearRing fx fy fz fws) = (LinearRing <$> fx <*> fy <*> fz <*> sequenceA fws) <* fx
+-- instance Traversable LinearRing where
+-- -- --  sequenceA :: (Traversable t, Applicative f) => t (f a) -> f (t a)
+--     sequenceA (LinearRing fx fy fz fws) = (LinearRing <$> fx <*> fy <*> fz <*> sequenceA fws) <* fx
 
-instance ToJSON a => ToJSON (LinearRing a) where
+instance (ToJSON a, VectorStorable.Storable a) => ToJSON (LinearRing a) where
 --  toJSON :: a -> Value
     toJSON = toJSON . fromLinearRing
 
-instance (Eq a, FromJSON a, Show a) => FromJSON (LinearRing a) where
+instance (Eq a, FromJSON a, Show a, VectorStorable.Storable a) => FromJSON (LinearRing a) where
 --  parseJSON :: Value -> Parser a
     parseJSON v = do
         xs <- parseJSON v
@@ -224,17 +232,17 @@ instance (Eq a, FromJSON a, Show a) => FromJSON (LinearRing a) where
 
 -- helpers
 
-fromListAcc :: (Eq a, Show a) => [a] -> Validation.Validation (NonEmpty (ListToLinearRingError a)) (LinearRing a)
+fromListAcc :: (Eq a, Show a, VectorStorable.Storable a) => [a] -> Validation.Validation (NonEmpty (ListToLinearRingError a)) (LinearRing a)
 fromListAcc = fromList
 
-showErrors :: (Show a) => NonEmpty (ListToLinearRingError a) -> String
+showErrors :: (Show a, VectorStorable.Storable a) => NonEmpty (ListToLinearRingError a) -> String
 showErrors = intercalate ", " . NL.toList . fmap show
 
-parseError :: (Show a) => Value -> Maybe (NonEmpty (ListToLinearRingError a)) -> Parser b
+parseError :: (Show a, VectorStorable.Storable a) => Value -> Maybe (NonEmpty (ListToLinearRingError a)) -> Parser b
 parseError v = maybe mzero (\e -> typeMismatch (showErrors e) v)
 
 checkHeadAndLastEq
-    :: (Eq a, Validation.Validate v, Functor (v (NonEmpty (ListToLinearRingError a))))
+    :: (Eq a, VectorStorable.Storable a, Validation.Validate v, Functor (v (NonEmpty (ListToLinearRingError a))))
     => [a]
     -> v (NonEmpty (ListToLinearRingError a)) ()
 checkHeadAndLastEq = maybe (Validation._Failure # pure (ListTooShort 0)) (\(h, l) -> if h == l then Validation._Success # () else Validation._Failure # pure (HeadNotEqualToLast h l)) . mhl
@@ -251,7 +259,7 @@ safeLast []     = Nothing
 safeLast [x]    = Just x
 safeLast (_:xs) = safeLast xs
 
-fromListDropLast :: Eq a => [a] -> Vector.Vector a
-fromListDropLast []  = Vector.empty
-fromListDropLast [_] = Vector.empty
-fromListDropLast x   = Vector.unsafeInit $ Vector.fromList x
+fromListDropLast :: (Eq a, VectorStorable.Storable a) => [a] -> VectorStorable.Vector a
+fromListDropLast []  = VectorStorable.empty
+fromListDropLast [_] = VectorStorable.empty
+fromListDropLast x   = VectorStorable.unsafeInit $ VectorStorable.fromList x

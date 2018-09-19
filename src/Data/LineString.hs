@@ -26,6 +26,8 @@ module Data.LineString (
     ,   fromLineString
     ,   fromList
     ,   Data.LineString.map
+    ,   Data.LineString.foldr
+    ,   Data.LineString.foldMap
     ,   makeLineString
     ,   lineStringHead
     ,   lineStringLast
@@ -150,8 +152,8 @@ fromVector' first v =
 -- Creates a LineString
 -- @makeLineString x y zs@ creates a `LineString` homomorphic to the list @[x, y] ++ zs@
 --
-makeLineString
-    :: a                        -- ^ The first element
+makeLineString :: (VectorStorable.Storable a) =>
+       a                        -- ^ The first element
     -> a                        -- ^ The second element
     -> VectorStorable.Vector a  -- ^ The rest of the optional elements
     -> LineString a
@@ -172,6 +174,8 @@ instance (Show a, VectorStorable.Storable a) => Show (LineString a) where
 
 -- instance Functor LineString where
 --     fmap f (LineString x y zs) = LineString (f x) (f y) (VectorStorable.map f zs)
+map :: (VectorStorable.Storable a, VectorStorable.Storable b) => (a -> b) -> LineString a -> LineString b
+map f (LineString x y zs) = LineString (f x) (f y) (VectorStorable.map f zs)
 
 -- | This instance of Foldable will run through the entire ring, closing the
 -- loop by also passing the initial element in again at the end.
@@ -179,8 +183,11 @@ instance (Show a, VectorStorable.Storable a) => Show (LineString a) where
 -- instance Foldable LineString where
 --  foldr :: (a -> b -> b) -> b -> LineString a -> b
     -- foldr f u (LineString x y zs) = f x (f y (VectorStorable.foldr f u zs))
-map :: (VectorStorable.Storable a, VectorStorable.Storable b) => (a -> b) -> LineString a -> LineString b
-map f (LineString x y zs) = LineString (f x) (f y) (VectorStorable.map f zs)
+foldr :: (VectorStorable.Storable a) => (a -> t2 -> t2) -> t2 -> LineString a -> t2
+foldr f u (LineString x y zs) = f x (f y (VectorStorable.foldr f u zs))
+
+foldMap :: (Monoid m, VectorStorable.Storable a) => (a -> m) -> LineString a -> m
+foldMap f = foldr (mappend . f) mempty
 
 -- instance Traversable LineString where
 --  sequenceA :: (Traversable t, Applicative f) => t (f a) -> f (t a)
