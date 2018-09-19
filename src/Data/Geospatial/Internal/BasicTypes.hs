@@ -93,7 +93,7 @@ _toGeoPoint _                          = Nothing
 retrieveXY :: GeoPositionWithoutCRS -> PointXY
 retrieveXY position =
   case position of
-    GeoEmpty                             -> undefined -- maybe represent this like WKB - NaN value
+    GeoEmpty                             -> undefined -- TODO - Fix - represent this like WKB - NaN value
     (GeoPointXY p)                       -> p
     (GeoPointXYZ (PointXYZ pX pY _))     -> PointXY pX pY
     (GeoPointXYZM (PointXYZM pX pY _ _)) -> PointXY pX pY
