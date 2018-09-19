@@ -116,6 +116,14 @@ sizeOfDouble = sizeOf (undefined :: Double)
 alignmentOfDouble :: Int
 alignmentOfDouble = alignment (undefined :: Double)
 
+instance VectorStorable.Storable PointXY where
+  sizeOf _ = 2 * sizeOfDouble
+  alignment _ = alignmentOfDouble
+  {-# INLINE peek #-}
+  peek p = PointXY <$> peekByteOff p 0 <*> peekByteOff p (1 * sizeOfDouble)
+  {-# INLINE poke #-}
+  poke p (PointXY x y) = pokeByteOff p 0 x  *> pokeByteOff p (1 * sizeOfDouble) y
+
 instance VectorStorable.Storable GeoPositionWithoutCRS where
   sizeOf _ = 5 * sizeOfDouble
   alignment _ = alignmentOfDouble

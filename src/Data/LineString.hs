@@ -1,6 +1,7 @@
-{-# LANGUAGE DeriveAnyClass    #-}
-{-# LANGUAGE DeriveGeneric     #-}
-{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE DeriveAnyClass            #-}
+{-# LANGUAGE DeriveGeneric             #-}
+{-# LANGUAGE ExistentialQuantification #-}
+{-# LANGUAGE NoImplicitPrelude         #-}
 -------------------------------------------------------------------
 -- |
 -- Module       : Data.LineString
@@ -30,27 +31,27 @@ module Data.LineString (
     ,   lineStringLength
     ) where
 
-import           Prelude             hiding (foldr)
+import           Prelude              hiding (foldr)
 
-import           Control.Applicative (Applicative (..))
+import           Control.Applicative  (Applicative (..))
 import           Control.DeepSeq
-import           Control.Lens        (( # ), (^?))
-import           Control.Monad       (mzero)
-import           Data.Aeson          (FromJSON (..), ToJSON (..), Value)
-import           Data.Aeson.Types    (Parser, typeMismatch)
-import           Data.Foldable       (Foldable (..))
-import           Data.Functor        ((<$>))
-import           Data.Maybe          (fromMaybe)
-import           Data.Traversable    (Traversable (..))
-import           Data.Validation     (Validate (..), Validation, _Failure,
-                                      _Success)
-import qualified Data.Vector         as Vector
-import           GHC.Generics        (Generic)
+import           Control.Lens         (( # ), (^?))
+import           Control.Monad        (mzero)
+import           Data.Aeson           (FromJSON (..), ToJSON (..), Value)
+import           Data.Aeson.Types     (Parser, typeMismatch)
+import           Data.Foldable        (Foldable (..))
+import           Data.Functor         ((<$>))
+import           Data.Maybe           (fromMaybe)
+import           Data.Traversable     (Traversable (..))
+import qualified Data.Validation      as Validation
+import qualified Data.Vector          as Vector
+import qualified Data.Vector.Storable as VectorStorable
+import           GHC.Generics         (Generic)
 
 -- |
 -- a LineString has at least 2 elements
 --
-data LineString a = LineString a a (Vector.Vector a)  deriving (Eq, Generic, NFData)
+data LineString a = LineString a a (VectorStorable.Vector a) deriving (Eq, Generic, NFData)
 
 -- |
 -- When converting a List to a LineString, here is a list of things that can go wrong:
@@ -85,77 +86,77 @@ lineStringHead (LineString x _ _) = x
 -- |
 -- returns the last element in the string
 --
-lineStringLast :: LineString a -> a
+lineStringLast :: (VectorStorable.Storable a) => LineString a -> a
 lineStringLast (LineString _ x xs) = fromMaybe x (safeLast xs)
 
 -- |
 -- returns the number of elements in the list, including the replicated element at the end of the list.
 --
-lineStringLength :: LineString a -> Int
-lineStringLength (LineString _ _ xs) = 2 + length xs
+lineStringLength :: (VectorStorable.Storable a) => LineString a -> Int
+lineStringLength (LineString _ _ xs) = 2 + VectorStorable.length xs
 
 -- |
 -- This function converts it into a list and appends the given element to the end.
 --
-fromLineString :: LineString a -> [a]
-fromLineString (LineString x y zs) = x : y : Vector.toList zs
+fromLineString :: (VectorStorable.Storable a) => LineString a -> [a]
+fromLineString (LineString x y zs) = x : y : VectorStorable.toList zs
 
 -- |
 -- creates a LineString out of a list of elements,
 -- if there are enough elements (needs at least 2) elements
 --
-fromList :: (Validate v) => [a] -> v ListToLineStringError (LineString a)
-fromList []       = _Failure # ListEmpty
-fromList [_]      = _Failure # SingletonList
-fromList (x:y:zs) = _Success # LineString x y (Vector.fromList zs)
+fromList :: (Validation.Validate v, VectorStorable.Storable a) => [a] -> v ListToLineStringError (LineString a)
+fromList []       = Validation._Failure # ListEmpty
+fromList [_]      = Validation._Failure # SingletonList
+fromList (x:y:zs) = Validation._Success # LineString x y (VectorStorable.fromList zs)
 
 -- |
 -- create a vector from a LineString by combining values.
 -- LineString 1 2 [3,4] (,) --> Vector [(1,2),(2,3),(3,4)]
 --
-combineToVector :: (a -> a -> b) -> LineString a -> Vector.Vector b
-combineToVector combine (LineString a b rest) = Vector.cons (combine a b) combineRest
+combineToVector :: (VectorStorable.Storable a, VectorStorable.Storable b) => (a -> a -> b) -> LineString a -> VectorStorable.Vector b
+combineToVector combine (LineString a b rest) = VectorStorable.cons (combine a b) combineRest
     where
         combineRest =
-          if Vector.null rest
+          if VectorStorable.null rest
             then
-              Vector.empty
+              VectorStorable.empty
             else
-              (Vector.zipWith combine <*> Vector.tail) (Vector.cons b rest)
+              (VectorStorable.zipWith combine <*> VectorStorable.tail) (VectorStorable.cons b rest)
 
 -- |
 -- create a vector from a LineString.
 -- LineString 1 2 [3,4] --> Vector [1,2,3,4]
 --
-toVector :: LineString a -> Vector.Vector a
-toVector (LineString a b rest) = Vector.cons a (Vector.cons b rest)
+toVector :: (VectorStorable.Storable a) => LineString a -> VectorStorable.Vector a
+toVector (LineString a b rest) = VectorStorable.cons a (VectorStorable.cons b rest)
 
 -- |
 -- creates a LineString out of a vector of elements,
 -- if there are enough elements (needs at least 2) elements
 --
-fromVector :: (Validate v) => Vector.Vector a -> v VectorToLineStringError (LineString a)
+fromVector :: (Validation.Validate v, VectorStorable.Storable a) => VectorStorable.Vector a -> v VectorToLineStringError (LineString a)
 fromVector v =
-  if Vector.null v then
-    _Failure # VectorEmpty
+  if VectorStorable.null v then
+    Validation._Failure # VectorEmpty
   else
-    fromVector' (Vector.head v) (Vector.tail v)
+    fromVector' (VectorStorable.head v) (VectorStorable.tail v)
 
-fromVector' :: (Validate v) => a -> Vector.Vector a -> v VectorToLineStringError (LineString a)
+fromVector' :: (Validation.Validate v, VectorStorable.Storable a) => a -> VectorStorable.Vector a -> v VectorToLineStringError (LineString a)
 fromVector' first v =
-  if Vector.null v then
-    _Failure # SingletonVector
+  if VectorStorable.null v then
+    Validation._Failure # SingletonVector
   else
-    _Success # LineString first (Vector.head v) (Vector.tail v)
+    Validation._Success # LineString first (VectorStorable.head v) (VectorStorable.tail v)
 
 -- |
 -- Creates a LineString
 -- @makeLineString x y zs@ creates a `LineString` homomorphic to the list @[x, y] ++ zs@
 --
 makeLineString
-    :: a                -- ^ The first element
-    -> a                -- ^ The second element
-    -> Vector.Vector a  -- ^ The rest of the optional elements
+    :: a                        -- ^ The first element
+    -> a                        -- ^ The second element
+    -> VectorStorable.Vector a  -- ^ The rest of the optional elements
     -> LineString a
 makeLineString = LineString
 
@@ -169,41 +170,41 @@ instance Show VectorToLineStringError where
   show VectorEmpty     = "Vector Empty"
   show SingletonVector = "Singleton Vector"
 
-instance (Show a) => Show (LineString a) where
+instance (Show a, VectorStorable.Storable a) => Show (LineString a) where
     show  = show . fromLineString
 
-instance Functor LineString where
-    fmap f (LineString x y zs) = LineString (f x) (f y) (fmap f zs)
+-- instance Functor LineString where
+--     fmap f (LineString x y zs) = LineString (f x) (f y) (VectorStorable.map f zs)
 
 -- | This instance of Foldable will run through the entire ring, closing the
 -- loop by also passing the initial element in again at the end.
 --
-instance Foldable LineString where
---  foldr :: (a -> b -> b) -> b -> LineString a -> b
-    foldr f u (LineString x y zs) = f x (f y (foldr f u zs))
+-- instance Foldable LineString where
+-- --  foldr :: (a -> b -> b) -> b -> LineString a -> b
+--     foldr f u (LineString x y zs) = f x (f y (VectorStorable.foldr f u zs))
 
-instance Traversable LineString where
+-- instance Traversable LineString where
 --  sequenceA :: (Traversable t, Applicative f) => t (f a) -> f (t a)
-    sequenceA (LineString fx fy fzs) = LineString <$> fx <*> fy <*> sequenceA fzs
+    -- sequenceA (LineString fx fy fzs) = LineString <$> fx <*> fy <*> sequenceA fzs
 
-instance (ToJSON a) => ToJSON (LineString a) where
+instance (ToJSON a, VectorStorable.Storable a) => ToJSON (LineString a) where
 --  toJSON :: a -> Value
     toJSON = toJSON . fromLineString
 
-instance (FromJSON a, Show a) => FromJSON (LineString a) where
+instance (FromJSON a, Show a, VectorStorable.Storable a) => FromJSON (LineString a) where
 --  parseJSON :: Value -> Parser a
     parseJSON v = do
         xs <- parseJSON v
         let vxs = fromListValidated xs
-        maybe (parseError v (vxs ^? _Failure)) return (vxs ^? _Success)
+        maybe (parseError v (vxs ^? Validation._Failure)) return (vxs ^? Validation._Success)
 
 -- helpers
 
-fromListValidated :: [a] -> Validation ListToLineStringError (LineString a)
+fromListValidated :: (VectorStorable.Storable a) => [a] -> Validation.Validation ListToLineStringError (LineString a)
 fromListValidated = fromList
 
 parseError :: Value -> Maybe ListToLineStringError -> Parser b
 parseError v = maybe mzero (\e -> typeMismatch (show e) v)
 
-safeLast :: Vector.Vector a -> Maybe a
-safeLast x = if Vector.null x then Nothing else Just $ Vector.last x
+safeLast :: (VectorStorable.Storable a) => VectorStorable.Vector a -> Maybe a
+safeLast x = if VectorStorable.null x then Nothing else Just $ VectorStorable.last x
