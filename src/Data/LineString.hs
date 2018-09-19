@@ -25,6 +25,7 @@ module Data.LineString (
     ,   fromVector
     ,   fromLineString
     ,   fromList
+    ,   Data.LineString.map
     ,   makeLineString
     ,   lineStringHead
     ,   lineStringLast
@@ -180,8 +181,10 @@ instance (Show a, VectorStorable.Storable a) => Show (LineString a) where
 -- loop by also passing the initial element in again at the end.
 --
 -- instance Foldable LineString where
--- --  foldr :: (a -> b -> b) -> b -> LineString a -> b
---     foldr f u (LineString x y zs) = f x (f y (VectorStorable.foldr f u zs))
+--  foldr :: (a -> b -> b) -> b -> LineString a -> b
+    -- foldr f u (LineString x y zs) = f x (f y (VectorStorable.foldr f u zs))
+map :: (VectorStorable.Storable a, VectorStorable.Storable b) => (a -> b) -> LineString a -> LineString b
+map f (LineString x y zs) = LineString (f x) (f y) (VectorStorable.map f zs)
 
 -- instance Traversable LineString where
 --  sequenceA :: (Traversable t, Applicative f) => t (f a) -> f (t a)
