@@ -24,7 +24,7 @@ qcTests :: TestTree
 qcTests = testGroup "Data.LinearRingTests.QuickCheck"
   [ testProperty "Data.LinearRing.ringLength" testRingLength
   , testProperty "Data.LinearRing.fromLinearRing" testFromLinearRing
-  -- , testProperty "Data.LinearRing.Foldable" testFoldable
+  , testProperty "Data.LinearRing.Foldable" testFoldable
   ]
 
 specTests :: IO TestTree
@@ -51,10 +51,10 @@ testFromLinearRing xs = property $ length (LinearRing.fromLinearRing xs) >= 4
 
 -- > (\xs -> (foldr (:) [] xs) == (fromLinearRing xs)) (xs :: LinearRing Int)
 --
--- > (\xs -> (ringHead xs) == (foldr'' (\a -> const a) 0 xs)) (xs :: LinearRing Int)
+-- > (\xs -> (ringHead xs) == (foldr (\a -> const a) 0 xs)) (xs :: LinearRing Int)
 --
--- testFoldable :: LinearRing.LinearRing Int -> Property
--- testFoldable xs = property $ (foldr (:) [] xs == LinearRing.fromLinearRing xs) && (LinearRing.ringHead xs == Foldable.foldr' const 0 xs)
+testFoldable :: LinearRing.LinearRing Int -> Property
+testFoldable xs = property $ (LinearRing.foldr (:) [] xs == LinearRing.fromLinearRing xs) && (LinearRing.ringHead xs == LinearRing.foldr const 0 xs)
 
 -- Spec
 

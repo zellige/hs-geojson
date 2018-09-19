@@ -194,30 +194,17 @@ instance (Show a, VectorStorable.Storable a) => Show (VectorToLinearRingError a)
     show (VectorTooShort n) = "Vector too short: (length = " ++ show n ++ ")"
     show (FirstNotEqualToLast h l) = "head (" ++ show h ++ ") /= last(" ++ show l ++ ")"
 
--- instance Functor LinearRing where
---      fmap f (LinearRing x y z ws) = LinearRing (f x) (f y) (f z) (Vector.map f ws)
 map :: (VectorStorable.Storable a, VectorStorable.Storable b) => (a -> b) -> LinearRing a -> LinearRing b
 map f (LinearRing x y z ws) = LinearRing (f x) (f y) (f z) (VectorStorable.map f ws)
 
-
--- | This instance of Foldable will run through the entire ring, closing the
+-- | This will run through the entire ring, closing the
 -- loop by also passing the initial element in again at the end.
 --
--- instance Foldable LinearRing where
--- --  foldr :: (a -> b -> b) -> b -> LinearRing a -> b
-foldr :: VectorStorable.Storable a => (a -> t2 -> t2) -> t2 -> LinearRing a -> t2
+foldr :: VectorStorable.Storable a => (a -> b -> b) -> b -> LinearRing a -> b
 foldr f u (LinearRing x y z ws) = f x (f y (f z (VectorStorable.foldr f (f x u) ws)))
 
 foldMap :: (Monoid m, VectorStorable.Storable a) => (a -> m) -> LinearRing a -> m
 foldMap f = foldr (mappend . f) mempty
-
--- |
--- When traversing this Structure, the Applicative context
--- of the last element will be appended to the end to close the loop
---
--- instance Traversable LinearRing where
--- -- --  sequenceA :: (Traversable t, Applicative f) => t (f a) -> f (t a)
---     sequenceA (LinearRing fx fy fz fws) = (LinearRing <$> fx <*> fy <*> fz <*> sequenceA fws) <* fx
 
 instance (ToJSON a, VectorStorable.Storable a) => ToJSON (LinearRing a) where
 --  toJSON :: a -> Value

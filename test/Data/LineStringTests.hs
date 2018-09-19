@@ -22,7 +22,7 @@ qcTests :: TestTree
 qcTests = testGroup "Data.LineStringTests.QuickCheck"
   [ testProperty "Data.LineString.lineStringLength" testLineStringLength
   , testProperty "Data.LineString.fromLineString" testFromLineString
-  -- , testProperty "Data.LineString.Foldable" testFoldable
+  , testProperty "Data.LineString.Foldable" testFoldable
   ]
 
 specTests :: IO TestTree
@@ -49,10 +49,10 @@ testFromLineString xs = property $ length (LineString.fromLineString xs) >= 2
 
 -- > (\xs -> (foldr (:) [] xs) == (fromLineString xs)) (xs :: LineString Int)
 --
--- > (\xs -> (lineStringHead xs) == (foldr'' (\a -> const a) 0 xs)) (xs :: LineString Int)
+-- > (\xs -> (lineStringHead xs) == (foldr (\a -> const a) 0 xs)) (xs :: LineString Int)
 --
--- testFoldable :: LineString.LineString Int -> Property
--- testFoldable xs = property $ (foldr (:) [] xs == LineString.fromLineString xs) && (LineString.lineStringHead xs == Foldable.foldr' const 0 xs)
+testFoldable :: LineString.LineString Int -> Property
+testFoldable xs = property $ (LineString.foldr (:) [] xs == LineString.fromLineString xs) && (LineString.lineStringHead xs == LineString.foldr const 0 xs)
 
 -- Spec
 
