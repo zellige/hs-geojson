@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveAnyClass  #-}
+{-# LANGUAGE DeriveGeneric   #-}
 {-# LANGUAGE TemplateHaskell #-}
 -------------------------------------------------------------------
 -- |
@@ -21,24 +23,28 @@ import           Data.Geospatial.Internal.Geometry.Aeson
 import           Data.Geospatial.Internal.Geometry.GeoLine
 import           Data.LineString
 
+import           Control.DeepSeq
 import           Control.Lens                              (makeLenses)
 import           Control.Monad                             (mzero)
 import           Data.Aeson                                (FromJSON (..),
                                                             ToJSON (..),
                                                             Value (..))
+import qualified Data.Vector                               as Vector
+import           GHC.Generics                              (Generic)
 
-newtype GeoMultiLine    = GeoMultiLine { _unGeoMultiLine :: [LineString GeoPositionWithoutCRS] } deriving (Show, Eq)
+
+newtype GeoMultiLine    = GeoMultiLine { _unGeoMultiLine :: Vector.Vector (LineString GeoPositionWithoutCRS) } deriving (Show, Eq, Generic, NFData)
 
 makeLenses ''GeoMultiLine
 
 
 -- | Split GeoMultiLine coordinates into multiple GeoLines
-splitGeoMultiLine:: GeoMultiLine -> [GeoLine]
-splitGeoMultiLine = map GeoLine . _unGeoMultiLine
+splitGeoMultiLine:: GeoMultiLine -> Vector.Vector GeoLine
+splitGeoMultiLine = Vector.map GeoLine . _unGeoMultiLine
 
 -- | Merge multiple GeoLines into one GeoMultiLine
-mergeGeoLines :: [GeoLine] -> GeoMultiLine
-mergeGeoLines = GeoMultiLine . map _unGeoLine
+mergeGeoLines :: Vector.Vector GeoLine -> GeoMultiLine
+mergeGeoLines = GeoMultiLine . Vector.map _unGeoLine
 
 -- instances
 

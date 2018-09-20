@@ -1,16 +1,17 @@
 module Data.LinearRingTests where
 
-import           Data.Foldable         (Foldable (..))
-import           Data.List.NonEmpty    (NonEmpty (..))
-import           Data.Validation       (Validation (..))
+import qualified Data.List.NonEmpty                  as ListNonEmpty
+import qualified Data.Validation                     as Validation
+import qualified Data.Vector.Storable                as VectorStorable
 import           Test.Tasty
-import           Test.Tasty.Hspec      (Spec, context, describe, it, shouldBe,
-                                        testSpec)
-import           Test.Tasty.QuickCheck (Property, property, testProperty)
+import           Test.Tasty.Hspec                    (Spec, context, describe,
+                                                      it, shouldBe, testSpec)
+import           Test.Tasty.QuickCheck               (Property, property,
+                                                      testProperty)
 -- Local
-import           Arbitrary             ()
-import           Data.LinearRing
-
+import           Arbitrary                           ()
+import qualified Data.Geospatial.Internal.BasicTypes as BasicTypes
+import qualified Data.LinearRing                     as LinearRing
 
 -- Tests
 
@@ -30,6 +31,9 @@ specTests :: IO TestTree
 specTests = do
   specs <- sequence
     [ testSpec "Data.LinearRing.fromList" testFromList
+    , testSpec "Data.LinearRing.fromVector" testFromVector
+    , testSpec "Data.LinearRing.combineToVector" testCombineToVector
+    , testSpec "Data.LinearRing.testToVector" testToVector
     ]
   pure $ testGroup "Data.LinearRingTests.Spec" specs
 
@@ -37,20 +41,20 @@ specTests = do
 
 -- > (\xs -> ringLength xs == (length (fromLinearRing xs))) (xs :: LinearRing Int)
 --
-testRingLength :: LinearRing Int -> Property
-testRingLength xs = property $ ringLength xs == length (fromLinearRing xs)
+testRingLength :: LinearRing.LinearRing Int -> Property
+testRingLength xs = property $ LinearRing.ringLength xs == length (LinearRing.fromLinearRing xs)
 
 -- > (\xs -> length (fromLinearRing xs) >= 4) (xs :: LinearRing Int)
 --
-testFromLinearRing :: LinearRing Int -> Property
-testFromLinearRing xs = property $ length (fromLinearRing xs) >= 4
+testFromLinearRing :: LinearRing.LinearRing Int -> Property
+testFromLinearRing xs = property $ length (LinearRing.fromLinearRing xs) >= 4
 
 -- > (\xs -> (foldr (:) [] xs) == (fromLinearRing xs)) (xs :: LinearRing Int)
 --
--- > (\xs -> (ringHead xs) == (foldr'' (\a -> const a) 0 xs)) (xs :: LinearRing Int)
+-- > (\xs -> (ringHead xs) == (foldr (\a -> const a) 0 xs)) (xs :: LinearRing Int)
 --
-testFoldable :: LinearRing Int -> Property
-testFoldable xs = property $ (foldr (:) [] xs == fromLinearRing xs) && (ringHead xs == foldr' const 0 xs)
+testFoldable :: LinearRing.LinearRing Int -> Property
+testFoldable xs = property $ (LinearRing.foldr (:) [] xs == LinearRing.fromLinearRing xs) && (LinearRing.ringHead xs == LinearRing.foldr const 0 xs)
 
 -- Spec
 
@@ -82,16 +86,48 @@ testFromList :: Spec
 testFromList =
   describe "fromList" $ do
     it "creates a LinearRing out of a list of elements" $ do
-      fromList ([0, 1, 2, 3] :: [Int])       `shouldBe` Success (makeLinearRing 0 1 2 [])
-      fromList ([0, 1, 2, 4, 0] :: [Int])    `shouldBe` Success (makeLinearRing 0 1 2 [4])
-      fromList ([0, 1, 2, 4, 5, 0] :: [Int]) `shouldBe` Success (makeLinearRing 0 1 2 [4, 5])
-      fromList ([0, 1, 2, 4, 5, 6] :: [Int]) `shouldBe` Success (makeLinearRing 0 1 2 [4, 5])
+      LinearRing.fromList ([0, 1, 2, 3] :: [Int])       `shouldBe` Validation.Success (LinearRing.makeLinearRing 0 1 2 VectorStorable.empty)
+      LinearRing.fromList ([0, 1, 2, 4, 0] :: [Int])    `shouldBe` Validation.Success (LinearRing.makeLinearRing 0 1 2 (VectorStorable.fromList [4]))
+      LinearRing.fromList ([0, 1, 2, 4, 5, 0] :: [Int]) `shouldBe` Validation.Success (LinearRing.makeLinearRing 0 1 2 (VectorStorable.fromList [4,5]))
+      LinearRing.fromList ([0, 1, 2, 4, 5, 6] :: [Int]) `shouldBe` Validation.Success (LinearRing.makeLinearRing 0 1 2 (VectorStorable.fromList [4,5]))
     context "when provided with invalid input" $
       it "fails" $ do
-        fromList []        `shouldBe` Failure (ListTooShort 0 :| [] :: NonEmpty (ListToLinearRingError Int))
-        fromList [0]       `shouldBe` Failure (ListTooShort 1 :| [] :: NonEmpty (ListToLinearRingError Int))
-        fromList [0, 1]    `shouldBe` Failure (ListTooShort 2 :| [] :: NonEmpty (ListToLinearRingError Int))
-        fromList [0, 1, 2] `shouldBe` Failure (ListTooShort 3 :| [] :: NonEmpty (ListToLinearRingError Int))
+        LinearRing.fromList []        `shouldBe` Validation.Failure (LinearRing.ListTooShort 0 ListNonEmpty.:| [] :: ListNonEmpty.NonEmpty (LinearRing.ListToLinearRingError Int))
+        LinearRing.fromList [0]       `shouldBe` Validation.Failure (LinearRing.ListTooShort 1 ListNonEmpty.:| [] :: ListNonEmpty.NonEmpty (LinearRing.ListToLinearRingError Int))
+        LinearRing.fromList [0, 1]    `shouldBe` Validation.Failure (LinearRing.ListTooShort 2 ListNonEmpty.:| [] :: ListNonEmpty.NonEmpty (LinearRing.ListToLinearRingError Int))
+        LinearRing.fromList [0, 1, 2] `shouldBe` Validation.Failure (LinearRing.ListTooShort 3 ListNonEmpty.:| [] :: ListNonEmpty.NonEmpty (LinearRing.ListToLinearRingError Int))
+
+testFromVector :: Spec
+testFromVector =
+  describe "fromVector" $ do
+    it "creates a LinearRing out of a vector of elements" $ do
+      LinearRing.fromVector (VectorStorable.fromList ([0, 1, 0] :: [Int]))         `shouldBe` Validation.Success (LinearRing.makeLinearRing 0 1 0 VectorStorable.empty)
+      LinearRing.fromVector (VectorStorable.fromList ([0, 1, 2, 0] :: [Int]))      `shouldBe` Validation.Success (LinearRing.makeLinearRing 0 1 2 (VectorStorable.fromList [0]))
+      LinearRing.fromVector (VectorStorable.fromList ([0, 1, 2, 4, 0] :: [Int]))   `shouldBe` Validation.Success (LinearRing.makeLinearRing 0 1 2 (VectorStorable.fromList [4, 0]))
+      LinearRing.fromVector (VectorStorable.fromList ([0, 1, 2, 4, 5, 0]:: [Int])) `shouldBe` Validation.Success (LinearRing.makeLinearRing 0 1 2 (VectorStorable.fromList [4, 5, 0]))
+    context "when provided with invalid input" $
+      it "fails" $ do
+        LinearRing.fromVector (VectorStorable.fromList [])        `shouldBe` Validation.Failure (LinearRing.VectorTooShort 0 ListNonEmpty.:| [] :: ListNonEmpty.NonEmpty (LinearRing.VectorToLinearRingError Int))
+        LinearRing.fromVector (VectorStorable.fromList [0])       `shouldBe` Validation.Failure (LinearRing.VectorTooShort 1 ListNonEmpty.:| [] :: ListNonEmpty.NonEmpty (LinearRing.VectorToLinearRingError Int))
+        LinearRing.fromVector (VectorStorable.fromList [0, 1])    `shouldBe` Validation.Failure (LinearRing.VectorTooShort 2 ListNonEmpty.:| [] :: ListNonEmpty.NonEmpty (LinearRing.VectorToLinearRingError Int))
+        LinearRing.fromVector (VectorStorable.fromList [0, 1, 2]) `shouldBe` Validation.Failure (LinearRing.FirstNotEqualToLast 0 2 ListNonEmpty.:| [] :: ListNonEmpty.NonEmpty (LinearRing.VectorToLinearRingError Int))
+
+testCombineToVector :: Spec
+testCombineToVector =
+  describe "combineToVector" $
+    it "combine a LinearRing using tuples" $ do
+      LinearRing.combineToVector BasicTypes.PointXY (LinearRing.makeLinearRing 0 1 2 VectorStorable.empty)             `shouldBe` VectorStorable.fromList [BasicTypes.PointXY 0 1, BasicTypes.PointXY 1 2]
+      LinearRing.combineToVector BasicTypes.PointXY (LinearRing.makeLinearRing 0 1 2 (VectorStorable.fromList [4]))    `shouldBe` VectorStorable.fromList [BasicTypes.PointXY 0 1, BasicTypes.PointXY 1 2, BasicTypes.PointXY 2 4]
+      LinearRing.combineToVector BasicTypes.PointXY (LinearRing.makeLinearRing 0 1 2 (VectorStorable.fromList [4,5]))  `shouldBe` VectorStorable.fromList [BasicTypes.PointXY 0 1, BasicTypes.PointXY 1 2, BasicTypes.PointXY 2 4, BasicTypes.PointXY 4 5]
+
+testToVector :: Spec
+testToVector =
+  describe "toVector" $
+    it "from a LinearRing to a vector" $ do
+      LinearRing.toVector (LinearRing.makeLinearRing 0 1 0 VectorStorable.empty)             `shouldBe` VectorStorable.fromList ([0, 1, 0] :: [Int])
+      LinearRing.toVector (LinearRing.makeLinearRing 0 1 2 (VectorStorable.fromList [0]))    `shouldBe` VectorStorable.fromList ([0, 1, 2, 0] :: [Int])
+      LinearRing.toVector (LinearRing.makeLinearRing 0 1 2 (VectorStorable.fromList [4,0]))  `shouldBe` VectorStorable.fromList ([0, 1, 2, 4, 0] :: [Int])
+
 
 -- TODO
 -- > (\xs -> safeLast (fromLinearRing xs) == Just (ringHead xs)) (xs :: LinearRing Int)

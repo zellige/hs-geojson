@@ -1,16 +1,16 @@
 module Data.LineStringTests where
 
-import           Data.Foldable         (Foldable (..))
-import           Data.Validation       (Validation (..))
+import           Data.Validation                     (Validation (..))
+import qualified Data.Vector.Storable                as VectorStorable
 import           Test.Tasty
-import           Test.Tasty.Hspec      (Spec, context, describe, it, shouldBe,
-                                        testSpec)
-import           Test.Tasty.QuickCheck (Property, property, testProperty)
+import           Test.Tasty.Hspec                    (Spec, context, describe,
+                                                      it, shouldBe, testSpec)
+import           Test.Tasty.QuickCheck               (Property, property,
+                                                      testProperty)
 -- Local
-import           Arbitrary             ()
-import           Data.LineString
-
-
+import           Arbitrary                           ()
+import qualified Data.Geospatial.Internal.BasicTypes as BasicTypes
+import qualified Data.LineString                     as LineString
 -- Tests
 
 tests :: IO TestTree
@@ -29,6 +29,9 @@ specTests :: IO TestTree
 specTests = do
   specs <- sequence
     [ testSpec "Data.LineString.fromList" testFromList
+    , testSpec "Data.LineString.fromVector" testFromVector
+    , testSpec "Data.LineString.toVector" testToVector
+    , testSpec "Data.LineString.combineToVector" testCombineToVector
     ]
   pure $ testGroup "Data.LineStringTests.Spec" specs
 
@@ -36,20 +39,20 @@ specTests = do
 
 -- (\xs -> lineStringLength xs == (length (fromLineString xs))) (xs :: LineString Int)
 --
-testLineStringLength :: LineString Int -> Property
-testLineStringLength xs = property $ lineStringLength xs == length (fromLineString xs)
+testLineStringLength :: LineString.LineString Int -> Property
+testLineStringLength xs = property $ LineString.lineStringLength xs == length (LineString.fromLineString xs)
 
 -- (\xs -> length (fromLineString xs) >= 4) (xs :: LineString Int)
 --
-testFromLineString :: LineString Int -> Property
-testFromLineString xs = property $ length (fromLineString xs) >= 2
+testFromLineString :: LineString.LineString Int -> Property
+testFromLineString xs = property $ length (LineString.fromLineString xs) >= 2
 
 -- > (\xs -> (foldr (:) [] xs) == (fromLineString xs)) (xs :: LineString Int)
 --
--- > (\xs -> (lineStringHead xs) == (foldr'' (\a -> const a) 0 xs)) (xs :: LineString Int)
+-- > (\xs -> (lineStringHead xs) == (foldr (\a -> const a) 0 xs)) (xs :: LineString Int)
 --
-testFoldable :: LineString Int -> Property
-testFoldable xs = property $ (foldr (:) [] xs == fromLineString xs) && (lineStringHead xs == foldr' const 0 xs)
+testFoldable :: LineString.LineString Int -> Property
+testFoldable xs = property $ (LineString.foldr (:) [] xs == LineString.fromLineString xs) && (LineString.lineStringHead xs == LineString.foldr const 0 xs)
 
 -- Spec
 
@@ -72,14 +75,41 @@ testFromList :: Spec
 testFromList =
   describe "fromList" $ do
     it "creates a LineString out of a list of elements" $ do
-      fromList ([0, 1] :: [Int])             `shouldBe` Success (makeLineString 0 1 [])
-      fromList ([0, 1, 2] :: [Int])          `shouldBe` Success (makeLineString 0 1 [2])
-      fromList ([0, 1, 2, 4, 5, 0] :: [Int]) `shouldBe` Success (makeLineString 0 1 [2, 4, 5, 0])
+      LineString.fromList ([0, 1] :: [Int])             `shouldBe` Success (LineString.makeLineString 0 1 VectorStorable.empty)
+      LineString.fromList ([0, 1, 2] :: [Int])          `shouldBe` Success (LineString.makeLineString 0 1 (VectorStorable.fromList [2]))
+      LineString.fromList ([0, 1, 2, 4, 5, 0] :: [Int]) `shouldBe` Success (LineString.makeLineString 0 1 (VectorStorable.fromList [2, 4, 5, 0]))
     context "when provided with invalid input" $
       it "fails" $ do
-        fromList ([] :: [Int])  `shouldBe` Failure ListEmpty
-        fromList ([0] :: [Int]) `shouldBe` Failure SingletonList
+        LineString.fromList ([] :: [Int])  `shouldBe` Failure LineString.ListEmpty
+        LineString.fromList ([0] :: [Int]) `shouldBe` Failure LineString.SingletonList
+
+testFromVector :: Spec
+testFromVector =
+  describe "fromVector" $ do
+    it "creates a LineString out of a Vector of elements" $ do
+      LineString.fromVector (VectorStorable.fromList [0, 1] :: (VectorStorable.Vector Int))             `shouldBe` Success (LineString.makeLineString 0 1 VectorStorable.empty)
+      LineString.fromVector (VectorStorable.fromList [0, 1, 2] :: (VectorStorable.Vector Int))          `shouldBe` Success (LineString.makeLineString 0 1 (VectorStorable.fromList [2]))
+      LineString.fromVector (VectorStorable.fromList [0, 1, 2, 4, 5, 0] :: (VectorStorable.Vector Int)) `shouldBe` Success (LineString.makeLineString 0 1 (VectorStorable.fromList [2, 4, 5, 0]))
+    context "when provided with invalid input" $
+      it "fails" $ do
+        LineString.fromVector (VectorStorable.fromList [] :: (VectorStorable.Vector Int))  `shouldBe` Failure LineString.VectorEmpty
+        LineString.fromVector (VectorStorable.fromList [0] :: (VectorStorable.Vector Int)) `shouldBe` Failure LineString.SingletonVector
+
+testCombineToVector :: Spec
+testCombineToVector =
+  describe "combineToVector" $
+    it "combine a LineString using PointXY" $ do
+      LineString.combineToVector BasicTypes.PointXY (LineString.makeLineString 0 1 VectorStorable.empty)                   `shouldBe` VectorStorable.fromList [BasicTypes.PointXY 0 1]
+      LineString.combineToVector BasicTypes.PointXY (LineString.makeLineString 0 1 (VectorStorable.fromList [2]))          `shouldBe` VectorStorable.fromList [BasicTypes.PointXY 0 1, BasicTypes.PointXY 1 2]
+      LineString.combineToVector BasicTypes.PointXY (LineString.makeLineString 0 1 (VectorStorable.fromList [2, 4, 5, 0])) `shouldBe` VectorStorable.fromList [BasicTypes.PointXY 0 1, BasicTypes.PointXY 1 2, BasicTypes.PointXY 2 4, BasicTypes.PointXY 4 5, BasicTypes.PointXY 5 0]
+
+testToVector :: Spec
+testToVector =
+  describe "toVector" $
+    it "from a LineString to a vector" $ do
+      LineString.toVector (LineString.makeLineString 0 1 VectorStorable.empty)                   `shouldBe` VectorStorable.fromList ([0, 1] :: [Int])
+      LineString.toVector (LineString.makeLineString 0 1 (VectorStorable.fromList [2]))          `shouldBe` VectorStorable.fromList ([0, 1, 2] :: [Int])
+      LineString.toVector (LineString.makeLineString 0 1 (VectorStorable.fromList [2, 4, 5, 0])) `shouldBe` VectorStorable.fromList ([0, 1, 2, 4, 5, 0] :: [Int])
 
 -- TODO
 -- (\xs -> safeLast (fromLineString xs) == Just (lineStringHead xs)) (xs :: LineString Int)
---

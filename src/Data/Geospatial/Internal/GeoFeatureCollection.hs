@@ -33,13 +33,14 @@ import           Data.Aeson                              (FromJSON (..),
 import           Data.List                               ((++))
 import           Data.Maybe                              (Maybe (..))
 import           Data.Text                               (Text)
+import qualified Data.Vector                             as Vector
 import           Prelude                                 (Eq (..), Show, ($))
 
 -- | See Section 2.3 /Feature Collection Objects/ of the GeoJSON spec
 --
 data GeoFeatureCollection a = GeoFeatureCollection
     {   _boundingbox :: Maybe BoundingBoxWithoutCRS
-    ,   _geofeatures :: [GeoFeature a]
+    ,   _geofeatures :: Vector.Vector (GeoFeature a)
     } deriving (Show, Eq)
 
 makeLenses ''GeoFeatureCollection

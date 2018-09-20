@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveAnyClass    #-}
+{-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell   #-}
 -------------------------------------------------------------------
@@ -12,7 +14,7 @@
 -------------------------------------------------------------------
 module Data.Geospatial.Internal.Geometry (
     -- * Types
-        GeoPoint(..)
+        GeoPoint(..), retrieveXY
     ,   GeoMultiPoint(..), splitGeoMultiPoint, mergeGeoPoints
     ,   GeoPolygon(..)
     ,   GeoMultiPolygon(..), splitGeoMultiPolygon, mergeGeoPolygons
@@ -45,6 +47,7 @@ import           Data.Geospatial.Internal.Geometry.GeoPoint
 import           Data.Geospatial.Internal.Geometry.GeoPolygon
 
 import           Control.Applicative                               ((<$>))
+import           Control.DeepSeq
 import           Control.Lens                                      (makePrisms)
 import           Control.Monad                                     (mzero)
 import           Data.Aeson                                        (FromJSON (..),
@@ -54,6 +57,9 @@ import           Data.Aeson                                        (FromJSON (..
                                                                     (.:), (.=))
 import           Data.Aeson.Types                                  (Parser)
 import           Data.Text                                         (Text)
+import qualified Data.Vector                                       as Vector
+import           GHC.Generics                                      (Generic)
+
 
 -- | See section 2.1 /Geometry Objects/ in the GeoJSON Spec.
 data GeospatialGeometry =
@@ -64,7 +70,7 @@ data GeospatialGeometry =
     |   MultiPolygon GeoMultiPolygon
     |   Line GeoLine
     |   MultiLine GeoMultiLine
-    |   Collection [GeospatialGeometry] deriving (Show, Eq)
+    |   Collection (Vector.Vector GeospatialGeometry) deriving (Show, Eq, Generic, NFData)
 
 makePrisms ''GeospatialGeometry
 
@@ -78,7 +84,6 @@ geometryFromAeson "MultiLineString" obj                 = MultiLine <$> parseJSO
 geometryFromAeson "GeometryCollection" (Object jsonObj) = Collection <$> (jsonObj .: ("geometries" :: Text))
 geometryFromAeson "GeometryCollection" _                = mzero
 geometryFromAeson _ _                                   = mzero
-
 
 -- |
 -- encodes Geometry Objects to GeoJSON

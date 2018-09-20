@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveAnyClass  #-}
+{-# LANGUAGE DeriveGeneric   #-}
 {-# LANGUAGE TemplateHaskell #-}
 -------------------------------------------------------------------
 -- |
@@ -10,30 +12,30 @@
 module Data.Geospatial.Internal.Geometry.GeoPoint (
     -- * Type
         GeoPoint(..)
-    -- * Lenses
     ,   unGeoPoint
+    ,   retrieveXY
     ) where
 
-import           Data.Geospatial.Internal.BasicTypes
-import           Data.Geospatial.Internal.Geometry.Aeson
-
+import           Control.DeepSeq
 import           Control.Lens                            (makeLenses)
 import           Control.Monad                           (mzero)
-import           Data.Aeson                              (FromJSON (..),
-                                                          ToJSON (..),
-                                                          Value (..))
+import qualified Data.Aeson                              as Aeson
+import           Data.Geospatial.Internal.BasicTypes
+import           Data.Geospatial.Internal.Geometry.Aeson
+import           GHC.Generics                            (Generic)
 
-newtype GeoPoint = GeoPoint { _unGeoPoint :: GeoPositionWithoutCRS } deriving (Show, Eq)
+
+newtype GeoPoint = GeoPoint { _unGeoPoint :: GeoPositionWithoutCRS } deriving (Show, Eq, Generic, NFData)
 
 makeLenses ''GeoPoint
 
 -- instances
 
-instance ToJSON GeoPoint where
+instance Aeson.ToJSON GeoPoint where
 --  toJSON :: a -> Value
     toJSON = makeGeometryGeoAeson "Point" . _unGeoPoint
 
-instance FromJSON GeoPoint where
+instance Aeson.FromJSON GeoPoint where
 --  parseJSON :: Value -> Parser a
-    parseJSON (Object o) = readGeometryGeoAeson "Point" GeoPoint o
-    parseJSON _          = mzero
+    parseJSON (Aeson.Object o) = readGeometryGeoAeson "Point" GeoPoint o
+    parseJSON _                = mzero

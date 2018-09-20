@@ -25,6 +25,7 @@ import           Data.Aeson.Types    (Pair, Parser)
 import           Data.Maybe          (Maybe (..))
 import           Data.Text           (Text)
 
+
 -- | A generic function that can be used to read in the GeoJSON for:
 -- `GeoPoint`, `GeoMultiPoint`, `GeoLine`, `GeoMultiLine`, `GeoPolygon` and `GeoMultiPolygon`
 -- Takes in a String for the GeoJSON geometry type, the type constructor

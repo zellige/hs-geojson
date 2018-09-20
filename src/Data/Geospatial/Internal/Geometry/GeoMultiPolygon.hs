@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveAnyClass  #-}
+{-# LANGUAGE DeriveGeneric   #-}
 {-# LANGUAGE TemplateHaskell #-}
 -------------------------------------------------------------------
 -- |
@@ -18,34 +20,35 @@ module Data.Geospatial.Internal.Geometry.GeoMultiPolygon (
 
 import           Data.Geospatial.Internal.BasicTypes
 import           Data.Geospatial.Internal.Geometry.Aeson
-import           Data.Geospatial.Internal.Geometry.GeoPolygon
-import           Data.LinearRing
+import           Data.Geospatial.Internal.Geometry.GeoPolygon as GeoPolygon
+import qualified Data.LinearRing                              as LinearRing
 
+import           Control.DeepSeq
 import           Control.Lens                                 (makeLenses)
 import           Control.Monad                                (mzero)
-import           Data.Aeson                                   (FromJSON (..),
-                                                               ToJSON (..),
-                                                               Value (..))
+import qualified Data.Aeson                                   as Aeson
+import qualified Data.Vector                                  as Vector
+import           GHC.Generics                                 (Generic)
 
-newtype GeoMultiPolygon = GeoMultiPolygon { _unGeoMultiPolygon :: [[LinearRing GeoPositionWithoutCRS]] } deriving (Show, Eq)
+newtype GeoMultiPolygon = GeoMultiPolygon { _unGeoMultiPolygon :: Vector.Vector (Vector.Vector (LinearRing.LinearRing GeoPositionWithoutCRS)) } deriving (Show, Eq, Generic, NFData)
 
 -- | Split GeoMultiPolygon coordinates into multiple GeoPolygons
-splitGeoMultiPolygon :: GeoMultiPolygon -> [GeoPolygon]
-splitGeoMultiPolygon = map GeoPolygon . _unGeoMultiPolygon
+splitGeoMultiPolygon :: GeoMultiPolygon -> Vector.Vector GeoPolygon
+splitGeoMultiPolygon = Vector.map GeoPolygon . _unGeoMultiPolygon
 
 -- | Merge multiple GeoPolygons into one GeoMultiPolygon
-mergeGeoPolygons :: [GeoPolygon] -> GeoMultiPolygon
-mergeGeoPolygons = GeoMultiPolygon . map _unGeoPolygon
+mergeGeoPolygons :: Vector.Vector GeoPolygon -> GeoMultiPolygon
+mergeGeoPolygons = GeoMultiPolygon . Vector.map GeoPolygon._unGeoPolygon
 
 makeLenses ''GeoMultiPolygon
 
 -- instances
 
-instance ToJSON GeoMultiPolygon where
---  toJSON :: a -> Value
-    toJSON = makeGeometryGeoAeson "MultiPolygon" . _unGeoMultiPolygon
+instance Aeson.ToJSON GeoMultiPolygon where
+  --  toJSON :: a -> Value
+  toJSON = makeGeometryGeoAeson "MultiPolygon" . _unGeoMultiPolygon
 
-instance FromJSON GeoMultiPolygon where
---  parseJSON :: Value -> Parser a
-    parseJSON (Object o)    = readGeometryGeoAeson "MultiPolygon" GeoMultiPolygon o
-    parseJSON _             = mzero
+instance Aeson.FromJSON GeoMultiPolygon where
+  --  parseJSON :: Value -> Parser a
+  parseJSON (Aeson.Object o)    = readGeometryGeoAeson "MultiPolygon" GeoMultiPolygon o
+  parseJSON _             = mzero

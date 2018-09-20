@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveAnyClass  #-}
+{-# LANGUAGE DeriveGeneric   #-}
 {-# LANGUAGE TemplateHaskell #-}
 -------------------------------------------------------------------
 -- |
@@ -14,27 +16,29 @@ module Data.Geospatial.Internal.Geometry.GeoPolygon (
     ,   unGeoPolygon
     ) where
 
-import           Data.Geospatial.Internal.BasicTypes
-import           Data.Geospatial.Internal.Geometry.Aeson
-import           Data.LinearRing
-
+import           Control.DeepSeq
 import           Control.Lens                            (makeLenses)
 import           Control.Monad                           (mzero)
-import           Data.Aeson                              (FromJSON (..),
-                                                          ToJSON (..),
-                                                          Value (..))
+import qualified Data.Aeson                              as Aeson
+import           Data.Geospatial.Internal.BasicTypes
+import           Data.Geospatial.Internal.Geometry.Aeson
+import qualified Data.LinearRing                         as LinearRing
+import qualified Data.Vector                             as Vector
+import           GHC.Generics                            (Generic)
 
-newtype GeoPolygon = GeoPolygon { _unGeoPolygon :: [LinearRing GeoPositionWithoutCRS] } deriving (Show, Eq)
+newtype GeoPolygon = GeoPolygon { _unGeoPolygon :: Vector.Vector (LinearRing.LinearRing GeoPositionWithoutCRS) } deriving (Show, Eq, Generic, NFData)
+
+-- Vector.Vector (LinearRing.LinearRing DoubleArray)
 
 makeLenses ''GeoPolygon
 
 -- instances
 
-instance ToJSON GeoPolygon where
---  toJSON :: a -> Value
-    toJSON = makeGeometryGeoAeson "Polygon" . _unGeoPolygon
+instance Aeson.ToJSON GeoPolygon where
+  --  toJSON :: a -> Value
+  toJSON = makeGeometryGeoAeson "Polygon" . _unGeoPolygon
 
-instance FromJSON GeoPolygon where
---  parseJSON :: Value -> Parser a
-    parseJSON (Object o) = readGeometryGeoAeson "Polygon" GeoPolygon o
-    parseJSON _          = mzero
+instance Aeson.FromJSON GeoPolygon where
+  --  parseJSON :: Value -> Parser a
+  parseJSON (Aeson.Object o) = readGeometryGeoAeson "Polygon" GeoPolygon o
+  parseJSON _                = mzero

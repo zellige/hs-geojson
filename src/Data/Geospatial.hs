@@ -15,25 +15,28 @@ module Data.Geospatial (
     ,   Easting
     ,   Northing
     ,   Altitude
-    ,   FeatureID(..)
-    ,   GeoPositionWithoutCRS
-    ,   GeoPosition(..)
-    ,   GeoPoint(..)
-    ,   GeoMultiPoint(..), splitGeoMultiPoint, mergeGeoPoints
-    ,   GeoPolygon(..)
-    ,   GeoMultiPolygon(..), splitGeoMultiPolygon, mergeGeoPolygons
-    ,   GeoLine(..)
-    ,   GeoMultiLine(..), splitGeoMultiLine, mergeGeoLines
-    ,   GeospatialGeometry(..)
+    ,   FeatureID (..)
+    ,   GeoPositionWithoutCRS (..)
+    ,   GeoPosition (..)
+    ,   GeoPoint (..), retrieveXY
+    ,   PointXY (..)
+    ,   PointXYZ (..)
+    ,   PointXYZM (..)
+    ,   GeoMultiPoint (..), splitGeoMultiPoint, mergeGeoPoints
+    ,   GeoPolygon (..)
+    ,   GeoMultiPolygon (..), splitGeoMultiPolygon, mergeGeoPolygons
+    ,   GeoLine (..)
+    ,   GeoMultiLine (..), splitGeoMultiLine, mergeGeoLines
+    ,   GeospatialGeometry (..)
     ,   Name
     ,   Code
     ,   Href
     ,   FormatString
     ,   ProjectionType
-    ,   CRSObject(..)
+    ,   CRSObject (..)
     ,   BoundingBoxWithoutCRS
-    ,   GeoFeature(..)
-    ,   GeoFeatureCollection(..)
+    ,   GeoFeature (..), reWrapGeometry
+    ,   GeoFeatureCollection (..)
     -- * Functions
     ,   stripCRSFromPosition
     ,   defaultCRS
@@ -45,6 +48,7 @@ module Data.Geospatial (
     ,   unGeoLine
     ,   unGeoMultiLine
     ,   unGeoMultiPolygon
+    ,   unBoundingBoxWithoutCrs
     -- ** Feature Lenses
     ,   bbox
     ,   geometry
