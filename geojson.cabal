@@ -13,8 +13,8 @@ description:            A thin GeoJSON Layer above the aeson library.
                         .
                         <http://geojson.org/geojson-spec.html>
 
-homepage:               https://github.com/newmana/hs-geojson
-bug-reports:            https://github.com/newmana/hs-geojson/issues
+homepage:               https://github.com/indicatrix/hs-geojson
+bug-reports:            https://github.com/indicatrix/hs-geojson/issues
 cabal-version:          >= 1.10
 build-type:             Simple
 extra-source-files:     README.md,
@@ -22,11 +22,11 @@ extra-source-files:     README.md,
 
 source-repository       head
     type:               git
-    location:           https://github.com/newmana/hs-geojson.git
+    location:           https://github.com/indicatrix/hs-geojson.git
 
 source-repository       this
     type:               git
-    location:           https://github.com/newmana/hs-geojson.git
+    location:           https://github.com/indicatrix/hs-geojson.git
     tag:                2.0.0
 
 library

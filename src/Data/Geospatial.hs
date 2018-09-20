@@ -57,6 +57,8 @@ module Data.Geospatial (
     ,   boundingbox
     ,   geofeatures
     -- * Prisms
+    -- ** BasicTypes
+    ,   HasGeoPositionWithoutCRS(..)
     -- ** Geometry
     ,   _NoGeometry
     ,   _Point

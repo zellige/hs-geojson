@@ -1,6 +1,7 @@
 {-# LANGUAGE DeriveAnyClass    #-}
 {-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell   #-}
 
 -------------------------------------------------------------------
 -- |
@@ -24,6 +25,7 @@ module Data.Geospatial.Internal.BasicTypes (
     ,   PointXYZ (..)
     ,   PointXYZM (..)
     ,   DoubleArray (..)
+    ,   HasGeoPositionWithoutCRS(..)
     -- * CRS Reference types
     ,   Name
     ,   Code
@@ -36,6 +38,7 @@ module Data.Geospatial.Internal.BasicTypes (
     ) where
 
 import           Control.DeepSeq
+import           Control.Lens.TH      (makeClassy)
 import qualified Data.Aeson           as Aeson
 import qualified Data.Aeson.Types     as AesonTypes
 import qualified Data.Maybe           as DataMaybe
@@ -75,6 +78,8 @@ data PointXYZM = PointXYZM
     } deriving (Show, Eq, Generic, NFData)
 
 data GeoPositionWithoutCRS = GeoEmpty | GeoPointXY PointXY | GeoPointXYZ PointXYZ | GeoPointXYZM PointXYZM deriving (Show, Eq, Generic, NFData)
+
+makeClassy ''GeoPositionWithoutCRS
 
 _toDoubleArray :: GeoPositionWithoutCRS -> [Double]
 _toDoubleArray GeoEmpty                           = []
