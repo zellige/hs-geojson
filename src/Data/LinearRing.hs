@@ -122,6 +122,7 @@ fromLinearRing (LinearRing x y z ws) = x : y : z : VectorStorable.foldr (:) [x] 
 fromList :: (Eq a, Show a, VectorStorable.Storable a, Validation.Validate v, Functor (v (NonEmpty (ListToLinearRingError a)))) => [a] -> v (NonEmpty (ListToLinearRingError a)) (LinearRing a)
 fromList (x:y:z:ws@(_:_)) = Validation._Success # LinearRing x y z (fromListDropLast ws)
 fromList xs               = Validation._Failure # pure (ListTooShort (length xs))
+{-# INLINE fromList #-}
 
 -- |
 -- The expensive version of fromList that checks whether the head and last elements
@@ -143,6 +144,7 @@ combineToVector combine (LinearRing a b c rest) = VectorStorable.cons (combine a
               VectorStorable.empty
             else
               (VectorStorable.zipWith combine <*> VectorStorable.tail) (VectorStorable.cons c rest)
+{-# INLINE combineToVector #-}
 
 -- |
 -- create a vector from a LinearRing.
@@ -150,6 +152,7 @@ combineToVector combine (LinearRing a b c rest) = VectorStorable.cons (combine a
 --
 toVector :: (VectorStorable.Storable a) => LinearRing a -> VectorStorable.Vector a
 toVector (LinearRing a b c rest) = VectorStorable.cons a (VectorStorable.cons b (VectorStorable.cons c rest))
+{-# INLINE toVector #-}
 
 -- |
 -- creates a LinearRing out of a vector of elements,
@@ -167,6 +170,7 @@ fromVector v =
         Validation._Failure # pure (FirstNotEqualToLast (VectorStorable.head v) (VectorStorable.last v))
   else
     Validation._Failure # pure (VectorTooShort (VectorStorable.length v))
+{-# INLINE fromVector #-}
 
 -- |
 -- Creates a LinearRing
@@ -196,15 +200,18 @@ instance (Show a, VectorStorable.Storable a) => Show (VectorToLinearRingError a)
 
 map :: (VectorStorable.Storable a, VectorStorable.Storable b) => (a -> b) -> LinearRing a -> LinearRing b
 map f (LinearRing x y z ws) = LinearRing (f x) (f y) (f z) (VectorStorable.map f ws)
+{-# INLINE map #-}
 
 -- | This will run through the entire ring, closing the
 -- loop by also passing the initial element in again at the end.
 --
 foldr :: VectorStorable.Storable a => (a -> b -> b) -> b -> LinearRing a -> b
 foldr f u (LinearRing x y z ws) = f x (f y (f z (VectorStorable.foldr f (f x u) ws)))
+{-# INLINE foldr #-}
 
 foldMap :: (Monoid m, VectorStorable.Storable a) => (a -> m) -> LinearRing a -> m
 foldMap f = foldr (mappend . f) mempty
+{-# INLINE foldMap #-}
 
 instance (ToJSON a, VectorStorable.Storable a) => ToJSON (LinearRing a) where
 --  toJSON :: a -> Value
@@ -228,8 +235,7 @@ showErrors = intercalate ", " . NL.toList . fmap show
 parseError :: (Show a, VectorStorable.Storable a) => Value -> Maybe (NonEmpty (ListToLinearRingError a)) -> Parser b
 parseError v = maybe mzero (\e -> typeMismatch (showErrors e) v)
 
-checkHeadAndLastEq
-    :: (Eq a, VectorStorable.Storable a, Validation.Validate v, Functor (v (NonEmpty (ListToLinearRingError a))))
+checkHeadAndLastEq :: (Eq a, VectorStorable.Storable a, Validation.Validate v, Functor (v (NonEmpty (ListToLinearRingError a))))
     => [a]
     -> v (NonEmpty (ListToLinearRingError a)) ()
 checkHeadAndLastEq = maybe (Validation._Failure # pure (ListTooShort 0)) (\(h, l) -> if h == l then Validation._Success # () else Validation._Failure # pure (HeadNotEqualToLast h l)) . mhl

@@ -108,6 +108,7 @@ fromList :: (Validation.Validate v, VectorStorable.Storable a) => [a] -> v ListT
 fromList []       = Validation._Failure # ListEmpty
 fromList [_]      = Validation._Failure # SingletonList
 fromList (x:y:zs) = Validation._Success # LineString x y (VectorStorable.fromList zs)
+{-# INLINE fromList #-}
 
 -- |
 -- create a vector from a LineString by combining values.
@@ -122,6 +123,7 @@ combineToVector combine (LineString a b rest) = VectorStorable.cons (combine a b
               VectorStorable.empty
             else
               (VectorStorable.zipWith combine <*> VectorStorable.tail) (VectorStorable.cons b rest)
+{-# INLINE combineToVector #-}
 
 -- |
 -- create a vector from a LineString.
@@ -129,6 +131,7 @@ combineToVector combine (LineString a b rest) = VectorStorable.cons (combine a b
 --
 toVector :: (VectorStorable.Storable a) => LineString a -> VectorStorable.Vector a
 toVector (LineString a b rest) = VectorStorable.cons a (VectorStorable.cons b rest)
+{-# INLINE toVector #-}
 
 -- |
 -- creates a LineString out of a vector of elements,
@@ -140,6 +143,7 @@ fromVector v =
     Validation._Failure # VectorEmpty
   else
     fromVector' (VectorStorable.head v) (VectorStorable.tail v)
+{-# INLINE fromVector #-}
 
 fromVector' :: (Validation.Validate v, VectorStorable.Storable a) => a -> VectorStorable.Vector a -> v VectorToLineStringError (LineString a)
 fromVector' first v =
@@ -147,6 +151,7 @@ fromVector' first v =
     Validation._Failure # SingletonVector
   else
     Validation._Success # LineString first (VectorStorable.head v) (VectorStorable.tail v)
+{-# INLINE fromVector' #-}
 
 -- |
 -- Creates a LineString
@@ -174,15 +179,18 @@ instance (Show a, VectorStorable.Storable a) => Show (LineString a) where
 
 map :: (VectorStorable.Storable a, VectorStorable.Storable b) => (a -> b) -> LineString a -> LineString b
 map f (LineString x y zs) = LineString (f x) (f y) (VectorStorable.map f zs)
+{-# INLINE map #-}
 
 -- | This will run through the entire ring, closing the
 -- loop by also passing the initial element in again at the end.
 --
 foldr :: (VectorStorable.Storable a) => (a -> b -> b) -> b -> LineString a -> b
 foldr f u (LineString x y zs) = f x (f y (VectorStorable.foldr f u zs))
+{-# INLINE foldr #-}
 
 foldMap :: (Monoid m, VectorStorable.Storable a) => (a -> m) -> LineString a -> m
 foldMap f = foldr (mappend . f) mempty
+{-# INLINE foldMap #-}
 
 instance (ToJSON a, VectorStorable.Storable a) => ToJSON (LineString a) where
 --  toJSON :: a -> Value
@@ -205,3 +213,4 @@ parseError v = maybe mzero (\e -> typeMismatch (show e) v)
 
 safeLast :: (VectorStorable.Storable a) => VectorStorable.Vector a -> Maybe a
 safeLast x = if VectorStorable.null x then Nothing else Just $ VectorStorable.last x
+{-# INLINE safeLast #-}
