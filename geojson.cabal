@@ -78,7 +78,6 @@ test-suite              geojson-test
                     ,   Fixture
                     ,   Data.LinearRingTests
                     ,   Data.LineStringTests
-                    ,   Data.Geospatial.Internal.BasicTypesTests
                     ,   Data.Geospatial.Internal.CRSTests
                     ,   Data.Geospatial.Internal.GeoFeatureCollectionTests
                     ,   Data.Geospatial.Internal.GeoFeatureTests
