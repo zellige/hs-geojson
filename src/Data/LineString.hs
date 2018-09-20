@@ -1,7 +1,6 @@
-{-# LANGUAGE DeriveAnyClass            #-}
-{-# LANGUAGE DeriveGeneric             #-}
-{-# LANGUAGE ExistentialQuantification #-}
-{-# LANGUAGE NoImplicitPrelude         #-}
+{-# LANGUAGE DeriveAnyClass    #-}
+{-# LANGUAGE DeriveGeneric     #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 -------------------------------------------------------------------
 -- |
 -- Module       : Data.LineString
