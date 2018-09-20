@@ -25,7 +25,7 @@ env:
 - $RESOLVER="lts-7.24"
 - $RESOLVER="lts-9.21"
 - $RESOLVER="lts-11.22"
-- $RESOLVER="lts-12.9"
+- $RESOLVER="lts-12.10"
 
 before_install:
 # Download and unpack the stack executable -- https://docs.haskellstack.org/en/stable/travis_ci/?highlight=travis
