@@ -96,6 +96,7 @@ retrieveXY position =
     (GeoPointXY p)                       -> p
     (GeoPointXYZ (PointXYZ pX pY _))     -> PointXY pX pY
     (GeoPointXYZM (PointXYZM pX pY _ _)) -> PointXY pX pY
+{-# INLINE retrieveXY #-}
 
 -- instances
 
