@@ -30,11 +30,6 @@ See `cabal build --help` for more build options.
 
     cabal test
 
-## Adding Unit tests
-
-Currently only files in the `src/` directory are searched for tests, it is assumed that the code in `main/`
-is a thin layer of code that uses modules from `src/`.
-
 ## Development: Cabal Dependency Hell?
 
 Cabal's great, but when you are developing a few different projects with their own dependency chains, sometimes installing all your libraries to the same place causes problems,
