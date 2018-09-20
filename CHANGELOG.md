@@ -4,7 +4,7 @@
 
 - Switch to using `Data.Vector.Storable` instead of lists, 
 - `GeoPositionWithoutCRS` is now a sum type (Empty, XY, XYZ, or XYZM).
-- Numerous new public methods on LineString and LinearRing
+- New public methods on LineString and LinearRing
     - toVector, combineVector, fromVector
     - map, foldr, foldMap (as they are nolonger Foldable, Functor, or Traversable)
 
