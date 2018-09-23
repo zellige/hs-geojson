@@ -4,4 +4,4 @@ packages:
 extra-deps: 
   - validation-1
 
-resolver: lts-11.22
+resolver: lts-12.10
