@@ -1,5 +1,5 @@
 name:                  geojson
-version:                2.0.0
+version:                3.0.0
 license:                BSD3
 license-file:           LICENCE
 author:                 Dom De Re
@@ -27,12 +27,13 @@ source-repository       head
 source-repository       this
     type:               git
     location:           https://github.com/indicatrix/hs-geojson.git
-    tag:                2.0.0
+    tag:                3.0.0
 
 library
     hs-source-dirs:     src
     build-depends:      base < 5 &&     >= 4
                     ,   aeson           >= 0.8
+                    ,   containers      >= 0.5.10.1
                     ,   deepseq         >= 1.4
                     ,   lens            >= 4.11
                     ,   semigroups      >= 0.16
@@ -67,6 +68,7 @@ test-suite              geojson-test
     build-depends:      base < 5 &&     >= 4
                     ,   aeson           >= 0.8
                     ,   bytestring      >= 0.10
+                    ,   containers      >= 0.5.10.1
                     ,   geojson
                     ,   tasty
                     ,   tasty-hspec

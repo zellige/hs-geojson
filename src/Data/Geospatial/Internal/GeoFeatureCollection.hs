@@ -32,15 +32,15 @@ import           Data.Aeson                              (FromJSON (..),
                                                           (.:), (.:?), (.=))
 import           Data.List                               ((++))
 import           Data.Maybe                              (Maybe (..))
+import qualified Data.Sequence                           as Sequence
 import           Data.Text                               (Text)
-import qualified Data.Vector                             as Vector
 import           Prelude                                 (Eq (..), Show, ($))
 
 -- | See Section 2.3 /Feature Collection Objects/ of the GeoJSON spec
 --
 data GeoFeatureCollection a = GeoFeatureCollection
     {   _boundingbox :: Maybe BoundingBoxWithoutCRS
-    ,   _geofeatures :: Vector.Vector (GeoFeature a)
+    ,   _geofeatures :: Sequence.Seq (GeoFeature a)
     } deriving (Show, Eq)
 
 makeLenses ''GeoFeatureCollection

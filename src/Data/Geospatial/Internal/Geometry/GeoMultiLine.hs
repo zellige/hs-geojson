@@ -29,22 +29,22 @@ import           Control.Monad                             (mzero)
 import           Data.Aeson                                (FromJSON (..),
                                                             ToJSON (..),
                                                             Value (..))
-import qualified Data.Vector                               as Vector
+import qualified Data.Sequence                             as Sequence
 import           GHC.Generics                              (Generic)
 
 
-newtype GeoMultiLine    = GeoMultiLine { _unGeoMultiLine :: Vector.Vector (LineString GeoPositionWithoutCRS) } deriving (Show, Eq, Generic, NFData)
+newtype GeoMultiLine    = GeoMultiLine { _unGeoMultiLine :: Sequence.Seq(LineString GeoPositionWithoutCRS) } deriving (Show, Eq, Generic, NFData)
 
 makeLenses ''GeoMultiLine
 
 
 -- | Split GeoMultiLine coordinates into multiple GeoLines
-splitGeoMultiLine:: GeoMultiLine -> Vector.Vector GeoLine
-splitGeoMultiLine = Vector.map GeoLine . _unGeoMultiLine
+splitGeoMultiLine:: GeoMultiLine -> Sequence.Seq GeoLine
+splitGeoMultiLine = fmap GeoLine . _unGeoMultiLine
 
 -- | Merge multiple GeoLines into one GeoMultiLine
-mergeGeoLines :: Vector.Vector GeoLine -> GeoMultiLine
-mergeGeoLines = GeoMultiLine . Vector.map _unGeoLine
+mergeGeoLines :: Sequence.Seq GeoLine -> GeoMultiLine
+mergeGeoLines = GeoMultiLine . fmap _unGeoLine
 
 -- instances
 

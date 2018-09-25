@@ -23,12 +23,12 @@ import qualified Data.Aeson                              as Aeson
 import           Data.Geospatial.Internal.BasicTypes
 import           Data.Geospatial.Internal.Geometry.Aeson
 import qualified Data.LinearRing                         as LinearRing
-import qualified Data.Vector                             as Vector
+import qualified Data.Sequence                           as Sequence
 import           GHC.Generics                            (Generic)
 
-newtype GeoPolygon = GeoPolygon { _unGeoPolygon :: Vector.Vector (LinearRing.LinearRing GeoPositionWithoutCRS) } deriving (Show, Eq, Generic, NFData)
+newtype GeoPolygon = GeoPolygon { _unGeoPolygon :: Sequence.Seq (LinearRing.LinearRing GeoPositionWithoutCRS) } deriving (Show, Eq, Generic, NFData)
 
--- Vector.Vector (LinearRing.LinearRing DoubleArray)
+-- Sequence.Seq (LinearRing.LinearRing DoubleArray)
 
 makeLenses ''GeoPolygon
 

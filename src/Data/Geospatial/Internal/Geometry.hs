@@ -56,8 +56,8 @@ import           Data.Aeson                                        (FromJSON (..
                                                                     object,
                                                                     (.:), (.=))
 import           Data.Aeson.Types                                  (Parser)
+import qualified Data.Sequence                                     as Sequence
 import           Data.Text                                         (Text)
-import qualified Data.Vector                                       as Vector
 import           GHC.Generics                                      (Generic)
 
 
@@ -70,7 +70,7 @@ data GeospatialGeometry =
     |   MultiPolygon GeoMultiPolygon
     |   Line GeoLine
     |   MultiLine GeoMultiLine
-    |   Collection (Vector.Vector GeospatialGeometry) deriving (Show, Eq, Generic, NFData)
+    |   Collection (Sequence.Seq GeospatialGeometry) deriving (Show, Eq, Generic, NFData)
 
 makePrisms ''GeospatialGeometry
 
