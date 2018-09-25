@@ -87,13 +87,13 @@ testFromVector :: Spec
 testFromVector =
   describe "fromVector" $ do
     it "creates a LineString out of a Vector of elements" $ do
-      LineString.fromVector (VectorStorable.fromList [0, 1] :: (VectorStorable.Vector Int))             `shouldBe` Success (LineString.makeLineString 0 1 VectorStorable.empty)
-      LineString.fromVector (VectorStorable.fromList [0, 1, 2] :: (VectorStorable.Vector Int))          `shouldBe` Success (LineString.makeLineString 0 1 (VectorStorable.fromList [2]))
-      LineString.fromVector (VectorStorable.fromList [0, 1, 2, 4, 5, 0] :: (VectorStorable.Vector Int)) `shouldBe` Success (LineString.makeLineString 0 1 (VectorStorable.fromList [2, 4, 5, 0]))
+      LineString.fromVector (VectorStorable.fromList [0, 1] :: (Sequence.Seq Int))             `shouldBe` Success (LineString.makeLineString 0 1 VectorStorable.empty)
+      LineString.fromVector (VectorStorable.fromList [0, 1, 2] :: (Sequence.Seq Int))          `shouldBe` Success (LineString.makeLineString 0 1 (VectorStorable.fromList [2]))
+      LineString.fromVector (VectorStorable.fromList [0, 1, 2, 4, 5, 0] :: (Sequence.Seq Int)) `shouldBe` Success (LineString.makeLineString 0 1 (VectorStorable.fromList [2, 4, 5, 0]))
     context "when provided with invalid input" $
       it "fails" $ do
-        LineString.fromVector (VectorStorable.fromList [] :: (VectorStorable.Vector Int))  `shouldBe` Failure LineString.VectorEmpty
-        LineString.fromVector (VectorStorable.fromList [0] :: (VectorStorable.Vector Int)) `shouldBe` Failure LineString.SingletonVector
+        LineString.fromVector (VectorStorable.fromList [] :: (Sequence.Seq Int))  `shouldBe` Failure LineString.VectorEmpty
+        LineString.fromVector (VectorStorable.fromList [0] :: (Sequence.Seq Int)) `shouldBe` Failure LineString.SingletonVector
 
 testCombineToVector :: Spec
 testCombineToVector =

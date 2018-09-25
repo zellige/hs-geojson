@@ -27,18 +27,18 @@ import           Control.DeepSeq
 import           Control.Lens                                 (makeLenses)
 import           Control.Monad                                (mzero)
 import qualified Data.Aeson                                   as Aeson
-import qualified Data.Vector                                  as Vector
+import qualified Data.Sequence                                as Sequence
 import           GHC.Generics                                 (Generic)
 
-newtype GeoMultiPolygon = GeoMultiPolygon { _unGeoMultiPolygon :: Vector.Vector (Vector.Vector (LinearRing.LinearRing GeoPositionWithoutCRS)) } deriving (Show, Eq, Generic, NFData)
+newtype GeoMultiPolygon = GeoMultiPolygon { _unGeoMultiPolygon :: Sequence.Seq (Sequence.Seq (LinearRing.LinearRing GeoPositionWithoutCRS)) } deriving (Show, Eq, Generic, NFData)
 
 -- | Split GeoMultiPolygon coordinates into multiple GeoPolygons
-splitGeoMultiPolygon :: GeoMultiPolygon -> Vector.Vector GeoPolygon
-splitGeoMultiPolygon = Vector.map GeoPolygon . _unGeoMultiPolygon
+splitGeoMultiPolygon :: GeoMultiPolygon -> Sequence.Seq GeoPolygon
+splitGeoMultiPolygon = fmap GeoPolygon . _unGeoMultiPolygon
 
 -- | Merge multiple GeoPolygons into one GeoMultiPolygon
-mergeGeoPolygons :: Vector.Vector GeoPolygon -> GeoMultiPolygon
-mergeGeoPolygons = GeoMultiPolygon . Vector.map GeoPolygon._unGeoPolygon
+mergeGeoPolygons :: Sequence.Seq GeoPolygon -> GeoMultiPolygon
+mergeGeoPolygons = GeoMultiPolygon . fmap GeoPolygon._unGeoPolygon
 
 makeLenses ''GeoMultiPolygon
 

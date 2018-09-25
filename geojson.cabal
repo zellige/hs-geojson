@@ -33,6 +33,7 @@ library
     hs-source-dirs:     src
     build-depends:      base < 5 &&     >= 4
                     ,   aeson           >= 0.8
+                    ,   containers
                     ,   deepseq         >= 1.4
                     ,   lens            >= 4.11
                     ,   semigroups      >= 0.16

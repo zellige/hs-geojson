@@ -17,8 +17,8 @@ instance (Arbitrary a, Eq a, Show a, VectorStorable.Storable a) => Arbitrary (Li
 instance (Arbitrary a, Eq a, Show a, VectorStorable.Storable a) => Arbitrary (LineString a) where
   arbitrary = makeLineString <$> arbitrary <*> arbitrary <*> arbitrary
 
-instance (Arbitrary a, VectorStorable.Storable a) => Arbitrary (VectorStorable.Vector a) where
+instance (Arbitrary a, VectorStorable.Storable a) => Arbitrary (Sequence.Seq a) where
   arbitrary = fmap VectorStorable.fromList arbitrary
 
-instance (Arbitrary a) => Arbitrary (Vector.Vector a) where
+instance (Arbitrary a) => Arbitrary (Sequence.Seq a) where
   arbitrary = fmap Vector.fromList arbitrary

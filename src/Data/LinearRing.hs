@@ -36,28 +36,28 @@ module Data.LinearRing (
     ) where
 
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 800
-import           Prelude              hiding (foldr)
+import           Prelude             hiding (foldr)
 #else
 import           Prelude
 #endif
 
-import           Control.Applicative  (Applicative (..))
+import           Control.Applicative (Applicative (..))
 import           Control.DeepSeq
-import           Control.Lens         (( # ), (^?))
-import           Control.Monad        (mzero)
-import           Data.Aeson           (FromJSON (..), ToJSON (..), Value)
-import           Data.Aeson.Types     (Parser, typeMismatch)
-import           Data.Functor         ((<$>))
-import           Data.List            (intercalate)
-import           Data.List.NonEmpty   as NL (NonEmpty, toList)
-import qualified Data.Validation      as Validation
-import qualified Data.Vector.Storable as VectorStorable
-import           GHC.Generics         (Generic)
+import           Control.Lens        (( # ), (^?))
+import           Control.Monad       (mzero)
+import           Data.Aeson          (FromJSON (..), ToJSON (..), Value)
+import           Data.Aeson.Types    (Parser, typeMismatch)
+import           Data.Functor        ((<$>))
+import           Data.List           (intercalate)
+import           Data.List.NonEmpty  as NL (NonEmpty, toList)
+import qualified Data.Sequence       as Sequence
+import qualified Data.Validation     as Validation
+import           GHC.Generics        (Generic)
 
 -- |
 -- a LinearRing has at least 3 (distinct) elements
 --
-data LinearRing a = LinearRing a a a (VectorStorable.Vector a) deriving (Eq, Show, Generic, NFData)
+data LinearRing a = LinearRing a a a (Sequence.Seq a) deriving (Eq, Show, Generic, NFData)
 
 -- |
 -- When converting a List to a LinearRing there are some things that can go wrong
@@ -135,7 +135,7 @@ fromListWithEqCheck xs = checkHeadAndLastEq xs *> fromList xs
 -- create a vector from a LinearRing by combining values.
 -- LinearRing 1 2 3 [4,1] (,) --> Vector [(1,2),(2,3),(3,4),(4,1)]
 --
-combineToVector :: (VectorStorable.Storable a, VectorStorable.Storable b) => (a -> a -> b) -> LinearRing a -> VectorStorable.Vector b
+combineToVector :: (VectorStorable.Storable a, VectorStorable.Storable b) => (a -> a -> b) -> LinearRing a -> Sequence.Seq b
 combineToVector combine (LinearRing a b c rest) = VectorStorable.cons (combine a b) (VectorStorable.cons (combine b c) combineRest)
     where
         combineRest =
@@ -150,7 +150,7 @@ combineToVector combine (LinearRing a b c rest) = VectorStorable.cons (combine a
 -- create a vector from a LinearRing.
 -- LinearRing 1 2 3 [4,1] --> Vector [1,2,3,4,1)]
 --
-toVector :: (VectorStorable.Storable a) => LinearRing a -> VectorStorable.Vector a
+toVector :: (VectorStorable.Storable a) => LinearRing a -> Sequence.Seq a
 toVector (LinearRing a b c rest) = VectorStorable.cons a (VectorStorable.cons b (VectorStorable.cons c rest))
 {-# INLINE toVector #-}
 
@@ -161,7 +161,7 @@ toVector (LinearRing a b c rest) = VectorStorable.cons a (VectorStorable.cons b 
 -- fromVector (x:y:z:ws@(_:_)) = _Success # LinearRing x y z (fromListDropLast ws)
 -- fromList xs               = _Failure # return (ListTooShort (length xs))
 
-fromVector :: (Eq a, Show a, VectorStorable.Storable a, Validation.Validate v, Functor (v (NonEmpty (ListToLinearRingError a)))) => VectorStorable.Vector a -> v (NonEmpty (VectorToLinearRingError a)) (LinearRing a)
+fromVector :: (Eq a, Show a, VectorStorable.Storable a, Validation.Validate v, Functor (v (NonEmpty (ListToLinearRingError a)))) => Sequence.Seq a -> v (NonEmpty (VectorToLinearRingError a)) (LinearRing a)
 fromVector v =
   if VectorStorable.length v >= 3 then
     if VectorStorable.head v == VectorStorable.last v then
@@ -184,7 +184,7 @@ makeLinearRing :: (Eq a, Show a, VectorStorable.Storable a) =>
        a                        -- ^ The first element
     -> a                        -- ^ The second element
     -> a                        -- ^ The third element
-    -> VectorStorable.Vector a  -- ^ The rest of the optional elements (WITHOUT the first element repeated at the end)
+    -> Sequence.Seq a  -- ^ The rest of the optional elements (WITHOUT the first element repeated at the end)
     -> LinearRing a
 makeLinearRing = LinearRing
 
@@ -252,7 +252,7 @@ safeLast []     = Nothing
 safeLast [x]    = Just x
 safeLast (_:xs) = safeLast xs
 
-fromListDropLast :: (Eq a, VectorStorable.Storable a) => [a] -> VectorStorable.Vector a
+fromListDropLast :: (Eq a, VectorStorable.Storable a) => [a] -> Sequence.Seq a
 fromListDropLast []  = VectorStorable.empty
 fromListDropLast [_] = VectorStorable.empty
 fromListDropLast x   = VectorStorable.unsafeInit $ VectorStorable.fromList x
