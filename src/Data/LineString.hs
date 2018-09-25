@@ -24,9 +24,6 @@ module Data.LineString (
     ,   fromVector
     ,   fromLineString
     ,   fromList
-    ,   Data.LineString.map
-    ,   Data.LineString.foldr
-    ,   Data.LineString.foldMap
     ,   makeLineString
     ,   lineStringHead
     ,   lineStringLast
@@ -183,20 +180,18 @@ instance Show VectorToLineStringError where
 instance (Show a) => Show (LineString a) where
     show  = show . fromLineString
 
-map :: (a -> b) -> LineString a -> LineString b
-map f (LineString x y zs) = LineString (f x) (f y) (fmap f zs)
-{-# INLINE map #-}
+instance Functor LineString where
+    fmap f (LineString x y zs) = LineString (f x) (f y) (fmap f zs)
 
--- | This will run through the entire ring, closing the
--- loop by also passing the initial element in again at the end.
+-- | This will run through the line string.
 --
-foldr :: (a -> b -> b) -> b -> LineString a -> b
-foldr f u (LineString x y zs) = f x (f y (Foldable.foldr f u zs))
-{-# INLINE foldr #-}
+instance Foldable LineString where
+    --  foldr :: (a -> b -> b) -> b -> LineString a -> b
+    foldr f u (LineString x y zs) = f x (f y (Foldable.foldr f u zs))
 
-foldMap :: (Monoid m) => (a -> m) -> LineString a -> m
-foldMap f = foldr (mappend . f) mempty
-{-# INLINE foldMap #-}
+instance Traversable LineString where
+    --  sequenceA :: (Traversable t, Applicative f) => t (f a) -> f (t a)
+    sequenceA (LineString fx fy fzs) = LineString <$> fx <*> fy <*> sequenceA fzs
 
 instance (ToJSON a) => ToJSON (LineString a) where
 --  toJSON :: a -> Value

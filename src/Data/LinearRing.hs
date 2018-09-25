@@ -28,9 +28,6 @@ module Data.LinearRing (
     ,   fromList
     ,   fromListWithEqCheck
     ,   makeLinearRing
-    ,   Data.LinearRing.map
-    ,   Data.LinearRing.foldr
-    ,   Data.LinearRing.foldMap
     ,   ringHead
     ,   ringLength
     ) where
@@ -167,18 +164,20 @@ toVector (LinearRing a b c rest) = a Sequence.:<| (b Sequence.:<| (c Sequence.:<
 -- fromList xs               = _Failure # return (ListTooShort (length xs))
 
 fromVector :: (Eq a, Show a, Validation.Validate v, Functor (v (NonEmpty (ListToLinearRingError a)))) => Sequence.Seq a -> v (NonEmpty (VectorToLinearRingError a)) (LinearRing a)
-fromVector (first Sequence.:<| (second Sequence.:<| (third Sequence.:<| rest@(_ Sequence.:|> lastS)))) =
-    if first == lastS then
-        Validation._Success # LinearRing first second third rest
-    else
-        Validation._Failure # pure (FirstNotEqualToLast first lastS)
-fromVector (first Sequence.:<| (second Sequence.:<| (third Sequence.:<| _))) =
-        if first == third then
-            Validation._Success # LinearRing first second third Sequence.empty
-        else
-            Validation._Failure # pure (FirstNotEqualToLast first third)
-fromVector v = Validation._Failure # pure (VectorTooShort (Sequence.length v))
-fromVector _ = Validation._Failure # pure (VectorTooShort 0)
+fromVector as =
+    case as of
+        (first Sequence.:<| (second Sequence.:<| (third Sequence.:<| rest@(_ Sequence.:|> lastS)))) ->
+            if first == lastS then
+                Validation._Success # LinearRing first second third rest
+            else
+                Validation._Failure # pure (FirstNotEqualToLast first lastS)
+        (first Sequence.:<| (second Sequence.:<| (third Sequence.:<| _))) ->
+            if first == third then
+                Validation._Success # LinearRing first second third Sequence.empty
+            else
+                Validation._Failure # pure (FirstNotEqualToLast first third)
+        v -> Validation._Failure # pure (VectorTooShort (Sequence.length v))
+        _ -> Validation._Failure # pure (VectorTooShort 0)
 {-# INLINE fromVector #-}
 
 -- |
@@ -207,20 +206,23 @@ instance (Show a) => Show (VectorToLinearRingError a) where
     show (VectorTooShort n) = "Vector too short: (length = " ++ show n ++ ")"
     show (FirstNotEqualToLast h l) = "head (" ++ show h ++ ") /= last(" ++ show l ++ ")"
 
-map :: (a -> b) -> LinearRing a -> LinearRing b
-map f (LinearRing x y z ws) = LinearRing (f x) (f y) (f z) (fmap f ws)
-{-# INLINE map #-}
+instance Functor LinearRing where
+    fmap f (LinearRing x y z ws) = LinearRing (f x) (f y) (f z) (fmap f ws)
 
--- | This will run through the entire ring, closing the
+-- | This instance of Foldable will run through the entire ring, closing the
 -- loop by also passing the initial element in again at the end.
 --
-foldr :: (a -> b -> b) -> b -> LinearRing a -> b
-foldr f u (LinearRing x y z ws) = f x (f y (f z (Foldable.foldr f (f x u) ws)))
-{-# INLINE foldr #-}
+instance Foldable LinearRing where
+    --  foldr :: (a -> b -> b) -> b -> LinearRing a -> b
+    foldr f u (LinearRing x y z ws) = f x (f y (f z (Foldable.foldr f (f x u) ws)))
 
-foldMap :: (Monoid m) => (a -> m) -> LinearRing a -> m
-foldMap f = foldr (mappend . f) mempty
-{-# INLINE foldMap #-}
+-- |
+-- When traversing this Structure, the Applicative context
+-- of the last element will be appended to the end to close the loop
+--
+instance Traversable LinearRing where
+    --  sequenceA :: (Traversable t, Applicative f) => t (f a) -> f (t a)
+    sequenceA (LinearRing fx fy fz fws) = (LinearRing <$> fx <*> fy <*> fz <*> sequenceA fws) <* fx
 
 instance (ToJSON a) => ToJSON (LinearRing a) where
 --  toJSON :: a -> Value

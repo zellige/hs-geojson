@@ -54,7 +54,7 @@ testFromLinearRing xs = property $ length (LinearRing.fromLinearRing xs) >= 4
 -- > (\xs -> (ringHead xs) == (foldr (\a -> const a) 0 xs)) (xs :: LinearRing Int)
 --
 testFoldable :: LinearRing.LinearRing Int -> Property
-testFoldable xs = property $ (LinearRing.foldr (:) [] xs == LinearRing.fromLinearRing xs) && (LinearRing.ringHead xs == LinearRing.foldr const 0 xs)
+testFoldable xs = property $ (foldr (:) [] xs == LinearRing.fromLinearRing xs) && (LinearRing.ringHead xs == foldr const 0 xs)
 
 -- Spec
 

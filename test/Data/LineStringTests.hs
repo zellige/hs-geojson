@@ -52,7 +52,7 @@ testFromLineString xs = property $ length (LineString.fromLineString xs) >= 2
 -- > (\xs -> (lineStringHead xs) == (foldr (\a -> const a) 0 xs)) (xs :: LineString Int)
 --
 testFoldable :: LineString.LineString Int -> Property
-testFoldable xs = property $ (LineString.foldr (:) [] xs == LineString.fromLineString xs) && (LineString.lineStringHead xs == LineString.foldr const 0 xs)
+testFoldable xs = property $ (foldr (:) [] xs == LineString.fromLineString xs) && (LineString.lineStringHead xs == foldr const 0 xs)
 
 -- Spec
 

@@ -116,41 +116,6 @@ instance Aeson.FromJSON GeoPositionWithoutCRS where
     x <- Aeson.parseJSON o
     DataMaybe.maybe (fail "Illegal coordinates") pure (_toGeoPoint x)
 
-sizeOfDouble :: Int
-sizeOfDouble = sizeOf (undefined :: Double)
-{-# INLINE sizeOfDouble #-}
-
-alignmentOfDouble :: Int
-alignmentOfDouble = alignment (undefined :: Double)
-{-# INLINE alignmentOfDouble #-}
-
--- instance VectorStorable.Storable PointXY where
---   sizeOf _ = 2 * sizeOfDouble
---   alignment _ = alignmentOfDouble
---   {-# INLINE peek #-}
---   peek p = PointXY <$> peekByteOff p 0 <*> peekByteOff p (1 * sizeOfDouble)
---   {-# INLINE poke #-}
---   poke p (PointXY x y) = pokeByteOff p 0 x  *> pokeByteOff p (1 * sizeOfDouble) y
-
--- instance VectorStorable.Storable GeoPositionWithoutCRS where
---   sizeOf _ = 5 * sizeOfDouble
---   alignment _ = alignmentOfDouble
---   {-# INLINE peek #-}
---   peek p = do
---       t <- peekByteOff p 0
---       case (t :: Double) of
---         0 -> pure GeoEmpty
---         1 -> fmap GeoPointXY $ PointXY <$> peekByteOff p (1 * sizeOfDouble) <*> peekByteOff p (2 * sizeOfDouble)
---         2 -> fmap GeoPointXYZ $ PointXYZ  <$> peekByteOff p (1 * sizeOfDouble) <*> peekByteOff p (2 * sizeOfDouble) <*> peekByteOff p (3 * sizeOfDouble)
---         _ -> fmap GeoPointXYZM $ PointXYZM <$> peekByteOff p (1 * sizeOfDouble) <*> peekByteOff p (2 * sizeOfDouble) <*> peekByteOff p (3 * sizeOfDouble) <*> peekByteOff p (4 * sizeOfDouble)
---   {-# INLINE poke #-}
---   poke p val =
---     case val of
---       GeoEmpty                           -> pokeByteOff p 0 (0 :: Double) *> pokeByteOff p (1 * sizeOfDouble) (0 :: Double)
---       (GeoPointXY   (PointXY x y))       -> pokeByteOff p 0 (1 :: Double) *> pokeByteOff p (1 * sizeOfDouble) x  *> pokeByteOff p (2 * sizeOfDouble) y
---       (GeoPointXYZ  (PointXYZ x y z))    -> pokeByteOff p 0 (2 :: Double) *> pokeByteOff p (1 * sizeOfDouble) x  *> pokeByteOff p (2 * sizeOfDouble) y *> pokeByteOff p (3 * sizeOfDouble) z
---       (GeoPointXYZM (PointXYZM x y z m)) -> pokeByteOff p 0 (3 :: Double) *> pokeByteOff p (1 * sizeOfDouble) x  *> pokeByteOff p (2 * sizeOfDouble) y *> pokeByteOff p (3 * sizeOfDouble) z *> pokeByteOff p (4 * sizeOfDouble) m
-
 type Name = Text.Text
 type Code = Int
 type Href = Text.Text
