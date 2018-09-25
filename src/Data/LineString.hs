@@ -41,6 +41,7 @@ import           Control.Lens        (( # ), (^?))
 import           Control.Monad       (mzero)
 import           Data.Aeson          (FromJSON (..), ToJSON (..), Value)
 import           Data.Aeson.Types    (Parser, typeMismatch)
+import qualified Data.Foldable       as Foldable
 import           Data.Maybe          (fromMaybe)
 import qualified Data.Sequence       as Sequence
 import qualified Data.Validation     as Validation
@@ -84,20 +85,20 @@ lineStringHead (LineString x _ _) = x
 -- |
 -- returns the last element in the string
 --
-lineStringLast :: (VectorStorable.Storable a) => LineString a -> a
+lineStringLast :: LineString a -> a
 lineStringLast (LineString _ x xs) = fromMaybe x (safeLast xs)
 
 -- |
 -- returns the number of elements in the list, including the replicated element at the end of the list.
 --
-lineStringLength :: (VectorStorable.Storable a) => LineString a -> Int
-lineStringLength (LineString _ _ xs) = 2 + VectorStorable.length xs
+lineStringLength :: LineString a -> Int
+lineStringLength (LineString _ _ xs) = 2 + Sequence.length xs
 
 -- |
 -- This function converts it into a list and appends the given element to the end.
 --
-fromLineString :: (VectorStorable.Storable a) => LineString a -> [a]
-fromLineString (LineString x y zs) = x : y : VectorStorable.toList zs
+fromLineString :: LineString a -> [a]
+fromLineString (LineString x y zs) = x : y : Foldable.toList zs
 
 -- |
 -- creates a LineString out of a list of elements,
@@ -106,30 +107,33 @@ fromLineString (LineString x y zs) = x : y : VectorStorable.toList zs
 fromList :: (Validation.Validate v) => [a] -> v ListToLineStringError (LineString a)
 fromList []       = Validation._Failure # ListEmpty
 fromList [_]      = Validation._Failure # SingletonList
-fromList (x:y:zs) = Validation._Success # LineString x y (VectorStorable.fromList zs)
+fromList (x:y:zs) = Validation._Success # LineString x y (Sequence.fromList zs)
 {-# INLINE fromList #-}
 
 -- |
 -- create a vector from a LineString by combining values.
 -- LineString 1 2 [3,4] (,) --> Vector [(1,2),(2,3),(3,4)]
 --
-combineToVector :: (VectorStorable.Storable a, VectorStorable.Storable b) => (a -> a -> b) -> LineString a -> Sequence.Seq b
-combineToVector combine (LineString a b rest) = VectorStorable.cons (combine a b) combineRest
+combineToVector :: (a -> a -> b) -> LineString a -> Sequence.Seq b
+combineToVector combine (LineString a b rest) = combine a b Sequence.<| combineRest
     where
         combineRest =
-          if VectorStorable.null rest
+          if Sequence.null rest
             then
-              VectorStorable.empty
+              Sequence.empty
             else
-              (VectorStorable.zipWith combine <*> VectorStorable.tail) (VectorStorable.cons b rest)
+              (Sequence.zipWith combine <*> sequenceTail) (b Sequence.<| rest)
 {-# INLINE combineToVector #-}
+
+sequenceTail :: Sequence.Seq a -> Sequence.Seq a
+sequenceTail (head Sequence.:<| tail) = tail
 
 -- |
 -- create a vector from a LineString.
 -- LineString 1 2 [3,4] --> Vector [1,2,3,4]
 --
-toVector :: (VectorStorable.Storable a) => LineString a -> Sequence.Seq a
-toVector (LineString a b rest) = VectorStorable.cons a (VectorStorable.cons b rest)
+toVector :: LineString a -> Sequence.Seq a
+toVector (LineString a b rest) = a Sequence.<| ( b  Sequence.<| rest)
 {-# INLINE toVector #-}
 
 -- |
@@ -137,16 +141,16 @@ toVector (LineString a b rest) = VectorStorable.cons a (VectorStorable.cons b re
 -- if there are enough elements (needs at least 2) elements
 --
 fromVector :: (Validation.Validate v) => Sequence.Seq a -> v VectorToLineStringError (LineString a)
-fromVector (head Sequence.:< tail) =
-  if VectorStorable.null v then
+fromVector v@(head Sequence.:<| tail) =
+  if Sequence.null v then
     Validation._Failure # VectorEmpty
   else
     fromVector' head tail
 {-# INLINE fromVector #-}
 
 fromVector' :: (Validation.Validate v) => a -> Sequence.Seq a -> v VectorToLineStringError (LineString a)
-fromVector' first (head Sequence.:< tail) =
-  if VectorStorable.null v then
+fromVector' first v@(head Sequence.:<| tail) =
+  if Sequence.null v then
     Validation._Failure # SingletonVector
   else
     Validation._Success # LineString first head tail
@@ -184,7 +188,7 @@ map f (LineString x y zs) = LineString (f x) (f y) (fmap f zs)
 -- loop by also passing the initial element in again at the end.
 --
 foldr :: (a -> b -> b) -> b -> LineString a -> b
-foldr f u (LineString x y zs) = f x (f y (foldr f u zs))
+foldr f u (LineString x y zs) = f x (f y (Foldable.foldr f u zs))
 {-# INLINE foldr #-}
 
 foldMap :: (Monoid m) => (a -> m) -> LineString a -> m
