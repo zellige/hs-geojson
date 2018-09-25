@@ -20,8 +20,7 @@ import           Data.Geospatial.Internal.Geometry.GeoPoint        (GeoPoint (..
 import           Data.Geospatial.Internal.Geometry.GeoPolygon      (GeoPolygon (..))
 import qualified Data.LinearRing                                   as LinearRing
 import qualified Data.LineString                                   as LineString
-import qualified Data.Vector                                       as Vector
-import qualified Data.Vector.Storable                              as VectorStorable
+import qualified Data.Sequence                                     as Sequence
 
 -- CRS Data
 
@@ -44,7 +43,7 @@ testNamedCRS :: CRSObject
 testNamedCRS = NamedCRS "urn:ogc:def:crs:OGC:1.3:CRS84"
 
 mkBoundingBox :: [Double] -> BasicTypes.BoundingBoxWithoutCRS
-mkBoundingBox x = BasicTypes.BoundingBoxWithoutCRS $ VectorStorable.fromList x
+mkBoundingBox x = BasicTypes.BoundingBoxWithoutCRS $ Sequence.fromList x
 
 -- Bounding Box Data
 
@@ -52,13 +51,13 @@ mkGeoPoint :: Double -> Double -> BasicTypes.GeoPositionWithoutCRS
 mkGeoPoint x y = BasicTypes.GeoPointXY $ BasicTypes.PointXY x y
 
 lshapedPolyVertices :: Sequence.Seq (LinearRing.LinearRing BasicTypes.GeoPositionWithoutCRS)
-lshapedPolyVertices =  Vector.fromList [LinearRing.makeLinearRing (mkGeoPoint 120.0 (-15.0)) (mkGeoPoint 127.0 (-15.0)) (mkGeoPoint 127.0 (-25.0)) (VectorStorable.fromList [mkGeoPoint 124.0 (-25.0), mkGeoPoint 124.0 (-18.0), mkGeoPoint 120.0 (-18.0)])]
+lshapedPolyVertices =  Sequence.fromList [LinearRing.makeLinearRing (mkGeoPoint 120.0 (-15.0)) (mkGeoPoint 127.0 (-15.0)) (mkGeoPoint 127.0 (-25.0)) (Sequence.fromList [mkGeoPoint 124.0 (-25.0), mkGeoPoint 124.0 (-18.0), mkGeoPoint 120.0 (-18.0)])]
 
 lshapedPolyLineVertices :: LineString.LineString BasicTypes.GeoPositionWithoutCRS
-lshapedPolyLineVertices = LineString.makeLineString (mkGeoPoint 120.0 (-15.0)) (mkGeoPoint 127.0 (-15.0)) (VectorStorable.fromList [mkGeoPoint 127.0 (-25.0), mkGeoPoint 124.0 (-25.0), mkGeoPoint 124.0 (-18.0), mkGeoPoint 120.0 (-18.0)])
+lshapedPolyLineVertices = LineString.makeLineString (mkGeoPoint 120.0 (-15.0)) (mkGeoPoint 127.0 (-15.0)) (Sequence.fromList [mkGeoPoint 127.0 (-25.0), mkGeoPoint 124.0 (-25.0), mkGeoPoint 124.0 (-18.0), mkGeoPoint 120.0 (-18.0)])
 
 emptyVertices :: Sequence.Seq (LinearRing.LinearRing BasicTypes.GeoPositionWithoutCRS)
-emptyVertices = Vector.empty
+emptyVertices = Sequence.empty
 
 emptyLineVertices :: [BasicTypes.GeoPositionWithoutCRS]
 emptyLineVertices = []
@@ -131,7 +130,7 @@ emptyMultiPolyJSON :: BS.ByteString
 emptyMultiPolyJSON = "{\"type\":\"MultiPolygon\",\"coordinates\":[]}"
 
 emptyMultiGeoPoly :: GeoMultiPolygon
-emptyMultiGeoPoly = GeoMultiPolygon Vector.empty
+emptyMultiGeoPoly = GeoMultiPolygon Sequence.empty
 
 emptyMultiPoly :: GeospatialGeometry
 emptyMultiPoly = MultiPolygon emptyMultiGeoPoly
@@ -140,7 +139,7 @@ singlePolyMultiPolyJSON :: BS.ByteString
 singlePolyMultiPolyJSON = "{\"type\":\"MultiPolygon\",\"coordinates\":[[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]]]}"
 
 singlePolyGeoMultiPoly :: GeoMultiPolygon
-singlePolyGeoMultiPoly = mergeGeoPolygons (Vector.fromList [lShapedGeoPoly])
+singlePolyGeoMultiPoly = mergeGeoPolygons (Sequence.fromList [lShapedGeoPoly])
 
 singlePolyMultiPoly :: GeospatialGeometry
 singlePolyMultiPoly = MultiPolygon singlePolyGeoMultiPoly
@@ -149,7 +148,7 @@ multiPolyJSON :: BS.ByteString
 multiPolyJSON = "{\"type\":\"MultiPolygon\",\"coordinates\":[[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]],[]]}"
 
 geoMultiPoly :: GeoMultiPolygon
-geoMultiPoly = mergeGeoPolygons (Vector.fromList [lShapedGeoPoly, emptyGeoPoly])
+geoMultiPoly = mergeGeoPolygons (Sequence.fromList [lShapedGeoPoly, emptyGeoPoly])
 
 multiPoly :: GeospatialGeometry
 multiPoly = MultiPolygon geoMultiPoly
@@ -169,7 +168,7 @@ emptyMultiLineJSON :: BS.ByteString
 emptyMultiLineJSON = "{\"type\":\"MultiLineString\",\"coordinates\":[]}"
 
 emptyMultiGeoLine :: GeoMultiLine
-emptyMultiGeoLine = GeoMultiLine Vector.empty
+emptyMultiGeoLine = GeoMultiLine Sequence.empty
 
 emptyMultiLine :: GeospatialGeometry
 emptyMultiLine = MultiLine emptyMultiGeoLine
@@ -178,7 +177,7 @@ singleLineMultiLineJSON :: BS.ByteString
 singleLineMultiLineJSON = "{\"type\":\"MultiLineString\",\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]]}"
 
 singleLineGeoMultiLine :: GeoMultiLine
-singleLineGeoMultiLine = mergeGeoLines (Vector.fromList [lShapedGeoLine])
+singleLineGeoMultiLine = mergeGeoLines (Sequence.fromList [lShapedGeoLine])
 
 singleLineMultiLine :: GeospatialGeometry
 singleLineMultiLine = MultiLine singleLineGeoMultiLine
@@ -187,7 +186,7 @@ multiLineJSON :: BS.ByteString
 multiLineJSON = "{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]],[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]],\"type\":\"MultiLineString\"}"
 
 geoMultiLine :: GeoMultiLine
-geoMultiLine = mergeGeoLines (Vector.fromList [lShapedGeoLine, lShapedGeoLine])
+geoMultiLine = mergeGeoLines (Sequence.fromList [lShapedGeoLine, lShapedGeoLine])
 
 multiLine :: GeospatialGeometry
 multiLine = MultiLine geoMultiLine
@@ -197,13 +196,13 @@ emptyCollectionJSON :: BS.ByteString
 emptyCollectionJSON = "{\"type\":\"GeometryCollection\",\"geometries\":[]}"
 
 emptyCollection :: GeospatialGeometry
-emptyCollection = Collection Vector.empty
+emptyCollection = Collection Sequence.empty
 
 bigassCollectionJSON :: BS.ByteString
 bigassCollectionJSON = "{\"geometries\":[{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]],\"type\":\"MultiLineString\"},{\"coordinates\":[],\"type\":\"MultiLineString\"},{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]],[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]],\"type\":\"MultiLineString\"},{\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]],\"type\":\"LineString\"},{\"coordinates\":[[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]],[]],\"type\":\"MultiPolygon\"},{\"coordinates\":[[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]]],\"type\":\"MultiPolygon\"},{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]],\"type\":\"Polygon\"},{\"coordinates\":[],\"type\":\"MultiPolygon\"},{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]],\"type\":\"Polygon\"}],\"type\":\"GeometryCollection\"}"
 
 bigassCollection :: GeospatialGeometry
-bigassCollection = Collection $ Vector.fromList [singleLineMultiLine, emptyMultiLine, multiLine, lShapedLine, multiPoly, singlePolyMultiPoly, lShapedPoly, emptyMultiPoly, lShapedPoly]
+bigassCollection = Collection $ Sequence.fromList [singleLineMultiLine, emptyMultiLine, multiLine, lShapedLine, multiPoly, singlePolyMultiPoly, lShapedPoly, emptyMultiPoly, lShapedPoly]
 
 -- Properties Data
 
@@ -251,7 +250,7 @@ featureWithNoBBox = GeoFeature Nothing bigassCollection testProperties featureId
 -- FeatureCollection Data
 
 features :: Sequence.Seq (GeoFeature Aeson.Value)
-features = Vector.fromList [featureWithNoBBox, featureWithNoGeometry, featureWithNoBBox, featureWithNoId, featureWithNoProperties, bigFeature]
+features = Sequence.fromList [featureWithNoBBox, featureWithNoGeometry, featureWithNoBBox, featureWithNoId, featureWithNoProperties, bigFeature]
 
 bigAssFeatureCollectionJSON :: BS.ByteString
 bigAssFeatureCollectionJSON = "{\"bbox\":[-32,147.5,-29.5,151],\"features\":[{\"geometry\":{\"geometries\":[{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]],\"type\":\"MultiLineString\"},{\"coordinates\":[],\"type\":\"MultiLineString\"},{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]],[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]],\"type\":\"MultiLineString\"},{\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]],\"type\":\"LineString\"},{\"coordinates\":[[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]],[]],\"type\":\"MultiPolygon\"},{\"coordinates\":[[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]]],\"type\":\"MultiPolygon\"},{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]],\"type\":\"Polygon\"},{\"coordinates\":[],\"type\":\"MultiPolygon\"},{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]],\"type\":\"Polygon\"}],\"type\":\"GeometryCollection\"},\"id\":\"GW001\",\"type\":\"Feature\",\"properties\":{\"depth\":5,\"comment\":\"Bore run over by dump truck\"}},{\"bbox\":[-32,147.5,-29.5,151],\"geometry\":null,\"id\":\"GW001\",\"type\":\"Feature\",\"properties\":{\"depth\":5,\"comment\":\"Bore run over by dump truck\"}},{\"geometry\":{\"geometries\":[{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]],\"type\":\"MultiLineString\"},{\"coordinates\":[],\"type\":\"MultiLineString\"},{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]],[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]],\"type\":\"MultiLineString\"},{\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]],\"type\":\"LineString\"},{\"coordinates\":[[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]],[]],\"type\":\"MultiPolygon\"},{\"coordinates\":[[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]]],\"type\":\"MultiPolygon\"},{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]],\"type\":\"Polygon\"},{\"coordinates\":[],\"type\":\"MultiPolygon\"},{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]],\"type\":\"Polygon\"}],\"type\":\"GeometryCollection\"},\"id\":\"GW001\",\"type\":\"Feature\",\"properties\":{\"depth\":5,\"comment\":\"Bore run over by dump truck\"}},{\"bbox\":[-32,147.5,-29.5,151],\"geometry\":{\"geometries\":[{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]],\"type\":\"MultiLineString\"},{\"coordinates\":[],\"type\":\"MultiLineString\"},{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]],[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]],\"type\":\"MultiLineString\"},{\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]],\"type\":\"LineString\"},{\"coordinates\":[[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]],[]],\"type\":\"MultiPolygon\"},{\"coordinates\":[[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]]],\"type\":\"MultiPolygon\"},{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]],\"type\":\"Polygon\"},{\"coordinates\":[],\"type\":\"MultiPolygon\"},{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]],\"type\":\"Polygon\"}],\"type\":\"GeometryCollection\"},\"type\":\"Feature\",\"properties\":{\"depth\":5,\"comment\":\"Bore run over by dump truck\"}},{\"bbox\":[-32,147.5,-29.5,151],\"geometry\":{\"geometries\":[{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]],\"type\":\"MultiLineString\"},{\"coordinates\":[],\"type\":\"MultiLineString\"},{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]],[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]],\"type\":\"MultiLineString\"},{\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]],\"type\":\"LineString\"},{\"coordinates\":[[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]],[]],\"type\":\"MultiPolygon\"},{\"coordinates\":[[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]]],\"type\":\"MultiPolygon\"},{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]],\"type\":\"Polygon\"},{\"coordinates\":[],\"type\":\"MultiPolygon\"},{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]],\"type\":\"Polygon\"}],\"type\":\"GeometryCollection\"},\"id\":\"GW001\",\"type\":\"Feature\",\"properties\":null},{\"bbox\":[-32,147.5,-29.5,151],\"geometry\":{\"geometries\":[{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]],\"type\":\"MultiLineString\"},{\"coordinates\":[],\"type\":\"MultiLineString\"},{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]],[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]]],\"type\":\"MultiLineString\"},{\"coordinates\":[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18]],\"type\":\"LineString\"},{\"coordinates\":[[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]],[]],\"type\":\"MultiPolygon\"},{\"coordinates\":[[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]]],\"type\":\"MultiPolygon\"},{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]],\"type\":\"Polygon\"},{\"coordinates\":[],\"type\":\"MultiPolygon\"},{\"coordinates\":[[[120,-15],[127,-15],[127,-25],[124,-25],[124,-18],[120,-18],[120,-15]]],\"type\":\"Polygon\"}],\"type\":\"GeometryCollection\"},\"id\":\"GW001\",\"type\":\"Feature\",\"properties\":{\"depth\":5,\"comment\":\"Bore run over by dump truck\"}}],\"type\":\"FeatureCollection\"}"
@@ -269,10 +268,10 @@ emptyFeatureCollectionJSON :: BS.ByteString
 emptyFeatureCollectionJSON = "{\"type\":\"FeatureCollection\",\"features\":[]}"
 
 emptyFeatureCollection :: GeoFeatureCollection Aeson.Value
-emptyFeatureCollection = GeoFeatureCollection Nothing Vector.empty
+emptyFeatureCollection = GeoFeatureCollection Nothing Sequence.empty
 
 emptyFeatureCollectionWithBBoxJSON :: BS.ByteString
 emptyFeatureCollectionWithBBoxJSON = "{\"type\":\"FeatureCollection\",\"features\":[],\"bbox\":[-32,147.5,-29.5,151]}"
 
 emptyFeatureCollectionWithBBox :: GeoFeatureCollection Aeson.Value
-emptyFeatureCollectionWithBBox = GeoFeatureCollection bbox Vector.empty
+emptyFeatureCollectionWithBBox = GeoFeatureCollection bbox Sequence.empty

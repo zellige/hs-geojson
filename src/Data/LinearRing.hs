@@ -144,11 +144,12 @@ combineToVector combine (LinearRing a b c rest) = combine a b Sequence.:<| (comb
             then
               Sequence.empty
             else
-                (Sequence.zipWith combine <*> sequenceTail) (b Sequence.<| rest)
+                (Sequence.zipWith combine <*> sequenceTail) (c Sequence.<| rest)
 {-# INLINE combineToVector #-}
 
 sequenceTail :: Sequence.Seq a -> Sequence.Seq a
-sequenceTail (head Sequence.:<| tail) = tail
+sequenceTail (_ Sequence.:<| tailS) = tailS
+sequenceTail _                      = Sequence.empty
 
 -- |
 -- create a vector from a LinearRing.
@@ -166,14 +167,18 @@ toVector (LinearRing a b c rest) = a Sequence.:<| (b Sequence.:<| (c Sequence.:<
 -- fromList xs               = _Failure # return (ListTooShort (length xs))
 
 fromVector :: (Eq a, Show a, Validation.Validate v, Functor (v (NonEmpty (ListToLinearRingError a)))) => Sequence.Seq a -> v (NonEmpty (VectorToLinearRingError a)) (LinearRing a)
-fromVector v@(head Sequence.:<| tail@(_ Sequence.:|> last)) =
-  if Sequence.length v >= 3 then
-    if head == last then
-        Validation._Success # LinearRing (Sequence.index v 0) (Sequence.index v 1) (Sequence.index v 2) (Sequence.drop 3 v)
+fromVector (first Sequence.:<| (second Sequence.:<| (third Sequence.:<| rest@(_ Sequence.:|> lastS)))) =
+    if first == lastS then
+        Validation._Success # LinearRing first second third rest
     else
-        Validation._Failure # pure (FirstNotEqualToLast head last)
-  else
-    Validation._Failure # pure (VectorTooShort (Sequence.length v))
+        Validation._Failure # pure (FirstNotEqualToLast first lastS)
+fromVector (first Sequence.:<| (second Sequence.:<| (third Sequence.:<| _))) =
+        if first == third then
+            Validation._Success # LinearRing first second third Sequence.empty
+        else
+            Validation._Failure # pure (FirstNotEqualToLast first third)
+fromVector v = Validation._Failure # pure (VectorTooShort (Sequence.length v))
+fromVector _ = Validation._Failure # pure (VectorTooShort 0)
 {-# INLINE fromVector #-}
 
 -- |
@@ -259,4 +264,9 @@ safeLast (_:xs) = safeLast xs
 fromListDropLast :: (Eq a) => [a] -> Sequence.Seq a
 fromListDropLast []  = Sequence.empty
 fromListDropLast [_] = Sequence.empty
-fromListDropLast x   = sequenceTail $ Sequence.fromList x
+fromListDropLast x   = sequenceHead $ Sequence.fromList x
+
+-- All but the last
+sequenceHead :: Sequence.Seq a -> Sequence.Seq a
+sequenceHead (headS Sequence.:|> _) = headS
+sequenceHead _                      = Sequence.empty

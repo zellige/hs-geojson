@@ -68,6 +68,7 @@ test-suite              geojson-test
     build-depends:      base < 5 &&     >= 4
                     ,   aeson           >= 0.8
                     ,   bytestring      >= 0.10
+                    ,   containers
                     ,   geojson
                     ,   tasty
                     ,   tasty-hspec

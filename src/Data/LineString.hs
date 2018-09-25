@@ -126,7 +126,8 @@ combineToVector combine (LineString a b rest) = combine a b Sequence.<| combineR
 {-# INLINE combineToVector #-}
 
 sequenceTail :: Sequence.Seq a -> Sequence.Seq a
-sequenceTail (head Sequence.:<| tail) = tail
+sequenceTail (_ Sequence.:<| tailS) = tailS
+sequenceTail _                      = Sequence.empty
 
 -- |
 -- create a vector from a LineString.
@@ -141,19 +142,21 @@ toVector (LineString a b rest) = a Sequence.<| ( b  Sequence.<| rest)
 -- if there are enough elements (needs at least 2) elements
 --
 fromVector :: (Validation.Validate v) => Sequence.Seq a -> v VectorToLineStringError (LineString a)
-fromVector v@(head Sequence.:<| tail) =
-  if Sequence.null v then
-    Validation._Failure # VectorEmpty
-  else
-    fromVector' head tail
-{-# INLINE fromVector #-}
-
-fromVector' :: (Validation.Validate v) => a -> Sequence.Seq a -> v VectorToLineStringError (LineString a)
-fromVector' first v@(head Sequence.:<| tail) =
+fromVector v@(headS Sequence.:<| tailS) =
   if Sequence.null v then
     Validation._Failure # SingletonVector
   else
-    Validation._Success # LineString first head tail
+    fromVector' headS tailS
+fromVector _ = Validation._Failure # VectorEmpty
+{-# INLINE fromVector #-}
+
+fromVector' :: (Validation.Validate v) => a -> Sequence.Seq a -> v VectorToLineStringError (LineString a)
+fromVector' first v@(headS Sequence.:<| tailS) =
+  if Sequence.null v then
+    Validation._Failure # SingletonVector
+  else
+    Validation._Success # LineString first headS tailS
+fromVector' _ _ = Validation._Failure # SingletonVector
 {-# INLINE fromVector' #-}
 
 -- |
