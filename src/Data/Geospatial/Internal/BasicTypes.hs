@@ -46,7 +46,6 @@ import qualified Data.Maybe       as DataMaybe
 import qualified Data.Scientific  as Scientific
 import qualified Data.Sequence    as Sequence
 import qualified Data.Text        as Text
-import           Foreign.Storable
 import           GHC.Generics
 
 type Latitude = Double
