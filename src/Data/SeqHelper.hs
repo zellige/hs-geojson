@@ -4,8 +4,6 @@
 -- Copyright    : (C) 2014-2018 HS-GeoJSON Project
 -- License      : BSD-style (see the file LICENSE.md)
 -- Maintainer   : Andrew Newman
---
--- see Section 2.1.1 /Position/ in the GeoJSON Spec
 -------------------------------------------------------------------
 module Data.SeqHelper (
   sequenceHead
