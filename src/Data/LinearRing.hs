@@ -21,9 +21,9 @@ module Data.LinearRing (
     ,   ListToLinearRingError(..)
     ,   VectorToLinearRingError(..)
     -- * Functions
-    ,   toVector
-    ,   combineToVector
-    ,   fromVector
+    ,   toSeq
+    ,   combineToSeq
+    ,   fromSeq
     ,   fromLinearRing
     ,   fromList
     ,   fromListWithEqCheck
@@ -51,6 +51,8 @@ import           Data.List.NonEmpty  as NL (NonEmpty, toList)
 import qualified Data.Sequence       as Sequence
 import qualified Data.Validation     as Validation
 import           GHC.Generics        (Generic)
+
+import qualified Data.SeqHelper      as SeqHelper
 
 -- |
 -- a LinearRing has at least 3 (distinct) elements
@@ -130,41 +132,36 @@ fromListWithEqCheck :: (Eq a, Show a, Validation.Validate v, Applicative (v (Non
 fromListWithEqCheck xs = checkHeadAndLastEq xs *> fromList xs
 
 -- |
--- create a vector from a LinearRing by combining values.
+-- create a sequence from a LinearRing by combining values.
 -- LinearRing 1 2 3 [4,1] (,) --> Vector [(1,2),(2,3),(3,4),(4,1)]
 --
-combineToVector :: (a -> a -> b) -> LinearRing a -> Sequence.Seq b
-combineToVector combine (LinearRing a b c rest) = combine a b Sequence.:<| (combine b c Sequence.:<| combineRest)
+combineToSeq :: (a -> a -> b) -> LinearRing a -> Sequence.Seq b
+combineToSeq combine (LinearRing a b c rest) = combine a b Sequence.:<| (combine b c Sequence.:<| combineRest)
     where
         combineRest =
           if Sequence.null rest
             then
               Sequence.empty
             else
-                (Sequence.zipWith combine <*> sequenceTail) (c Sequence.<| rest)
-{-# INLINE combineToVector #-}
-
-sequenceTail :: Sequence.Seq a -> Sequence.Seq a
-sequenceTail (_ Sequence.:<| tailS) = tailS
-sequenceTail _                      = Sequence.empty
+                (Sequence.zipWith combine <*> SeqHelper.sequenceTail) (c Sequence.<| rest)
+{-# INLINE combineToSeq #-}
 
 -- |
--- create a vector from a LinearRing.
+-- create a sequence from a LinearRing.
 -- LinearRing 1 2 3 [4,1] --> Vector [1,2,3,4,1)]
 --
-toVector :: LinearRing a -> Sequence.Seq a
-toVector (LinearRing a b c rest) = a Sequence.:<| (b Sequence.:<| (c Sequence.:<| rest))
-{-# INLINE toVector #-}
+toSeq :: LinearRing a -> Sequence.Seq a
+toSeq (LinearRing a b c rest) = a Sequence.:<| (b Sequence.:<| (c Sequence.:<| rest))
+{-# INLINE toSeq #-}
 
 -- |
 -- creates a LinearRing out of a vector of elements,
 -- if there are enough elements (needs at least 3) elements
 --
--- fromVector (x:y:z:ws@(_:_)) = _Success # LinearRing x y z (fromListDropLast ws)
--- fromList xs               = _Failure # return (ListTooShort (length xs))
-
-fromVector :: (Eq a, Show a, Validation.Validate v, Functor (v (NonEmpty (ListToLinearRingError a)))) => Sequence.Seq a -> v (NonEmpty (VectorToLinearRingError a)) (LinearRing a)
-fromVector as =
+-- fromSeq (x:y:z:ws@(_:_))  = _Success # LinearRing x y z (fromListDropLast ws)
+-- fromSeq xs                = _Failure # return (ListTooShort (length xs))
+fromSeq :: (Eq a, Show a, Validation.Validate v, Functor (v (NonEmpty (ListToLinearRingError a)))) => Sequence.Seq a -> v (NonEmpty (VectorToLinearRingError a)) (LinearRing a)
+fromSeq as =
     case as of
         (first Sequence.:<| (second Sequence.:<| (third Sequence.:<| rest@(_ Sequence.:|> lastS)))) ->
             if first == lastS then
@@ -178,7 +175,7 @@ fromVector as =
                 Validation._Failure # pure (FirstNotEqualToLast first third)
         v -> Validation._Failure # pure (VectorTooShort (Sequence.length v))
         _ -> Validation._Failure # pure (VectorTooShort 0)
-{-# INLINE fromVector #-}
+{-# INLINE fromSeq #-}
 
 -- |
 -- Creates a LinearRing
@@ -266,9 +263,5 @@ safeLast (_:xs) = safeLast xs
 fromListDropLast :: (Eq a) => [a] -> Sequence.Seq a
 fromListDropLast []  = Sequence.empty
 fromListDropLast [_] = Sequence.empty
-fromListDropLast x   = sequenceHead $ Sequence.fromList x
+fromListDropLast x   = SeqHelper.sequenceHead $ Sequence.fromList x
 
--- All but the last
-sequenceHead :: Sequence.Seq a -> Sequence.Seq a
-sequenceHead (headS Sequence.:|> _) = headS
-sequenceHead _                      = Sequence.empty
