@@ -19,7 +19,7 @@ module Data.LinearRing (
     -- * Type
         LinearRing
     ,   ListToLinearRingError(..)
-    ,   VectorToLinearRingError(..)
+    ,   SequenceToLinearRingError(..)
     -- * Functions
     ,   toSeq
     ,   combineToSeq
@@ -72,13 +72,13 @@ data ListToLinearRingError a =
     deriving (Eq)
 
 -- |
--- When converting a Vector to a LinearRing there are some things that can go wrong
+-- When converting a Sequence to a LinearRing there are some things that can go wrong
 --
---     * The vector can be too short
+--     * The sequence can be too short
 --     * The head may not be equal to the last element in the list
 --
-data VectorToLinearRingError a =
-    VectorTooShort Int
+data SequenceToLinearRingError a =
+    SequenceTooShort Int
   | FirstNotEqualToLast a a
   deriving (Eq)
 
@@ -133,7 +133,7 @@ fromListWithEqCheck xs = checkHeadAndLastEq xs *> fromList xs
 
 -- |
 -- create a sequence from a LinearRing by combining values.
--- LinearRing 1 2 3 [4,1] (,) --> Vector [(1,2),(2,3),(3,4),(4,1)]
+-- LinearRing 1 2 3 [4,1] (,) --> Seq [(1,2),(2,3),(3,4),(4,1)]
 --
 combineToSeq :: (a -> a -> b) -> LinearRing a -> Sequence.Seq b
 combineToSeq combine (LinearRing a b c rest) = combine a b Sequence.:<| (combine b c Sequence.:<| combineRest)
@@ -148,19 +148,19 @@ combineToSeq combine (LinearRing a b c rest) = combine a b Sequence.:<| (combine
 
 -- |
 -- create a sequence from a LinearRing.
--- LinearRing 1 2 3 [4,1] --> Vector [1,2,3,4,1)]
+-- LinearRing 1 2 3 [4,1] --> Seq [1,2,3,4,1)]
 --
 toSeq :: LinearRing a -> Sequence.Seq a
 toSeq (LinearRing a b c rest) = a Sequence.:<| (b Sequence.:<| (c Sequence.:<| rest))
 {-# INLINE toSeq #-}
 
 -- |
--- creates a LinearRing out of a vector of elements,
+-- creates a LinearRing out of a sequence of elements,
 -- if there are enough elements (needs at least 3) elements
 --
 -- fromSeq (x:y:z:ws@(_:_))  = _Success # LinearRing x y z (fromListDropLast ws)
 -- fromSeq xs                = _Failure # return (ListTooShort (length xs))
-fromSeq :: (Eq a, Show a, Validation.Validate v, Functor (v (NonEmpty (ListToLinearRingError a)))) => Sequence.Seq a -> v (NonEmpty (VectorToLinearRingError a)) (LinearRing a)
+fromSeq :: (Eq a, Show a, Validation.Validate v, Functor (v (NonEmpty (ListToLinearRingError a)))) => Sequence.Seq a -> v (NonEmpty (SequenceToLinearRingError a)) (LinearRing a)
 fromSeq as =
     case as of
         (first Sequence.:<| (second Sequence.:<| (third Sequence.:<| rest@(_ Sequence.:|> lastS)))) ->
@@ -173,8 +173,8 @@ fromSeq as =
                 Validation._Success # LinearRing first second third Sequence.empty
             else
                 Validation._Failure # pure (FirstNotEqualToLast first third)
-        v -> Validation._Failure # pure (VectorTooShort (Sequence.length v))
-        _ -> Validation._Failure # pure (VectorTooShort 0)
+        v -> Validation._Failure # pure (SequenceTooShort (Sequence.length v))
+        _ -> Validation._Failure # pure (SequenceTooShort 0)
 {-# INLINE fromSeq #-}
 
 -- |
@@ -199,8 +199,8 @@ instance (Show a) => Show (ListToLinearRingError a) where
     show (ListTooShort n) = "List too short: (length = " ++ show n ++ ")"
     show (HeadNotEqualToLast h l) = "head (" ++ show h ++ ") /= last(" ++ show l ++ ")"
 
-instance (Show a) => Show (VectorToLinearRingError a) where
-    show (VectorTooShort n) = "Vector too short: (length = " ++ show n ++ ")"
+instance (Show a) => Show (SequenceToLinearRingError a) where
+    show (SequenceTooShort n) = "Sequence too short: (length = " ++ show n ++ ")"
     show (FirstNotEqualToLast h l) = "head (" ++ show h ++ ") /= last(" ++ show l ++ ")"
 
 instance Functor LinearRing where

@@ -17,7 +17,7 @@ module Data.LineString (
     -- * Type
         LineString
     ,   ListToLineStringError(..)
-    ,   VectorToLineStringError(..)
+    ,   SequenceToLineStringError(..)
     -- * Functions
     ,   toSeq
     ,   combineToSeq
@@ -63,14 +63,14 @@ data ListToLineStringError =
     deriving (Eq)
 
 -- |
--- When converting a Vector to a LineString, here is a list of things that can go wrong:
+-- When converting a Sequence to a LineString, here is a list of things that can go wrong:
 --
---     * The vector was empty
---     * The vector only had one element
+--     * The sequence was empty
+--     * The sequence only had one element
 --
-data VectorToLineStringError =
-       VectorEmpty
-   |   SingletonVector
+data SequenceToLineStringError =
+       SequenceEmpty
+   |   SingletonSequence
    deriving (Eq)
 
 -- functions
@@ -111,7 +111,7 @@ fromList (x:y:zs) = Validation._Success # LineString x y (Sequence.fromList zs)
 
 -- |
 -- create a sequence from a LineString by combining values.
--- LineString 1 2 [3,4] (,) --> Vector [(1,2),(2,3),(3,4)]
+-- LineString 1 2 [3,4] (,) --> Sequence [(1,2),(2,3),(3,4)]
 --
 combineToSeq :: (a -> a -> b) -> LineString a -> Sequence.Seq b
 combineToSeq combine (LineString a b rest) = combine a b Sequence.<| combineRest
@@ -126,7 +126,7 @@ combineToSeq combine (LineString a b rest) = combine a b Sequence.<| combineRest
 
 -- |
 -- create a sequence from a LineString.
--- LineString 1 2 [3,4] --> Vector [1,2,3,4]
+-- LineString 1 2 [3,4] --> Sequence [1,2,3,4]
 --
 toSeq :: LineString a -> Sequence.Seq a
 toSeq (LineString a b rest) = a Sequence.<| ( b  Sequence.<| rest)
@@ -136,22 +136,22 @@ toSeq (LineString a b rest) = a Sequence.<| ( b  Sequence.<| rest)
 -- creates a LineString out of a sequence of elements,
 -- if there are enough elements (needs at least 2) elements
 --
-fromSeq :: (Validation.Validate v) => Sequence.Seq a -> v VectorToLineStringError (LineString a)
+fromSeq :: (Validation.Validate v) => Sequence.Seq a -> v SequenceToLineStringError (LineString a)
 fromSeq v@(headS Sequence.:<| tailS) =
   if Sequence.null v then
-    Validation._Failure # SingletonVector
+    Validation._Failure # SingletonSequence
   else
     fromSeq' headS tailS
-fromSeq _ = Validation._Failure # VectorEmpty
+fromSeq _ = Validation._Failure # SequenceEmpty
 {-# INLINE fromSeq #-}
 
-fromSeq' :: (Validation.Validate v) => a -> Sequence.Seq a -> v VectorToLineStringError (LineString a)
+fromSeq' :: (Validation.Validate v) => a -> Sequence.Seq a -> v SequenceToLineStringError (LineString a)
 fromSeq' first v@(headS Sequence.:<| tailS) =
   if Sequence.null v then
-    Validation._Failure # SingletonVector
+    Validation._Failure # SingletonSequence
   else
     Validation._Success # LineString first headS tailS
-fromSeq' _ _ = Validation._Failure # SingletonVector
+fromSeq' _ _ = Validation._Failure # SingletonSequence
 {-# INLINE fromSeq' #-}
 
 -- |
@@ -171,9 +171,9 @@ instance Show ListToLineStringError where
     show ListEmpty     = "List Empty"
     show SingletonList = "Singleton List"
 
-instance Show VectorToLineStringError where
-  show VectorEmpty     = "Vector Empty"
-  show SingletonVector = "Singleton Vector"
+instance Show SequenceToLineStringError where
+  show SequenceEmpty     = "Sequence Empty"
+  show SingletonSequence = "Singleton Sequence"
 
 instance (Show a) => Show (LineString a) where
     show  = show . fromLineString
@@ -210,7 +210,7 @@ fromListValidated = fromList
 parseError :: Value -> Maybe ListToLineStringError -> Parser b
 parseError v = maybe mzero (\e -> typeMismatch (show e) v)
 
--- safeLast :: (VectorStorable.Storable a) => Sequence.Seq a -> Maybe a
+-- safeLast :: (Sequence.Seq a) => Sequence.Seq a -> Maybe a
 -- safeLast x = if Sequence.null x then Nothing else Just $ Sequence.last x
 safeLast :: Sequence.Seq a -> Maybe a
 safeLast x = case Sequence.viewr x of

@@ -1,5 +1,5 @@
 name:                   geojson
-version:                3.0.1
+version:                3.0.2
 license:                BSD3
 license-file:           LICENCE
 author:                 Dom De Re
@@ -27,7 +27,7 @@ source-repository       head
 source-repository       this
     type:               git
     location:           https://github.com/indicatrix/hs-geojson.git
-    tag:                3.0.1
+    tag:                3.0.2
 
 library
     hs-source-dirs:     src
@@ -41,7 +41,6 @@ library
                     ,   scientific      >= 0.2.0
                     ,   transformers    >= 0.3
                     ,   validation      >= 1
-                    ,   vector          >= 0.10
     exposed-modules:    Data.Geospatial
                     ,   Data.LinearRing
                     ,   Data.LineString
@@ -76,7 +75,6 @@ test-suite              geojson-test
                     ,   tasty-quickcheck
                     ,   text            >= 1.2
                     ,   validation      >= 1
-                    ,   vector          >= 0.10
     other-modules:      Arbitrary
                     ,   Fixture
                     ,   Data.LinearRingTests

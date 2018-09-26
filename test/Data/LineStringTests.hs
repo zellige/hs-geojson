@@ -29,9 +29,9 @@ specTests :: IO TestTree
 specTests = do
   specs <- sequence
     [ testSpec "Data.LineString.fromList" testFromList
-    , testSpec "Data.LineString.fromSeq" testFromVector
-    , testSpec "Data.LineString.toSeq" testToVector
-    , testSpec "Data.LineString.combineToVector" testCombineToVector
+    , testSpec "Data.LineString.fromSeq" testFromSequence
+    , testSpec "Data.LineString.toSeq" testToSequence
+    , testSpec "Data.LineString.combineToSequence" testCombineToSequence
     ]
   pure $ testGroup "Data.LineStringTests.Spec" specs
 
@@ -83,30 +83,30 @@ testFromList =
         LineString.fromList ([] :: [Int])  `shouldBe` Failure LineString.ListEmpty
         LineString.fromList ([0] :: [Int]) `shouldBe` Failure LineString.SingletonList
 
-testFromVector :: Spec
-testFromVector =
-  describe "fromVector" $ do
-    it "creates a LineString out of a Vector of elements" $ do
+testFromSequence :: Spec
+testFromSequence =
+  describe "fromSeq" $ do
+    it "creates a LineString out of a Sequence of elements" $ do
       LineString.fromSeq (Sequence.fromList [0, 1] :: (Sequence.Seq Int))             `shouldBe` Success (LineString.makeLineString 0 1 Sequence.empty)
       LineString.fromSeq (Sequence.fromList [0, 1, 2] :: (Sequence.Seq Int))          `shouldBe` Success (LineString.makeLineString 0 1 (Sequence.fromList [2]))
       LineString.fromSeq (Sequence.fromList [0, 1, 2, 4, 5, 0] :: (Sequence.Seq Int)) `shouldBe` Success (LineString.makeLineString 0 1 (Sequence.fromList [2, 4, 5, 0]))
     context "when provided with invalid input" $
       it "fails" $ do
-        LineString.fromSeq (Sequence.fromList [] :: (Sequence.Seq Int))  `shouldBe` Failure LineString.VectorEmpty
-        LineString.fromSeq (Sequence.fromList [0] :: (Sequence.Seq Int)) `shouldBe` Failure LineString.SingletonVector
+        LineString.fromSeq (Sequence.fromList [] :: (Sequence.Seq Int))  `shouldBe` Failure LineString.SequenceEmpty
+        LineString.fromSeq (Sequence.fromList [0] :: (Sequence.Seq Int)) `shouldBe` Failure LineString.SingletonSequence
 
-testCombineToVector :: Spec
-testCombineToVector =
-  describe "combineToVector" $
+testCombineToSequence :: Spec
+testCombineToSequence =
+  describe "combineToSeq" $
     it "combine a LineString using PointXY" $ do
       LineString.combineToSeq BasicTypes.PointXY (LineString.makeLineString 0 1 Sequence.empty)                   `shouldBe` Sequence.fromList [BasicTypes.PointXY 0 1]
       LineString.combineToSeq BasicTypes.PointXY (LineString.makeLineString 0 1 (Sequence.fromList [2]))          `shouldBe` Sequence.fromList [BasicTypes.PointXY 0 1, BasicTypes.PointXY 1 2]
       LineString.combineToSeq BasicTypes.PointXY (LineString.makeLineString 0 1 (Sequence.fromList [2, 4, 5, 0])) `shouldBe` Sequence.fromList [BasicTypes.PointXY 0 1, BasicTypes.PointXY 1 2, BasicTypes.PointXY 2 4, BasicTypes.PointXY 4 5, BasicTypes.PointXY 5 0]
 
-testToVector :: Spec
-testToVector =
-  describe "toVector" $
-    it "from a LineString to a vector" $ do
+testToSequence :: Spec
+testToSequence =
+  describe "toSeq" $
+    it "from a LineString to a Sequence" $ do
       LineString.toSeq (LineString.makeLineString 0 1 Sequence.empty)                   `shouldBe` Sequence.fromList ([0, 1] :: [Int])
       LineString.toSeq (LineString.makeLineString 0 1 (Sequence.fromList [2]))          `shouldBe` Sequence.fromList ([0, 1, 2] :: [Int])
       LineString.toSeq (LineString.makeLineString 0 1 (Sequence.fromList [2, 4, 5, 0])) `shouldBe` Sequence.fromList ([0, 1, 2, 4, 5, 0] :: [Int])
