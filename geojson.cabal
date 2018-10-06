@@ -1,5 +1,5 @@
 name:                   geojson
-version:                3.0.3
+version:                3.0.4
 license:                BSD3
 license-file:           LICENCE
 author:                 Dom De Re
@@ -79,6 +79,7 @@ test-suite              geojson-test
                     ,   Fixture
                     ,   Data.LinearRingTests
                     ,   Data.LineStringTests
+                    ,   Data.SeqHelperTests
                     ,   Data.Geospatial.Internal.CRSTests
                     ,   Data.Geospatial.Internal.GeoFeatureCollectionTests
                     ,   Data.Geospatial.Internal.GeoFeatureTests

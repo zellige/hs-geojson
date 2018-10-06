@@ -8,7 +8,7 @@
 module Data.SeqHelper (
   sequenceHead
   , sequenceTail
-  , unique
+  , removeNextDuplicate
   ) where
 
 import qualified Data.Sequence as Sequence
@@ -25,6 +25,9 @@ sequenceTail (_ Sequence.:<| tailS) = tailS
 sequenceTail _                      = Sequence.empty
 {-# INLINE sequenceTail #-}
 
-unique :: Eq a => Sequence.Seq a -> Sequence.Seq a
-unique Sequence.Empty      = Sequence.empty
-unique (x Sequence.:<| xs) = (Sequence.<|) x (unique (Sequence.filter (x /=) xs))
+removeNextDuplicate :: Eq a => Sequence.Seq a -> Sequence.Seq a
+removeNextDuplicate Sequence.Empty                     = Sequence.empty
+removeNextDuplicate xs@(_ Sequence.:<| Sequence.Empty) = xs
+removeNextDuplicate (x Sequence.:<| tailXs@(y Sequence.:<| _))
+  | x /= y    = x Sequence.<| removeNextDuplicate tailXs
+  | otherwise = removeNextDuplicate tailXs
