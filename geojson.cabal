@@ -27,7 +27,7 @@ source-repository       head
 source-repository       this
     type:               git
     location:           https://github.com/indicatrix/hs-geojson.git
-    tag:                3.0.3
+    tag:                3.0.4
 
 library
     hs-source-dirs:     src
