@@ -33,7 +33,8 @@ specTests = do
     [ testSpec "Data.LinearRing.fromList" testFromList
     , testSpec "Data.LinearRing.fromSeq" testFromSequence
     , testSpec "Data.LinearRing.combineToSequence" testCombineToSequence
-    , testSpec "Data.LinearRing.testToSequence" testToSequence
+    , testSpec "Data.LinearRing.toSequence" testToSequence
+    , testSpec "Data.LinearRing.foldMap" testFoldMap
     ]
   pure $ testGroup "Data.LinearRingTests.Spec" specs
 
@@ -127,6 +128,12 @@ testToSequence =
       LinearRing.toSeq (LinearRing.makeLinearRing 0 1 0 Sequence.empty)             `shouldBe` Sequence.fromList ([0, 1, 0] :: [Int])
       LinearRing.toSeq (LinearRing.makeLinearRing 0 1 2 (Sequence.fromList [0]))    `shouldBe` Sequence.fromList ([0, 1, 2, 0] :: [Int])
       LinearRing.toSeq (LinearRing.makeLinearRing 0 1 2 (Sequence.fromList [4,0]))  `shouldBe` Sequence.fromList ([0, 1, 2, 4, 0] :: [Int])
+
+testFoldMap :: Spec
+testFoldMap =
+  describe "foldMap" $
+    it "foldMap of a LinearRing" $
+      foldMap (\x -> Sequence.singleton (x + 1)) (LinearRing.makeLinearRing 0 1 2 Sequence.empty) `shouldBe` Sequence.fromList ([1, 2, 3, 1] :: [Int])
 
 
 -- TODO
