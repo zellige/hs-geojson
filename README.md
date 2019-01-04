@@ -43,3 +43,4 @@ as is from `cabal install --only-dependencies`
 
 [cabal-dev]: https://github.com/creswick/cabal-dev "creswick/cabal-dev on GitHub.com"
 
+[https://www.gaia-gis.it/spatialite-3.0.0-BETA/GeoNotations.pdf]
