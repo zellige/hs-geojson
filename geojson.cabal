@@ -11,7 +11,7 @@ description:            A thin GeoJSON Layer above the aeson library.
                         .
                         It currently conforms to version 1.0 of the GeoJSON spec which can be found here:
                         .
-                        <http://geojson.org/geojson-spec.html>
+                        <https://tools.ietf.org/html/rfc7946>
 
 homepage:               https://github.com/indicatrix/hs-geojson
 bug-reports:            https://github.com/indicatrix/hs-geojson/issues
