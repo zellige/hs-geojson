@@ -1,17 +1,11 @@
 module Data.SeqHelperTests where
 
-import qualified Data.List.NonEmpty                  as ListNonEmpty
-import qualified Data.Sequence                       as Sequence
-import qualified Data.Validation                     as Validation
+import qualified Data.Sequence    as Sequence
 import           Test.Tasty
-import           Test.Tasty.Hspec                    (Spec, context, describe,
-                                                      it, shouldBe, testSpec)
-import           Test.Tasty.QuickCheck               (Property, property,
-                                                      testProperty)
+import           Test.Tasty.Hspec (Spec, describe, it, shouldBe, testSpec)
 -- Local
-import           Arbitrary                           ()
-import qualified Data.Geospatial.Internal.BasicTypes as BasicTypes
-import qualified Data.SeqHelper                      as SeqHelper
+import           Arbitrary        ()
+import qualified Data.SeqHelper   as SeqHelper
 
 -- Tests
 
