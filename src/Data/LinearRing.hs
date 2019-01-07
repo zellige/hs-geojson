@@ -143,7 +143,7 @@ combineToSeq combine (LinearRing a b c rest) = combine a b Sequence.:<| (combine
             then
               Sequence.empty
             else
-                (Sequence.zipWith combine <*> SeqHelper.sequenceTail) (c Sequence.<| rest)
+              (Sequence.zipWith combine <*> SeqHelper.sequenceTail) (c Sequence.<| rest)
 {-# INLINE combineToSeq #-}
 
 -- |
