@@ -41,6 +41,7 @@ library
                     ,   scientific      >= 0.2.0
                     ,   transformers    >= 0.3
                     ,   validation      >= 1
+                    ,   vector
     exposed-modules:    Data.Geospatial
                     ,   Data.LinearRing
                     ,   Data.LineString

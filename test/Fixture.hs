@@ -42,9 +42,6 @@ testNamedCRSJSON = "{\"type\":\"name\",\"properties\":{\"name\":\"urn:ogc:def:cr
 testNamedCRS :: CRSObject
 testNamedCRS = NamedCRS "urn:ogc:def:crs:OGC:1.3:CRS84"
 
-mkBoundingBox :: [Double] -> BasicTypes.BoundingBoxWithoutCRS
-mkBoundingBox x = BasicTypes.BoundingBoxWithoutCRS $ Sequence.fromList x
-
 -- Bounding Box Data
 
 mkGeoPoint :: Double -> Double -> BasicTypes.GeoPositionWithoutCRS
@@ -63,16 +60,7 @@ emptyLineVertices :: [BasicTypes.GeoPositionWithoutCRS]
 emptyLineVertices = []
 
 testLatLonBBox :: BasicTypes.BoundingBoxWithoutCRS
-testLatLonBBox = mkBoundingBox [-32, 147.5, -29.5, 151.0]
-
-testLatLonBBoxJSON :: BS.ByteString
-testLatLonBBoxJSON = "[-32,147.5,-29.5,151]"
-
-testEmptyBBox :: BasicTypes.BoundingBoxWithoutCRS
-testEmptyBBox = mkBoundingBox []
-
-testEmptyBBoxJSON :: BS.ByteString
-testEmptyBBoxJSON = "[]"
+testLatLonBBox = BasicTypes.BoundingBoxWithoutCRSXY (BasicTypes.PointXY (-32) 147.5) (BasicTypes.PointXY (-29.5) 151.0)
 
 -- Geometry Data
 --
