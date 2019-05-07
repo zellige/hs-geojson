@@ -31,7 +31,7 @@ source-repository       this
 
 library
     hs-source-dirs:     src
-    build-depends:      base < 5 &&     >= 4
+    build-depends:      base < 5 &&     >= 4.9
                     ,   aeson           >= 0.8
                     ,   containers      >= 0.5.10.1
                     ,   deepseq         >= 1.4
@@ -65,7 +65,7 @@ test-suite              geojson-test
     hs-source-dirs:     test
     main-is:            Main.hs
     type:               exitcode-stdio-1.0
-    build-depends:      base < 5 &&     >= 4
+    build-depends:      base < 5 &&     >= 4.9
                     ,   aeson           >= 0.8
                     ,   bytestring      >= 0.10
                     ,   containers      >= 0.5.10.1
