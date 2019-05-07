@@ -41,11 +41,10 @@ import           Control.DeepSeq
 import           Control.Lens.TH  (makeClassy)
 import qualified Data.Aeson       as Aeson
 import qualified Data.Aeson.Types as AesonTypes
-import qualified Data.Foldable    as Foldable
 import qualified Data.Maybe       as DataMaybe
 import qualified Data.Scientific  as Scientific
-import qualified Data.Sequence    as Sequence
 import qualified Data.Text        as Text
+import qualified Data.Vector      as Vector
 import           GHC.Generics
 
 type Latitude = Double
@@ -149,12 +148,30 @@ instance Aeson.ToJSON FeatureID where
 -- e.g for WGS84: minLongitude, minLatitude, maxLongitude, maxLatitude
 -- The spec mentions that it can be part of a geometry object too but doesnt give an example,
 -- This implementation will ignore bboxes on Geometry objects, they can be added if required.
-newtype BoundingBoxWithoutCRS = BoundingBoxWithoutCRS { unBoundingBoxWithoutCrs :: Sequence.Seq Double } deriving (Eq, Show, Generic, NFData)
+data BoundingBoxWithoutCRS
+  = BoundingBoxWithoutCRSXY PointXY PointXY
+  | BoundingBoxWithoutCRSXYZ PointXYZ PointXYZ
+  | BoundingBoxWithoutCRSXYZM PointXYZM PointXYZM deriving (Eq, Show, Generic, NFData)
 
 instance Aeson.FromJSON BoundingBoxWithoutCRS where
-    parseJSON obj = do
-        doubles <- Aeson.parseJSON obj :: AesonTypes.Parser [Double]
-        pure . BoundingBoxWithoutCRS $ Sequence.fromList doubles
+  parseJSON json = do
+    x <- AesonTypes.parseJSON json
+    DataMaybe.maybe (fail "Invalid bounding box") pure (_toBoundingBoxWithoutCRS x)
 
 instance Aeson.ToJSON BoundingBoxWithoutCRS where
-    toJSON = Aeson.toJSON . Foldable.toList . unBoundingBoxWithoutCrs
+  toJSON (BoundingBoxWithoutCRSXY (PointXY bbMinX bbMinY) (PointXY bbMaxX bbMaxY)) =
+    Aeson.Array (Vector.fromList $ fmap (Aeson.Number . Scientific.fromFloatDigits) [bbMinX, bbMinY, bbMaxX, bbMaxY])
+  toJSON (BoundingBoxWithoutCRSXYZ (PointXYZ bbMinX bbMinY bbMinZ) (PointXYZ bbMaxX bbMaxY bbMaxZ)) =
+    Aeson.Array (Vector.fromList $ fmap (Aeson.Number . Scientific.fromFloatDigits) [bbMinX, bbMinY, bbMinZ, bbMaxX, bbMaxY, bbMaxZ])
+  toJSON (BoundingBoxWithoutCRSXYZM (PointXYZM bbMinX bbMinY bbMinZ bbMinM) (PointXYZM bbMaxX bbMaxY bbMaxZ bbMaxM)) =
+    Aeson.Array (Vector.fromList $ fmap (Aeson.Number . Scientific.fromFloatDigits) [bbMinX, bbMinY, bbMinZ, bbMinM, bbMaxX, bbMaxY, bbMaxZ, bbMaxM])
+
+_toBoundingBoxWithoutCRS :: [Double] -> Maybe BoundingBoxWithoutCRS
+_toBoundingBoxWithoutCRS [bbMinX, bbMinY, bbMaxX, bbMaxY] =
+  Just $ BoundingBoxWithoutCRSXY (PointXY bbMinX bbMinY) (PointXY bbMaxX bbMaxY)
+_toBoundingBoxWithoutCRS [bbMinX, bbMinY, bbMinZ, bbMaxX, bbMaxY, bbMaxZ] =
+  Just $ BoundingBoxWithoutCRSXYZ (PointXYZ bbMinX bbMinY bbMinZ) (PointXYZ bbMaxX bbMaxY bbMaxZ)
+_toBoundingBoxWithoutCRS [bbMinX, bbMinY, bbMinZ, bbMinM, bbMaxX, bbMaxY, bbMaxZ, bbMaxM] =
+  Just $ BoundingBoxWithoutCRSXYZM (PointXYZM bbMinX bbMinY bbMinZ bbMinM) (PointXYZM bbMaxX bbMaxY bbMaxZ bbMaxM)
+_toBoundingBoxWithoutCRS _ =
+  Nothing
