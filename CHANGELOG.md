@@ -1,3 +1,9 @@
+# 4.0.x
+
+## 3.0.4 -> 4.0.0
+
+- Create a bounding box type that we can all enjoy (XY, XYZ, XYZM instead of Sequence).
+
 # 3.0.x
 
 ## 2.0.0 -> 3.0.2
