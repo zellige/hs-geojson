@@ -34,7 +34,7 @@ module Data.Geospatial (
     ,   FormatString
     ,   ProjectionType
     ,   CRSObject (..)
-    ,   BoundingBoxWithoutCRS
+    ,   BoundingBoxWithoutCRS (..)
     ,   GeoFeature (..), reWrapGeometry
     ,   GeoFeatureCollection (..)
     -- * Functions
