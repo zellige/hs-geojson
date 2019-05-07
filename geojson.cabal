@@ -1,5 +1,5 @@
 name:                   geojson
-version:                4.0.0
+version:                4.0.1
 license:                BSD3
 license-file:           LICENCE
 author:                 Dom De Re
@@ -27,7 +27,7 @@ source-repository       head
 source-repository       this
     type:               git
     location:           https://github.com/indicatrix/hs-geojson.git
-    tag:                4.0.0
+    tag:                4.0.1
 
 library
     hs-source-dirs:     src
