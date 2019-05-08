@@ -2,7 +2,7 @@
 -------------------------------------------------------------------
 -- |
 -- Module       : Data.Geosptial.Geometry.Aeson
--- Copyright    : (C) 2014-2018 HS-GeoJSON Project
+-- Copyright    : (C) 2014-2019 HS-GeoJSON Project
 -- License      : BSD-style (see the file LICENSE.md)
 -- Maintainer   : Andrew Newman
 --
