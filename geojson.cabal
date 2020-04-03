@@ -1,10 +1,10 @@
 name:                   geojson
-version:                4.0.1
+version:                4.0.2
 license:                BSD3
 license-file:           LICENCE
 author:                 Dom De Re
 maintainer:             Andrew Newman
-copyright:              Copyright (C) 2013-2019
+copyright:              Copyright (C) 2013-2020
 synopsis:               A thin GeoJSON Layer above the aeson library
 category:               Data
 description:            A thin GeoJSON Layer above the aeson library.
@@ -13,8 +13,8 @@ description:            A thin GeoJSON Layer above the aeson library.
                         .
                         <https://tools.ietf.org/html/rfc7946>
 
-homepage:               https://github.com/indicatrix/hs-geojson
-bug-reports:            https://github.com/indicatrix/hs-geojson/issues
+homepage:               https://github.com/zellige/hs-geojson
+bug-reports:            https://github.com/zellige/hs-geojson/issues
 cabal-version:          >= 1.10
 build-type:             Simple
 extra-source-files:     README.md,
@@ -22,12 +22,12 @@ extra-source-files:     README.md,
 
 source-repository       head
     type:               git
-    location:           https://github.com/indicatrix/hs-geojson.git
+    location:           https://github.com/zellige/hs-geojson.git
 
 source-repository       this
     type:               git
-    location:           https://github.com/indicatrix/hs-geojson.git
-    tag:                4.0.1
+    location:           https://github.com/zellige/hs-geojson.git
+    tag:                4.0.2
 
 library
     hs-source-dirs:     src
