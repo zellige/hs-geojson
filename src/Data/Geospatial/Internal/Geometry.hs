@@ -81,7 +81,7 @@ geometryFromAeson "Polygon" obj                         = Polygon <$> parseJSON 
 geometryFromAeson "MultiPolygon" obj                    = MultiPolygon <$> parseJSON obj
 geometryFromAeson "LineString" obj                      = Line <$> parseJSON obj
 geometryFromAeson "MultiLineString" obj                 = MultiLine <$> parseJSON obj
-geometryFromAeson "GeometryCollection" (Object jsonObj) = Collection <$> (jsonObj .: ("geometries" :: Text))
+geometryFromAeson "GeometryCollection" (Object jsonObj) = Collection <$> (jsonObj .: "geometries")
 geometryFromAeson "GeometryCollection" _                = mzero
 geometryFromAeson _ _                                   = mzero
 
@@ -111,6 +111,6 @@ instance FromJSON GeospatialGeometry where
 --  parseJSON :: Value -> Parser a
     parseJSON Null = return NoGeometry
     parseJSON (Object obj) = do
-        geometryType <- obj .: ("type" :: Text)
+        geometryType <- obj .: "type"
         geometryFromAeson geometryType (Object obj)
     parseJSON _ = mzero

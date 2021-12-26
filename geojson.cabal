@@ -32,7 +32,7 @@ source-repository       this
 library
     hs-source-dirs:     src
     build-depends:      base < 5 &&     >= 4.9
-                    ,   aeson           >= 0.8
+                    ,   aeson           >= 0.8 && < 2.1
                     ,   containers      >= 0.5.10.1
                     ,   deepseq         >= 1.4
                     ,   lens            >= 4.11

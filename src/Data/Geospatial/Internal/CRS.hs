@@ -32,6 +32,7 @@ import           Data.Aeson                          (FromJSON (..), Object,
                                                       ToJSON (..), Value (..),
                                                       object, (.:), (.=))
 import           Data.Aeson.Types                    (Parser)
+import           Data.String                         (IsString(..))
 import           Data.Text                           (Text)
 
 -- | See Section 3 /Coordinate Reference System Objects/ in the GeoJSON Spec
@@ -78,10 +79,10 @@ instance ToJSON CRSObject where
 
 -- helpers
 
-crsPropertyFromAesonObj :: (FromJSON a) => Text -> Object -> Parser a
+crsPropertyFromAesonObj :: (FromJSON a) => String -> Object -> Parser a
 crsPropertyFromAesonObj name obj = do
     props <- obj .: "properties"
-    props .: name
+    props .: fromString name
 
 crsObjectFromAeson :: Text -> Object -> Parser CRSObject
 crsObjectFromAeson "name" obj   = NamedCRS <$> crsPropertyFromAesonObj "name" obj
