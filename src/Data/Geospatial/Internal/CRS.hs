@@ -32,6 +32,8 @@ import           Data.Aeson                          (FromJSON (..), Object,
                                                       object, (.:), (.=))
 import           Data.Aeson.Types                    (Parser)
 import           Data.Text                           (Text)
+import           Data.Aeson.Key                      (fromText)
+
 
 -- | See Section 3 /Coordinate Reference System Objects/ in the GeoJSON Spec
 -- `NoCRS` is required because no 'crs' attribute in a GeoJSON feature is NOT the same thing as
@@ -80,7 +82,9 @@ instance ToJSON CRSObject where
 crsPropertyFromAesonObj :: (FromJSON a) => Text -> Object -> Parser a
 crsPropertyFromAesonObj name obj = do
     props <- obj .: "properties"
-    props .: name
+    props .: k
+  where
+      k = fromText name
 
 crsObjectFromAeson :: Text -> Object -> Parser CRSObject
 crsObjectFromAeson "name" obj   = NamedCRS <$> crsPropertyFromAesonObj "name" obj
