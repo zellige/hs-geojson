@@ -17,12 +17,10 @@ module Data.Geospatial.Internal.Geometry.Aeson (
     ,   optAttributes
     ) where
 
-import           Control.Applicative ((<$>))
 import           Control.Monad       (mzero)
 import           Data.Aeson          (FromJSON (..), Object, ToJSON (..), Value,
                                       object, (.:), (.:?), (.=))
 import           Data.Aeson.Types    (Pair, Parser)
-import           Data.Maybe          (Maybe (..))
 import           Data.Text           (Text)
 
 

@@ -38,14 +38,12 @@ import           Prelude             hiding (foldr)
 import           Prelude
 #endif
 
-import           Control.Applicative (Applicative (..))
 import           Control.DeepSeq
 import           Control.Lens        (( # ), (^?))
 import           Control.Monad       (mzero)
 import           Data.Aeson          (FromJSON (..), ToJSON (..), Value)
 import           Data.Aeson.Types    (Parser, typeMismatch)
 import qualified Data.Foldable       as Foldable
-import           Data.Functor        ((<$>))
 import           Data.List           (intercalate)
 import           Data.List.NonEmpty  as NL (NonEmpty, toList)
 import qualified Data.Sequence       as Sequence
@@ -174,7 +172,6 @@ fromSeq as =
             else
                 Validation._Failure # pure (FirstNotEqualToLast first third)
         v -> Validation._Failure # pure (SequenceTooShort (Sequence.length v))
-        _ -> Validation._Failure # pure (SequenceTooShort 0)
 {-# INLINE fromSeq #-}
 
 -- |
