@@ -1,5 +1,10 @@
 flags: {}
 packages:
 - '.'
+extra-deps:
+  - aeson-2.0.1.0@sha256:ee0847af4d1fb9ece3f24f443d8d8406431c32688a57880314ac36617da937eb,6229
+  - semialign-1.2@sha256:d3e7e3a5fe509f30bf2121d94c54b586217f2dc69a47ffede3633ddbc12cba68,2743
+  - time-compat-1.9.6.1@sha256:b1977409449de6a0d54aaf6ffa88a6b20d7177b65a5f739a574cd87055234eed,5033
+  - hashable-1.3.4.1@sha256:838e92f704bfdafc33246ac5deb8d71e79a21a4c57079b2d0b9a6a5e7e48f480,4193
 resolver: lts-18.14
 system-ghc: true
