@@ -1,8 +1,5 @@
 flags: {}
 packages:
 - '.'
-extra-deps: 
-  - validation-1
-
 resolver: lts-18.14
 system-ghc: true
