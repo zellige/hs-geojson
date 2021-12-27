@@ -1,36 +1,39 @@
-{-# LANGUAGE DeriveAnyClass  #-}
-{-# LANGUAGE DeriveGeneric   #-}
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE TemplateHaskell #-}
+
 -------------------------------------------------------------------
+
 -- |
 -- Module       : Data.Geospatial.Internal.Geometry.GeoMultiPolygon
--- Copyright    : (C) 2014-2019 HS-GeoJSON Project
+-- Copyright    : (C) 2014-2021 HS-GeoJSON Project
 -- License      : BSD-style (see the file LICENSE.md)
 -- Maintainer   : Andrew Newman
---
--------------------------------------------------------------------
-module Data.Geospatial.Internal.Geometry.GeoMultiPolygon (
-    -- * Type
-        GeoMultiPolygon(..)
+module Data.Geospatial.Internal.Geometry.GeoMultiPolygon
+  ( -- * Type
+    GeoMultiPolygon (..),
+
     -- * Lenses
-    ,   unGeoMultiPolygon
+    unGeoMultiPolygon,
+
     -- * To Polygons
-    ,   splitGeoMultiPolygon, mergeGeoPolygons
-    ) where
+    splitGeoMultiPolygon,
+    mergeGeoPolygons,
+  )
+where
 
-import           Data.Geospatial.Internal.BasicTypes
-import           Data.Geospatial.Internal.Geometry.Aeson
-import           Data.Geospatial.Internal.Geometry.GeoPolygon as GeoPolygon
-import qualified Data.LinearRing                              as LinearRing
+import Control.DeepSeq
+import Control.Lens (makeLenses)
+import Control.Monad (mzero)
+import qualified Data.Aeson as Aeson
+import Data.Geospatial.Internal.BasicTypes
+import Data.Geospatial.Internal.Geometry.Aeson
+import Data.Geospatial.Internal.Geometry.GeoPolygon as GeoPolygon
+import qualified Data.LinearRing as LinearRing
+import qualified Data.Sequence as Sequence
+import GHC.Generics (Generic)
 
-import           Control.DeepSeq
-import           Control.Lens                                 (makeLenses)
-import           Control.Monad                                (mzero)
-import qualified Data.Aeson                                   as Aeson
-import qualified Data.Sequence                                as Sequence
-import           GHC.Generics                                 (Generic)
-
-newtype GeoMultiPolygon = GeoMultiPolygon { _unGeoMultiPolygon :: Sequence.Seq (Sequence.Seq (LinearRing.LinearRing GeoPositionWithoutCRS)) } deriving (Show, Eq, Generic, NFData)
+newtype GeoMultiPolygon = GeoMultiPolygon {_unGeoMultiPolygon :: Sequence.Seq (Sequence.Seq (LinearRing.LinearRing GeoPositionWithoutCRS))} deriving (Show, Eq, Generic, NFData)
 
 -- | Split GeoMultiPolygon coordinates into multiple GeoPolygons
 splitGeoMultiPolygon :: GeoMultiPolygon -> Sequence.Seq GeoPolygon
@@ -50,5 +53,5 @@ instance Aeson.ToJSON GeoMultiPolygon where
 
 instance Aeson.FromJSON GeoMultiPolygon where
   --  parseJSON :: Value -> Parser a
-  parseJSON (Aeson.Object o)    = readGeometryGeoAeson "MultiPolygon" GeoMultiPolygon o
-  parseJSON _             = mzero
+  parseJSON (Aeson.Object o) = readGeometryGeoAeson "MultiPolygon" GeoMultiPolygon o
+  parseJSON _ = mzero

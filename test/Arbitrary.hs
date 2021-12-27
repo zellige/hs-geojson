@@ -2,12 +2,11 @@
 
 module Arbitrary where
 
-import           Test.Tasty.QuickCheck (Arbitrary, arbitrary)
-
 -- Local
-import           Data.LinearRing       (LinearRing, makeLinearRing)
-import           Data.LineString       (LineString, makeLineString)
 
+import Data.LineString (LineString, makeLineString)
+import Data.LinearRing (LinearRing, makeLinearRing)
+import Test.Tasty.QuickCheck (Arbitrary, arbitrary)
 
 instance (Arbitrary a, Eq a, Show a) => Arbitrary (LinearRing a) where
   arbitrary = makeLinearRing <$> arbitrary <*> arbitrary <*> arbitrary <*> arbitrary

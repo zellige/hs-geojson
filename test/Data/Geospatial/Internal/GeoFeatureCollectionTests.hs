@@ -1,11 +1,10 @@
 module Data.Geospatial.Internal.GeoFeatureCollectionTests where
 
-import qualified Data.Aeson       as A
-import           Test.Tasty
-import           Test.Tasty.Hspec (Spec, describe, it, shouldBe, testSpec)
+import qualified Data.Aeson as A
 -- Local
-import           Fixture
-
+import Fixture
+import Test.Tasty
+import Test.Tasty.Hspec (Spec, describe, it, shouldBe, testSpec)
 
 -- Tests
 
@@ -16,12 +15,12 @@ tests = do
 
 specTests :: IO TestTree
 specTests = do
-  specs <- sequence
-    [ testSpec "Data.Geospatial.Internal.GeoFeatureCollection.fromJSON" testFromJSON
-    , testSpec "Data.Geospatial.Internal.GeoFeatureCollection.toJSON" testToJSON
-    ]
+  specs <-
+    sequence
+      [ testSpec "Data.Geospatial.Internal.GeoFeatureCollection.fromJSON" testFromJSON,
+        testSpec "Data.Geospatial.Internal.GeoFeatureCollection.toJSON" testToJSON
+      ]
   pure $ testGroup "Data.Geospatial.Internal.GeoFeatureCollectionTests.Spec" specs
-
 
 -- Spec
 
@@ -41,10 +40,10 @@ testFromJSON :: Spec
 testFromJSON =
   describe "fromJSON" $
     it "decode FeatureCollection Objects from GeoJSON" $ do
-      A.decode bigAssFeatureCollectionJSON           `shouldBe` Just bigAssFeatureCollection
+      A.decode bigAssFeatureCollectionJSON `shouldBe` Just bigAssFeatureCollection
       A.decode bigAssFeatureCollectionWithNoBBoxJSON `shouldBe` Just bigAssFeatureCollectionWithNoBBox
-      A.decode emptyFeatureCollectionWithBBoxJSON    `shouldBe` Just emptyFeatureCollectionWithBBox
-      A.decode emptyFeatureCollectionJSON            `shouldBe` Just emptyFeatureCollection
+      A.decode emptyFeatureCollectionWithBBoxJSON `shouldBe` Just emptyFeatureCollectionWithBBox
+      A.decode emptyFeatureCollectionJSON `shouldBe` Just emptyFeatureCollection
 
 -- >>> (A.decode . A.encode) bigAssFeatureCollection == Just bigAssFeatureCollection
 -- True
@@ -62,7 +61,7 @@ testToJSON :: Spec
 testToJSON =
   describe "toJSON" $
     it "encode FeatureCollection Objects to GeoJSON" $ do
-      (A.decode . A.encode) bigAssFeatureCollection           `shouldBe` Just bigAssFeatureCollection
+      (A.decode . A.encode) bigAssFeatureCollection `shouldBe` Just bigAssFeatureCollection
       (A.decode . A.encode) bigAssFeatureCollectionWithNoBBox `shouldBe` Just bigAssFeatureCollectionWithNoBBox
-      (A.decode . A.encode) emptyFeatureCollectionWithBBox    `shouldBe` Just emptyFeatureCollectionWithBBox
-      (A.decode . A.encode) emptyFeatureCollection            `shouldBe` Just emptyFeatureCollection
+      (A.decode . A.encode) emptyFeatureCollectionWithBBox `shouldBe` Just emptyFeatureCollectionWithBBox
+      (A.decode . A.encode) emptyFeatureCollection `shouldBe` Just emptyFeatureCollection

@@ -2,14 +2,19 @@
 
 module Data.Geospatial.Internal.GeometryTests where
 
-import qualified Data.Aeson                        as A
-import qualified Data.ByteString.Lazy.Char8        as BS
-import           Test.Tasty
-import           Test.Tasty.Hspec                  (Spec, describe, it,
-                                                    shouldBe, testSpec)
+import qualified Data.Aeson as A
+import qualified Data.ByteString.Lazy.Char8 as BS
 -- Local
-import           Data.Geospatial.Internal.Geometry
-import           Fixture
+import Data.Geospatial.Internal.Geometry
+import Fixture
+import Test.Tasty
+import Test.Tasty.Hspec
+  ( Spec,
+    describe,
+    it,
+    shouldBe,
+    testSpec,
+  )
 
 -- Tests
 
@@ -20,10 +25,11 @@ tests = do
 
 specTests :: IO TestTree
 specTests = do
-  specs <- sequence
-    [ testSpec "Data.Geospatial.Internal.Geometry.fromJSON" testFromJSON
-    , testSpec "Data.Geospatial.Internal.Geometry.toJSON" testToJSON
-    ]
+  specs <-
+    sequence
+      [ testSpec "Data.Geospatial.Internal.Geometry.fromJSON" testFromJSON,
+        testSpec "Data.Geospatial.Internal.Geometry.toJSON" testToJSON
+      ]
   pure $ testGroup "Data.Geospatial.Internal.GeometryTests.Spec" specs
 
 -- Spec
@@ -57,14 +63,14 @@ testFromJSON :: Spec
 testFromJSON =
   describe "fromJSON" $
     it "decode Feature Objects from GeoJSON" $ do
-      A.decode lShapedPolyJSON         `shouldBe` Just lShapedPoly
-      A.decode emptyPolyJSON           `shouldBe` Just emptyPoly
-      A.decode emptyMultiPolyJSON      `shouldBe` Just emptyMultiPoly
+      A.decode lShapedPolyJSON `shouldBe` Just lShapedPoly
+      A.decode emptyPolyJSON `shouldBe` Just emptyPoly
+      A.decode emptyMultiPolyJSON `shouldBe` Just emptyMultiPoly
       A.decode singleLineMultiLineJSON `shouldBe` Just singleLineMultiLine
-      A.decode multiLineJSON           `shouldBe` Just multiLine
-      A.decode emptyCollectionJSON     `shouldBe` Just emptyCollection
-      A.decode bigassCollectionJSON    `shouldBe` Just bigassCollection
-      (A.decode . BS.pack) "null"      `shouldBe` Just NoGeometry
+      A.decode multiLineJSON `shouldBe` Just multiLine
+      A.decode emptyCollectionJSON `shouldBe` Just emptyCollection
+      A.decode bigassCollectionJSON `shouldBe` Just bigassCollection
+      (A.decode . BS.pack) "null" `shouldBe` Just NoGeometry
 
 -- >>> A.encode NoGeometry
 -- "null"
@@ -94,11 +100,11 @@ testToJSON :: Spec
 testToJSON =
   describe "toJSON" $
     it "encode Feature Objects to GeoJSON" $ do
-      A.encode NoGeometry                       `shouldBe` "null"
-      (A.decode . A.encode) lShapedPoly         `shouldBe` Just lShapedPoly
-      (A.decode . A.encode) emptyPoly           `shouldBe` Just emptyPoly
-      (A.decode . A.encode) emptyMultiPoly      `shouldBe` Just emptyMultiPoly
+      A.encode NoGeometry `shouldBe` "null"
+      (A.decode . A.encode) lShapedPoly `shouldBe` Just lShapedPoly
+      (A.decode . A.encode) emptyPoly `shouldBe` Just emptyPoly
+      (A.decode . A.encode) emptyMultiPoly `shouldBe` Just emptyMultiPoly
       (A.decode . A.encode) singleLineMultiLine `shouldBe` Just singleLineMultiLine
-      (A.decode . A.encode) multiLine           `shouldBe` Just multiLine
-      (A.decode . A.encode) emptyCollection     `shouldBe` Just emptyCollection
-      (A.decode . A.encode) bigassCollection    `shouldBe` Just bigassCollection
+      (A.decode . A.encode) multiLine `shouldBe` Just multiLine
+      (A.decode . A.encode) emptyCollection `shouldBe` Just emptyCollection
+      (A.decode . A.encode) bigassCollection `shouldBe` Just bigassCollection
