@@ -25,7 +25,6 @@ module Data.Geospatial.Internal.CRS (
 
 import           Data.Geospatial.Internal.BasicTypes
 
-import           Control.Applicative                 ((<$>), (<*>))
 import           Control.Lens                        (makePrisms)
 import           Control.Monad                       (mzero)
 import           Data.Aeson                          (FromJSON (..), Object,

@@ -46,7 +46,6 @@ import           Data.Geospatial.Internal.Geometry.GeoMultiPolygon
 import           Data.Geospatial.Internal.Geometry.GeoPoint
 import           Data.Geospatial.Internal.Geometry.GeoPolygon
 
-import           Control.Applicative                               ((<$>))
 import           Control.DeepSeq
 import           Control.Lens                                      (makePrisms)
 import           Control.Monad                                     (mzero)

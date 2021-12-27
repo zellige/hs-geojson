@@ -32,7 +32,6 @@ module Data.LineString (
 
 import           Prelude             hiding (foldr)
 
-import           Control.Applicative (Applicative (..))
 import           Control.DeepSeq
 import           Control.Lens        (( # ), (^?))
 import           Control.Monad       (mzero)
