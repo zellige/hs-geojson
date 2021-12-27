@@ -3,8 +3,6 @@
 
 -------------------------------------------------------------------
 
--------------------------------------------------------------------
-
 -- |
 -- Module       : Data.Geospatial.Internal.CRS
 -- Copyright    : (C) 2014-2019 HS-GeoJSON Project
@@ -39,7 +37,7 @@ import Data.Aeson
     (.:),
     (.=),
   )
-import Data.Aeson.Key (fromText)
+import qualified Data.Aeson.Key as AesonKey
 import Data.Aeson.Types (Parser)
 import Data.Geospatial.Internal.BasicTypes
 import Data.Text (Text)
@@ -90,9 +88,7 @@ instance ToJSON CRSObject where
 crsPropertyFromAesonObj :: (FromJSON a) => Text -> Object -> Parser a
 crsPropertyFromAesonObj name obj = do
   props <- obj .: "properties"
-  props .: k
-  where
-    k = fromText name
+  props .: AesonKey.fromText name
 
 crsObjectFromAeson :: Text -> Object -> Parser CRSObject
 crsObjectFromAeson "name" obj = NamedCRS <$> crsPropertyFromAesonObj "name" obj

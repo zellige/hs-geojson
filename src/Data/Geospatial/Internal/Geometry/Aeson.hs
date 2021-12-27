@@ -2,8 +2,6 @@
 
 -------------------------------------------------------------------
 
--------------------------------------------------------------------
-
 -- |
 -- Module       : Data.Geosptial.Geometry.Aeson
 -- Copyright    : (C) 2014-2019 HS-GeoJSON Project
@@ -33,7 +31,7 @@ import Data.Aeson
     (.:?),
     (.=),
   )
-import Data.Aeson.Key (fromText)
+import qualified Data.Aeson.Key as AesonKey
 import Data.Aeson.Types (Pair, Parser)
 import Data.Text (Text)
 
@@ -56,10 +54,10 @@ makeGeometryGeoAeson typeString coordinates =
 
 -- | get an optional value out of a JSON object:
 optValFromObj :: (FromJSON a) => Text -> Object -> Parser (Maybe a)
-optValFromObj t = flip (.:?) (fromText t)
+optValFromObj t = flip (.:?) (AesonKey.fromText t)
 
 -- | The other way around, given an optional value, will return the attributes that
 -- should be added to the makeObj input
 optAttributes :: (ToJSON a) => Text -> Maybe a -> [Pair]
 optAttributes _ Nothing = []
-optAttributes name (Just x) = [fromText name .= x]
+optAttributes name (Just x) = [AesonKey.fromText name .= x]

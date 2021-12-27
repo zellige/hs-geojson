@@ -4,8 +4,6 @@
 
 -------------------------------------------------------------------
 
--------------------------------------------------------------------
-
 -- |
 -- Module       : Data.Geospatial.Internal.Geometry.GeoMultiPolygon
 -- Copyright    : (C) 2014-2019 HS-GeoJSON Project
