@@ -1,4 +1,4 @@
-# geojson [![Build Status](https://github.com/zellige/hs-geojson/actions/workflows/ci.yaml/badge.svg)] [Hackage](https://hackage.haskell.org/package/geojson)
+# geojson ![Build Status](https://github.com/zellige/hs-geojson/actions/workflows/ci.yaml/badge.svg) [Hackage](https://hackage.haskell.org/package/geojson)
 
 A thin GeoJSON Layer above the `aeson` library
 
