@@ -52,14 +52,14 @@ makeLenses ''GeoFeatureCollection
 instance (FromJSON a) => FromJSON (GeoFeatureCollection a) where
 --  parseJSON :: Value -> Parse a
     parseJSON (Object obj) = do
-        objType <- obj .: ("type" :: Text)
+        objType <- obj .: "type"
         if objType /= ("FeatureCollection" :: Text)
             then
                 mzero
             else
                 GeoFeatureCollection
-                    <$> obj .:? ("bbox" :: Text)
-                    <*> obj .: ("features" :: Text)
+                    <$> obj .:? "bbox"
+                    <*> obj .: "features"
     parseJSON _ = mzero
 
 -- | Encode FeatureCollection objects to GeoJSON
