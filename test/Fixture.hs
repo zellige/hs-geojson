@@ -2,25 +2,29 @@
 
 module Fixture where
 
-import qualified Data.Aeson                                        as Aeson
-import qualified Data.ByteString.Lazy.Char8                        as BS
-import qualified Data.Text                                         as T
+import qualified Data.Aeson as Aeson
+import qualified Data.ByteString.Lazy.Char8 as BS
 -- Local
-import qualified Data.Geospatial.Internal.BasicTypes               as BasicTypes
-import           Data.Geospatial.Internal.CRS                      (CRSObject (..))
-import           Data.Geospatial.Internal.GeoFeature               (GeoFeature (..))
-import           Data.Geospatial.Internal.GeoFeatureCollection     (GeoFeatureCollection (..))
-import           Data.Geospatial.Internal.Geometry                 (GeospatialGeometry (..))
-import           Data.Geospatial.Internal.Geometry.GeoLine         (GeoLine (..))
-import           Data.Geospatial.Internal.Geometry.GeoMultiLine    (GeoMultiLine (..),
-                                                                    mergeGeoLines)
-import           Data.Geospatial.Internal.Geometry.GeoMultiPolygon (GeoMultiPolygon (..),
-                                                                    mergeGeoPolygons)
-import           Data.Geospatial.Internal.Geometry.GeoPoint        (GeoPoint (..))
-import           Data.Geospatial.Internal.Geometry.GeoPolygon      (GeoPolygon (..))
-import qualified Data.LinearRing                                   as LinearRing
-import qualified Data.LineString                                   as LineString
-import qualified Data.Sequence                                     as Sequence
+import qualified Data.Geospatial.Internal.BasicTypes as BasicTypes
+import Data.Geospatial.Internal.CRS (CRSObject (..))
+import Data.Geospatial.Internal.GeoFeature (GeoFeature (..))
+import Data.Geospatial.Internal.GeoFeatureCollection (GeoFeatureCollection (..))
+import Data.Geospatial.Internal.Geometry (GeospatialGeometry (..))
+import Data.Geospatial.Internal.Geometry.GeoLine (GeoLine (..))
+import Data.Geospatial.Internal.Geometry.GeoMultiLine
+  ( GeoMultiLine (..),
+    mergeGeoLines,
+  )
+import Data.Geospatial.Internal.Geometry.GeoMultiPolygon
+  ( GeoMultiPolygon (..),
+    mergeGeoPolygons,
+  )
+import Data.Geospatial.Internal.Geometry.GeoPoint (GeoPoint (..))
+import Data.Geospatial.Internal.Geometry.GeoPolygon (GeoPolygon (..))
+import qualified Data.LineString as LineString
+import qualified Data.LinearRing as LinearRing
+import qualified Data.Sequence as Sequence
+import qualified Data.Text as T
 
 -- CRS Data
 
@@ -48,7 +52,7 @@ mkGeoPoint :: Double -> Double -> BasicTypes.GeoPositionWithoutCRS
 mkGeoPoint x y = BasicTypes.GeoPointXY $ BasicTypes.PointXY x y
 
 lshapedPolyVertices :: Sequence.Seq (LinearRing.LinearRing BasicTypes.GeoPositionWithoutCRS)
-lshapedPolyVertices =  Sequence.fromList [LinearRing.makeLinearRing (mkGeoPoint 120.0 (-15.0)) (mkGeoPoint 127.0 (-15.0)) (mkGeoPoint 127.0 (-25.0)) (Sequence.fromList [mkGeoPoint 124.0 (-25.0), mkGeoPoint 124.0 (-18.0), mkGeoPoint 120.0 (-18.0)])]
+lshapedPolyVertices = Sequence.fromList [LinearRing.makeLinearRing (mkGeoPoint 120.0 (-15.0)) (mkGeoPoint 127.0 (-15.0)) (mkGeoPoint 127.0 (-25.0)) (Sequence.fromList [mkGeoPoint 124.0 (-25.0), mkGeoPoint 124.0 (-18.0), mkGeoPoint 120.0 (-18.0)])]
 
 lshapedPolyLineVertices :: LineString.LineString BasicTypes.GeoPositionWithoutCRS
 lshapedPolyLineVertices = LineString.makeLineString (mkGeoPoint 120.0 (-15.0)) (mkGeoPoint 127.0 (-15.0)) (Sequence.fromList [mkGeoPoint 127.0 (-25.0), mkGeoPoint 124.0 (-25.0), mkGeoPoint 124.0 (-18.0), mkGeoPoint 120.0 (-18.0)])
@@ -67,7 +71,9 @@ testLatLonBBox = BasicTypes.BoundingBoxWithoutCRSXY (BasicTypes.PointXY (-32) 14
 -- Upside down L Shaped Poly
 --
 -- (120, -15)                (127, -15)
--- *---------------------------*
+
+-- * ---------------------------*
+
 -- |                           |
 -- |                           |
 -- |             (124, -18)    |
@@ -81,7 +87,6 @@ testLatLonBBox = BasicTypes.BoundingBoxWithoutCRSXY (BasicTypes.PointXY (-32) 14
 --                 |           |
 --                 *-----------*
 --               (124, -25)  (127, -25)
---
 
 -- Points
 pointJSON :: BS.ByteString
@@ -102,7 +107,6 @@ lShapedGeoPoly = GeoPolygon lshapedPolyVertices
 
 lShapedPoly :: GeospatialGeometry
 lShapedPoly = Polygon lShapedGeoPoly
-
 
 emptyPolyJSON :: BS.ByteString
 emptyPolyJSON = "{\"type\":\"Polygon\",\"coordinates\":[]}"

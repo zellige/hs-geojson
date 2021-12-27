@@ -2,14 +2,17 @@
 
 module Data.Geospatial.Internal.BasicTypesTests where
 
-import qualified Data.Vector.Storable                as VectorStorable
-import           Test.Tasty
-import           Test.Tasty.Hspec                    (Spec, describe, it,
-                                                      shouldBe, testSpec)
-
 -- Local
-import           Data.Geospatial.Internal.BasicTypes
-
+import Data.Geospatial.Internal.BasicTypes
+import qualified Data.Vector.Storable as VectorStorable
+import Test.Tasty
+import Test.Tasty.Hspec
+  ( Spec,
+    describe,
+    it,
+    shouldBe,
+    testSpec,
+  )
 
 -- Tests
 
@@ -20,9 +23,10 @@ tests = do
 
 specTests :: IO TestTree
 specTests = do
-  specs <- sequence
-    [ testSpec "Data.Geospatial.Internal.BasicTypes Storable" testStorable
-    ]
+  specs <-
+    sequence
+      [ testSpec "Data.Geospatial.Internal.BasicTypes Storable" testStorable
+      ]
   pure $ testGroup "Data.Geospatial.Internal.BasicTypesTests.Spec" specs
 
 -- Spec

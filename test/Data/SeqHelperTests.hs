@@ -1,11 +1,11 @@
 module Data.SeqHelperTests where
 
-import qualified Data.Sequence    as Sequence
-import           Test.Tasty
-import           Test.Tasty.Hspec (Spec, describe, it, shouldBe, testSpec)
 -- Local
-import           Arbitrary        ()
-import qualified Data.SeqHelper   as SeqHelper
+import Arbitrary ()
+import qualified Data.SeqHelper as SeqHelper
+import qualified Data.Sequence as Sequence
+import Test.Tasty
+import Test.Tasty.Hspec (Spec, describe, it, shouldBe, testSpec)
 
 -- Tests
 

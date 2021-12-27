@@ -1,0 +1,43 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - opened
+      - synchronize
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "GitHub actions env workaround https://github.com/mstksg/setup-stack/issues/13"
+        run: 'echo "ACTIONS_ALLOW_UNSECURE_COMMANDS=true" >> $GITHUB_ENV'
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Check style
+        uses: mrkkrp/ormolu-action@v1
+        with:
+          pattern: |
+            src/**/*.hs
+            test/**/*.hs
+      - name: Cache Dependencies
+        id: cache
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-v1
+        with:
+          path: |
+            ~/.stack
+            .stack-work
+          key: ${{ env.cache-name }}-${{ hashFiles('**/stack.yaml.lock') }}-${{ hashFiles('**/geojson.cabal') }}
+          restore-keys: |
+            ${{ env.cache-name }}-${{ hashFiles('**/stack.yaml.lock') }}
+            ${{ env.cache-name }}-
+      - name: Build Snapshot
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          stack --no-terminal test --only-snapshot --no-haddock-deps --no-run-benchmarks -j2
+      - name: Build & Test
+        run: |
+          stack --no-terminal test --no-haddock-deps --no-run-benchmarks -j2

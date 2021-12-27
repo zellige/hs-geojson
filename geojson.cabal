@@ -88,13 +88,3 @@ test-suite              geojson-test
     default-language:   Haskell2010
     ghc-options:        -Wall
                         -threaded
-
-test-suite              geojson-hlint
-    hs-source-dirs:     hlint
-    main-is:            Main.hs
-    type:               exitcode-stdio-1.0
-    build-depends:      base            >= 4.9 && < 5
-                    ,   hlint
-    default-language:   Haskell2010
-    ghc-options:        -Wall
-                        -threaded

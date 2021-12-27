@@ -1,11 +1,10 @@
 module Data.Geospatial.Internal.GeoFeatureTests where
 
-import qualified Data.Aeson       as A
-import           Test.Tasty
-import           Test.Tasty.Hspec (Spec, describe, it, shouldBe, testSpec)
+import qualified Data.Aeson as A
 -- Local
-import           Fixture
-
+import Fixture
+import Test.Tasty
+import Test.Tasty.Hspec (Spec, describe, it, shouldBe, testSpec)
 
 -- Tests
 
@@ -16,10 +15,11 @@ tests = do
 
 specTests :: IO TestTree
 specTests = do
-  specs <- sequence
-    [ testSpec "Data.Geospatial.Internal.GeoFeature.fromJSON" testFromJSON
-    , testSpec "Data.Geospatial.Internal.GeoFeature.toJSON" testToJSON
-    ]
+  specs <-
+    sequence
+      [ testSpec "Data.Geospatial.Internal.GeoFeature.fromJSON" testFromJSON,
+        testSpec "Data.Geospatial.Internal.GeoFeature.toJSON" testToJSON
+      ]
   pure $ testGroup "Data.Geospatial.Internal.GeoFeatureTests.Spec" specs
 
 -- Spec
@@ -43,11 +43,11 @@ testFromJSON :: Spec
 testFromJSON =
   describe "fromJSON" $
     it "decode Feature Objects from GeoJSON" $ do
-      A.decode bigFeatureJSON              `shouldBe` Just bigFeature
+      A.decode bigFeatureJSON `shouldBe` Just bigFeature
       A.decode featureWithNoPropertiesJSON `shouldBe` Just featureWithNoProperties
-      A.decode featureWithNoIdJSON         `shouldBe` Just featureWithNoId
-      A.decode featureWithNoBBoxJSON       `shouldBe` Just featureWithNoBBox
-      A.decode featureWithNoGeometryJSON   `shouldBe` Just featureWithNoGeometry
+      A.decode featureWithNoIdJSON `shouldBe` Just featureWithNoId
+      A.decode featureWithNoBBoxJSON `shouldBe` Just featureWithNoBBox
+      A.decode featureWithNoGeometryJSON `shouldBe` Just featureWithNoGeometry
 
 -- >>> (A.decode . A.encode) bigFeature == Just bigFeature
 -- True
@@ -68,8 +68,8 @@ testToJSON :: Spec
 testToJSON =
   describe "toJSON" $
     it "encode Feature Objects to GeoJSON" $ do
-      (A.decode . A.encode) bigFeature              `shouldBe` Just bigFeature
+      (A.decode . A.encode) bigFeature `shouldBe` Just bigFeature
       (A.decode . A.encode) featureWithNoProperties `shouldBe` Just featureWithNoProperties
-      (A.decode . A.encode) featureWithNoId         `shouldBe` Just featureWithNoId
-      (A.decode . A.encode) featureWithNoBBox       `shouldBe` Just featureWithNoBBox
-      (A.decode . A.encode) featureWithNoGeometry   `shouldBe` Just featureWithNoGeometry
+      (A.decode . A.encode) featureWithNoId `shouldBe` Just featureWithNoId
+      (A.decode . A.encode) featureWithNoBBox `shouldBe` Just featureWithNoBBox
+      (A.decode . A.encode) featureWithNoGeometry `shouldBe` Just featureWithNoGeometry

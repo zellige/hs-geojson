@@ -2,15 +2,20 @@
 
 module Data.Geospatial.Internal.CRSTests where
 
-import qualified Data.Aeson                   as A
-import qualified Data.ByteString.Lazy.Char8   as BS
-import           Test.Tasty
-import           Test.Tasty.Hspec             (Spec, context, describe, it,
-                                               shouldBe, testSpec)
+import qualified Data.Aeson as A
+import qualified Data.ByteString.Lazy.Char8 as BS
 -- Local
-import           Data.Geospatial.Internal.CRS
-import           Fixture
-
+import Data.Geospatial.Internal.CRS
+import Fixture
+import Test.Tasty
+import Test.Tasty.Hspec
+  ( Spec,
+    context,
+    describe,
+    it,
+    shouldBe,
+    testSpec,
+  )
 
 -- Tests
 
@@ -21,10 +26,11 @@ tests = do
 
 specTests :: IO TestTree
 specTests = do
-  specs <- sequence
-    [ testSpec "Data.Geospatial.Internal.CRS.fromJSON" testFromJSON
-    , testSpec "Data.Geospatial.Internal.CRS.toJSON" testToJSON
-    ]
+  specs <-
+    sequence
+      [ testSpec "Data.Geospatial.Internal.CRS.fromJSON" testFromJSON,
+        testSpec "Data.Geospatial.Internal.CRS.toJSON" testToJSON
+      ]
   pure $ testGroup "Data.Geospatial.Internal.CRSTests.Spec" specs
 
 -- Spec
@@ -45,9 +51,9 @@ testFromJSON :: Spec
 testFromJSON =
   describe "fromJSON" $ do
     it "decode CRS Objects from GeoJSON" $ do
-      A.decode testLinkCRSJSON  `shouldBe` Just testLinkCRS
+      A.decode testLinkCRSJSON `shouldBe` Just testLinkCRS
       A.decode testNamedCRSJSON `shouldBe` Just testNamedCRS
-      A.decode testEPSGJSON     `shouldBe` Just testEPSG
+      A.decode testEPSGJSON `shouldBe` Just testEPSG
     context "when provided with invalid input" $
       it "fails" $
         (A.decode . BS.pack) "null" `shouldBe` Just NoCRS
@@ -68,9 +74,9 @@ testToJSON :: Spec
 testToJSON =
   describe "toJSON" $ do
     it "encode CRS Objects to GeoJSON" $ do
-      (A.decode . A.encode) testLinkCRS  `shouldBe` Just testLinkCRS
+      (A.decode . A.encode) testLinkCRS `shouldBe` Just testLinkCRS
       (A.decode . A.encode) testNamedCRS `shouldBe` Just testNamedCRS
-      (A.decode . A.encode) testEPSG     `shouldBe` Just testEPSG
+      (A.decode . A.encode) testEPSG `shouldBe` Just testEPSG
     context "when provided with invalid input" $
       it "fails" $
-      A.encode NoCRS `shouldBe` "null"
+        A.encode NoCRS `shouldBe` "null"
