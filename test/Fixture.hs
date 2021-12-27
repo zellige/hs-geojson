@@ -3,6 +3,7 @@
 module Fixture where
 
 import qualified Data.Aeson as Aeson
+import qualified Data.Aeson.Key as AesonKey
 import qualified Data.ByteString.Lazy.Char8 as BS
 -- Local
 import qualified Data.Geospatial.Internal.BasicTypes as BasicTypes
@@ -24,7 +25,6 @@ import Data.Geospatial.Internal.Geometry.GeoPolygon (GeoPolygon (..))
 import qualified Data.LineString as LineString
 import qualified Data.LinearRing as LinearRing
 import qualified Data.Sequence as Sequence
-import qualified Data.Text as T
 
 -- CRS Data
 
@@ -199,7 +199,7 @@ bigassCollection = Collection $ Sequence.fromList [singleLineMultiLine, emptyMul
 -- Properties Data
 
 testProperties :: Aeson.Value
-testProperties = Aeson.object [T.pack "depth" Aeson..= (5 :: Int), T.pack "comment" Aeson..= T.pack "Bore run over by dump truck"]
+testProperties = Aeson.object [AesonKey.fromText "depth" Aeson..= (5 :: Int), AesonKey.fromText "comment" Aeson..= AesonKey.fromText "Bore run over by dump truck"]
 
 -- Feature Data
 
