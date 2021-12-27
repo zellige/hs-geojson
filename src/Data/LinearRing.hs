@@ -7,7 +7,7 @@
 
 -- |
 -- Module       : Data.LinearRing
--- Copyright    : (C) 2014-2019 HS-GeoJSON Project
+-- Copyright    : (C) 2014-2021 HS-GeoJSON Project
 -- License      : BSD-style (see the file LICENSE.md)
 -- Maintainer   : Andrew Newman
 --
