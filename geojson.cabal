@@ -4,7 +4,7 @@ license:                BSD3
 license-file:           LICENCE
 author:                 Dom De Re
 maintainer:             Andrew Newman
-copyright:              Copyright (C) 2013-2021
+copyright:              Copyright (C) 2013-2022
 synopsis:               A thin GeoJSON Layer above the aeson library
 category:               Data
 description:            A thin GeoJSON Layer above the aeson library.
