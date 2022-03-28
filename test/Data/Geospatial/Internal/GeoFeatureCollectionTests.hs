@@ -3,8 +3,17 @@ module Data.Geospatial.Internal.GeoFeatureCollectionTests where
 import qualified Data.Aeson as A
 -- Local
 import Fixture
+import Test.Hspec
+  ( Spec,
+    context,
+    describe,
+    it,
+    shouldBe,
+  )
 import Test.Tasty
-import Test.Tasty.Hspec (Spec, describe, it, shouldBe, testSpec)
+import Test.Tasty.Hspec
+  ( testSpec,
+  )
 
 -- Tests
 

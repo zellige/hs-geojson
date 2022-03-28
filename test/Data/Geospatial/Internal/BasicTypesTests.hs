@@ -5,13 +5,16 @@ module Data.Geospatial.Internal.BasicTypesTests where
 -- Local
 import Data.Geospatial.Internal.BasicTypes
 import qualified Data.Vector.Storable as VectorStorable
-import Test.Tasty
-import Test.Tasty.Hspec
+import Test.Hspec
   ( Spec,
+    context,
     describe,
     it,
     shouldBe,
-    testSpec,
+  )
+import Test.Tasty
+import Test.Tasty.Hspec
+  ( testSpec,
   )
 
 -- Tests

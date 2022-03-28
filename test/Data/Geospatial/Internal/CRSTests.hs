@@ -7,14 +7,16 @@ import qualified Data.ByteString.Lazy.Char8 as BS
 -- Local
 import Data.Geospatial.Internal.CRS
 import Fixture
-import Test.Tasty
-import Test.Tasty.Hspec
+import Test.Hspec
   ( Spec,
     context,
     describe,
     it,
     shouldBe,
-    testSpec,
+  )
+import Test.Tasty
+import Test.Tasty.Hspec
+  ( testSpec,
   )
 
 -- Tests

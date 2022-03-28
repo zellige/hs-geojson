@@ -6,14 +6,16 @@ import qualified Data.Geospatial.Internal.BasicTypes as BasicTypes
 import qualified Data.LineString as LineString
 import qualified Data.Sequence as Sequence
 import Data.Validation (Validation (..))
-import Test.Tasty
-import Test.Tasty.Hspec
+import Test.Hspec
   ( Spec,
     context,
     describe,
     it,
     shouldBe,
-    testSpec,
+  )
+import Test.Tasty
+import Test.Tasty.Hspec
+  ( testSpec,
   )
 import Test.Tasty.QuickCheck
   ( Property,
@@ -84,7 +86,7 @@ testFoldable xs = property $ (foldr (:) [] xs == LineString.fromLineString xs) &
 -- >>> fromList [0, 1, 2, 4, 5, 0] :: Validation ListToLineStringError (LineString Int)
 -- Success [0,1,2,4,5,0]
 --
-testFromList :: Spec
+-- testFromList :: Spec
 testFromList =
   describe "fromList" $ do
     it "creates a LineString out of a list of elements" $ do
@@ -96,7 +98,7 @@ testFromList =
         LineString.fromList ([] :: [Int]) `shouldBe` Failure LineString.ListEmpty
         LineString.fromList ([0] :: [Int]) `shouldBe` Failure LineString.SingletonList
 
-testFromSequence :: Spec
+-- testFromSequence :: Spec
 testFromSequence =
   describe "fromSeq" $ do
     it "creates a LineString out of a Sequence of elements" $ do
@@ -108,7 +110,7 @@ testFromSequence =
         LineString.fromSeq (Sequence.fromList [] :: (Sequence.Seq Int)) `shouldBe` Failure LineString.SequenceEmpty
         LineString.fromSeq (Sequence.fromList [0] :: (Sequence.Seq Int)) `shouldBe` Failure LineString.SingletonSequence
 
-testCombineToSequence :: Spec
+-- testCombineToSequence :: Spec
 testCombineToSequence =
   describe "combineToSeq" $
     it "combine a LineString using PointXY" $ do
@@ -116,7 +118,7 @@ testCombineToSequence =
       LineString.combineToSeq BasicTypes.PointXY (LineString.makeLineString 0 1 (Sequence.fromList [2])) `shouldBe` Sequence.fromList [BasicTypes.PointXY 0 1, BasicTypes.PointXY 1 2]
       LineString.combineToSeq BasicTypes.PointXY (LineString.makeLineString 0 1 (Sequence.fromList [2, 4, 5, 0])) `shouldBe` Sequence.fromList [BasicTypes.PointXY 0 1, BasicTypes.PointXY 1 2, BasicTypes.PointXY 2 4, BasicTypes.PointXY 4 5, BasicTypes.PointXY 5 0]
 
-testToSequence :: Spec
+-- testToSequence :: Spec
 testToSequence =
   describe "toSeq" $
     it "from a LineString to a Sequence" $ do

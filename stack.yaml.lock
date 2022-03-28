@@ -3,38 +3,45 @@
 # For more information, please see the documentation at:
 #   https://docs.haskellstack.org/en/stable/lock_files
 
-snapshots:
-- original: lts-18.19
-  completed:
-    sha256: 32716534fff554b7f90762130fdb985cabf29f157758934dd1c8f3892a646430
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/18/19.yaml
-    size: 586103
 packages:
-- original:
-    hackage: aeson-2.0.1.0@sha256:ee0847af4d1fb9ece3f24f443d8d8406431c32688a57880314ac36617da937eb,6229
-  completed:
+- completed:
     pantry-tree:
       sha256: e7a9eec09f1ea56548b07c7e82b53bf32a974827ffc402d852c667b5f5d89efd
       size: 37910
     hackage: aeson-2.0.1.0@sha256:ee0847af4d1fb9ece3f24f443d8d8406431c32688a57880314ac36617da937eb,6229
-- original:
-    hackage: semialign-1.2@sha256:d3e7e3a5fe509f30bf2121d94c54b586217f2dc69a47ffede3633ddbc12cba68,2743
-  completed:
-    pantry-tree:
-      sha256: 2a3ecc941fdf106385744f78ceae80fa0e7e8adb28042b2a9aaa468687ef9099
-      size: 537
-    hackage: semialign-1.2@sha256:d3e7e3a5fe509f30bf2121d94c54b586217f2dc69a47ffede3633ddbc12cba68,2743
-- original:
-    hackage: time-compat-1.9.6.1@sha256:b1977409449de6a0d54aaf6ffa88a6b20d7177b65a5f739a574cd87055234eed,5033
-  completed:
-    pantry-tree:
-      sha256: b7b506fc31338ad56f66b54309f31a621e10dcc99898c533aa48c38059f4edea
-      size: 4113
-    hackage: time-compat-1.9.6.1@sha256:b1977409449de6a0d54aaf6ffa88a6b20d7177b65a5f739a574cd87055234eed,5033
-- original:
-    hackage: hashable-1.3.4.1@sha256:838e92f704bfdafc33246ac5deb8d71e79a21a4c57079b2d0b9a6a5e7e48f480,4193
-  completed:
+  original:
+    hackage: aeson-2.0.1.0@sha256:ee0847af4d1fb9ece3f24f443d8d8406431c32688a57880314ac36617da937eb,6229
+- completed:
     pantry-tree:
       sha256: ca20fbdee2294a57da972e3e7961d884b85e454c77dd5fc2b90c239cefca316e
       size: 1248
     hackage: hashable-1.3.4.1@sha256:838e92f704bfdafc33246ac5deb8d71e79a21a4c57079b2d0b9a6a5e7e48f480,4193
+  original:
+    hackage: hashable-1.3.4.1@sha256:838e92f704bfdafc33246ac5deb8d71e79a21a4c57079b2d0b9a6a5e7e48f480,4193
+- completed:
+    pantry-tree:
+      sha256: 2a3ecc941fdf106385744f78ceae80fa0e7e8adb28042b2a9aaa468687ef9099
+      size: 537
+    hackage: semialign-1.2@sha256:d3e7e3a5fe509f30bf2121d94c54b586217f2dc69a47ffede3633ddbc12cba68,2743
+  original:
+    hackage: semialign-1.2@sha256:d3e7e3a5fe509f30bf2121d94c54b586217f2dc69a47ffede3633ddbc12cba68,2743
+- completed:
+    pantry-tree:
+      sha256: 68880a24ef2e1071d3b31af82cd2dfe4e64c8104bf38ab1b46ea9412985886df
+      size: 551
+    hackage: tasty-hspec-1.2@sha256:7de36f450f3cc17ac68d614826dc2a59dd55dbe7f98d383806f5b04e4ffd2729,1606
+  original:
+    hackage: tasty-hspec-1.2@sha256:7de36f450f3cc17ac68d614826dc2a59dd55dbe7f98d383806f5b04e4ffd2729,1606
+- completed:
+    pantry-tree:
+      sha256: b7b506fc31338ad56f66b54309f31a621e10dcc99898c533aa48c38059f4edea
+      size: 4113
+    hackage: time-compat-1.9.6.1@sha256:b1977409449de6a0d54aaf6ffa88a6b20d7177b65a5f739a574cd87055234eed,5033
+  original:
+    hackage: time-compat-1.9.6.1@sha256:b1977409449de6a0d54aaf6ffa88a6b20d7177b65a5f739a574cd87055234eed,5033
+snapshots:
+- completed:
+    sha256: 428ec8d5ce932190d3cbe266b9eb3c175cd81e984babf876b64019e2cbe4ea68
+    size: 590100
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/18/28.yaml
+  original: lts-18.28

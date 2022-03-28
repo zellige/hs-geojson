@@ -7,14 +7,16 @@ import qualified Data.LinearRing as LinearRing
 import qualified Data.List.NonEmpty as ListNonEmpty
 import qualified Data.Sequence as Sequence
 import qualified Data.Validation as Validation
-import Test.Tasty
-import Test.Tasty.Hspec
+import Test.Hspec
   ( Spec,
     context,
     describe,
     it,
     shouldBe,
-    testSpec,
+  )
+import Test.Tasty
+import Test.Tasty.Hspec
+  ( testSpec,
   )
 import Test.Tasty.QuickCheck
   ( Property,
