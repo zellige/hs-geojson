@@ -37,7 +37,7 @@ library
                     ,   deepseq         >= 1.4.2.0 && < 1.5
                     ,   lens            >= 4.11
                     ,   semigroups      >= 0.16
-                    ,   text            >= 1.2.3.0 && < 1.3
+                    ,   text            >= 1.2.3.0 && < 2.1
                     ,   scientific      >= 0.2.0 && < 0.4
                     ,   transformers    >= 0.3 && < 0.7
                     ,   validation      >= 1 && < 2.0
@@ -75,7 +75,7 @@ test-suite              geojson-test
                     ,   tasty             >= 0.8 && <0.13 || >=1.0 && <1.5
                     ,   tasty-hspec       >= 1.2 && < 1.3
                     ,   tasty-quickcheck  >= 0.3 && <0.9 || >=0.9.1 && <0.11
-                    ,   text              >= 1.2.3.0  && < 1.3
+                    ,   text              >= 1.2.3.0  && < 2.1
                     ,   validation        >= 1 && < 2.0
     other-modules:      Arbitrary
                     ,   Fixture
