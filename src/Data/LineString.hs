@@ -172,6 +172,11 @@ instance Foldable LineString where
   --  foldr :: (a -> b -> b) -> b -> LineString a -> b
   foldr f u (LineString x y zs) = f x (f y (Foldable.foldr f u zs))
 
+  -- we implement these methods for improved performance
+  null _ = False
+  length (LineString _ _ zs) = 2 + Sequence.length zs
+
+
 instance Traversable LineString where
   --  sequenceA :: (Traversable t, Applicative f) => t (f a) -> f (t a)
   sequenceA (LineString fx fy fzs) = LineString <$> fx <*> fy <*> sequenceA fzs
