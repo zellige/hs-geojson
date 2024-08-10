@@ -202,7 +202,7 @@ instance Foldable LinearRing where
 
   -- we implement these methods for improved performance
   null _ = False
-  length (LinearRing _ _ _ ws) = 3 + Sequence.length ws
+  length (LinearRing _ _ _ ws) = 4 + Sequence.length ws
 
 -- |
 -- When traversing this Structure, the Applicative context
