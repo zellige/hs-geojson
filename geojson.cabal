@@ -33,11 +33,11 @@ library
     hs-source-dirs:     src
     build-depends:      base            >= 4.9 && < 5
                     ,   aeson           >= 2.0.1.0 && < 3
-                    ,   containers      >= 0.5.7.1 && < 0.7
-                    ,   deepseq         >= 1.4.2.0 && < 1.5
+                    ,   containers      >= 0.5.7.1 && < 0.9
+                    ,   deepseq         >= 1.4.2.0 && < 1.6
                     ,   lens            >= 4.11
                     ,   semigroups      >= 0.16
-                    ,   text            >= 1.2.3.0 && < 2.1
+                    ,   text            >= 1.2.3.0 && < 2.2
                     ,   scientific      >= 0.2.0 && < 0.4
                     ,   transformers    >= 0.3 && < 0.7
                     ,   validation      >= 1 && < 2.0
