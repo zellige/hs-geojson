@@ -200,6 +200,10 @@ instance Foldable LinearRing where
   --  foldr :: (a -> b -> b) -> b -> LinearRing a -> b
   foldr f u (LinearRing x y z ws) = f x (f y (f z (Foldable.foldr f (f x u) ws)))
 
+  -- we implement these methods for improved performance
+  null _ = False
+  length (LinearRing _ _ _ ws) = 4 + Sequence.length ws
+
 -- |
 -- When traversing this Structure, the Applicative context
 -- of the last element will be appended to the end to close the loop
