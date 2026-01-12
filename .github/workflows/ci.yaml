@@ -14,18 +14,18 @@ jobs:
       - name: "GitHub actions env workaround https://github.com/mstksg/setup-stack/issues/13"
         run: 'echo "ACTIONS_ALLOW_UNSECURE_COMMANDS=true" >> $GITHUB_ENV'
       - name: Checkout repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
       - name: Check style
-        uses: mrkkrp/ormolu-action@v1
+        uses: haskell-actions/run-ormolu@v17
         with:
           pattern: |
             src/**/*.hs
             test/**/*.hs
       - name: Cache Dependencies
         id: cache
-        uses: actions/cache@v2
+        uses: actions/checkout@v4
         env:
-          cache-name: cache-v1
+          cache-name: cache-v2
         with:
           path: |
             ~/.stack

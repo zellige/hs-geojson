@@ -1,10 +1,10 @@
 name:                   geojson
-version:                4.1.1
+version:                4.1.2
 license:                BSD3
 license-file:           LICENCE
 author:                 Dom De Re
 maintainer:             Andrew Newman
-copyright:              Copyright (C) 2013-2023
+copyright:              Copyright (C) 2013-2025
 synopsis:               A thin GeoJSON Layer above the aeson library
 category:               Data
 description:            A thin GeoJSON Layer above the aeson library.
@@ -27,7 +27,7 @@ source-repository       head
 source-repository       this
     type:               git
     location:           https://github.com/zellige/hs-geojson.git
-    tag:                4.1.1
+    tag:                4.1.2
 
 library
     hs-source-dirs:     src

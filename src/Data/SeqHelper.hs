@@ -26,7 +26,7 @@ sequenceTail (_ Sequence.:<| tailS) = tailS
 sequenceTail _ = Sequence.empty
 {-# INLINE sequenceTail #-}
 
-removeNextDuplicate :: Eq a => Sequence.Seq a -> Sequence.Seq a
+removeNextDuplicate :: (Eq a) => Sequence.Seq a -> Sequence.Seq a
 removeNextDuplicate Sequence.Empty = Sequence.empty
 removeNextDuplicate xs@(_ Sequence.:<| Sequence.Empty) = xs
 removeNextDuplicate (x Sequence.:<| tailXs@(y Sequence.:<| _))
