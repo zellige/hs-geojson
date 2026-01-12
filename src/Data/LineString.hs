@@ -176,7 +176,6 @@ instance Foldable LineString where
   null _ = False
   length (LineString _ _ zs) = 2 + Sequence.length zs
 
-
 instance Traversable LineString where
   --  sequenceA :: (Traversable t, Applicative f) => t (f a) -> f (t a)
   sequenceA (LineString fx fy fzs) = LineString <$> fx <*> fy <*> sequenceA fzs
