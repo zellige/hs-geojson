@@ -40,7 +40,7 @@ library
                     ,   text            >= 1.2.3.0 && < 2.2
                     ,   scientific      >= 0.2.0 && < 0.4
                     ,   transformers    >= 0.3 && < 0.7
-                    ,   validation      >= 1 && < 2.0
+                    ,   validation      >= 1 && < 1.2
                     ,   vector
     exposed-modules:    Data.Geospatial
                     ,   Data.LinearRing
